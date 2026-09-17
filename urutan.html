@@ -3,681 +3,579 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Urus Urutan Slide · Sistem Anugerah</title>
+<title>Slide Presentation · Sistem Anugerah</title>
 <script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0a0e1a;
-    --bg-card: #131a2e;
-    --bg-input: #0d1424;
-    --border: #1f2b47;
-    --border-focus: #fb923c;
-    --text: #e2e8f0;
-    --text-dim: #94a3b8;
-    --text-muted: #64748b;
-    --accent: #fb923c;
-    --accent-hover: #f97316;
-    --blue: #38bdf8;
-    --purple: #a78bfa;
-    --green: #34d399;
-    --red: #ef4444;
-    --yellow: #fbbf24;
-  }
-
   html, body {
-    min-height: 100%;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(circle at 15% 10%, rgba(251, 146, 60, 0.12) 0%, transparent 45%),
-      radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 45%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .grid-overlay {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(251, 146, 60, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(251, 146, 60, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-    z-index: 0;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  }
-
-  .topbar {
-    position: relative;
-    z-index: 2;
-    padding: 20px 32px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10, 14, 26, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text-dim);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.25s;
-  }
-  .back-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-    background: rgba(251, 146, 60, 0.08);
-    transform: translateX(-3px);
-  }
-  .back-btn svg { width: 14px; height: 14px; }
-
-  .topbar-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-dim);
-  }
-  .topbar-title .dot {
-    width: 8px; height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 12px var(--accent);
-  }
-
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 100px;
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-  .status-badge.online {
-    background: rgba(52, 211, 153, 0.1);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    color: var(--green);
-  }
-  .status-badge.connecting {
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    color: var(--yellow);
-  }
-  .status-badge.offline {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: var(--red);
-  }
-  .status-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 10px currentColor;
-  }
-  .status-badge.online .status-dot { animation: pulse 2s infinite; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.85); }
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 32px;
-  }
-
-  .header-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
-  }
-
-  @media (max-width: 900px) {
-    .header-section { grid-template-columns: 1fr; }
-    .container { padding: 20px 16px; }
-  }
-
-  .page-title {
-    font-size: clamp(22px, 3vw, 30px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .page-title span {
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .page-desc {
-    font-size: 13.5px;
-    color: var(--text-dim);
-    line-height: 1.6;
-  }
-
-  .card {
-    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-  }
-
-  .card h2 {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card h2 .icon {
-    width: 22px; height: 22px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(167, 139, 250, 0.2));
-    border: 1px solid rgba(251, 146, 60, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: var(--accent);
-  }
-
-  .input-row { display: flex; gap: 8px; }
-
-  .input-row input {
-    flex: 1;
-    padding: 12px 14px;
-    background: var(--bg-input);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .input-row input::placeholder {
-    color: var(--text-muted);
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: normal;
-  }
-  .input-row input:focus {
-    outline: none;
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.12);
-  }
-
-  .btn-icon {
-    padding: 0 16px;
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(167, 139, 250, 0.15));
-    border: 1.5px solid rgba(251, 146, 60, 0.4);
-    border-radius: 10px;
-    color: var(--accent);
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .btn-icon:hover {
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(167, 139, 250, 0.25));
-    border-color: var(--accent);
-  }
-  .btn-icon svg { width: 16px; height: 16px; }
-
-  .btn-add {
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    color: #0a0e1a;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-    box-shadow: 0 6px 20px -6px rgba(251, 146, 60, 0.5);
-  }
-  .btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px -6px rgba(251, 146, 60, 0.6);
-  }
-  .btn-add svg { width: 16px; height: 16px; }
-
-  .suggestions {
-    margin-top: 8px;
-    max-height: 240px;
-    overflow-y: auto;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    display: none;
-  }
-  .suggestions.show { display: block; }
-
-  .suggestion-item {
-    padding: 10px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-    transition: all 0.15s;
-  }
-  .suggestion-item:last-child { border-bottom: none; }
-  .suggestion-item:hover { background: rgba(251, 146, 60, 0.08); }
-  .suggestion-item .name { font-weight: 600; color: var(--text); text-transform: uppercase; }
-  .suggestion-item .bc {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    background: rgba(251, 146, 60, 0.15);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 700;
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .stat-mini {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-mini::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-  .stat-mini .num {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .stat-mini .label {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-  }
-
-  .gallery-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .gallery-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .gallery-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-
-  .chip-btn {
-    padding: 7px 14px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-dim);
-    font-family: inherit;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .chip-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(251, 146, 60, 0.08);
-  }
-  .chip-btn.danger:hover {
-    border-color: var(--red);
-    color: var(--red);
-    background: rgba(239, 68, 68, 0.08);
-  }
-  .chip-btn svg { width: 13px; height: 13px; }
-
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-  }
-
-  .slide-card {
-    background: var(--bg-card);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 12px;
-    position: relative;
-    transition: all 0.25s;
-    cursor: grab;
-    animation: cardIn 0.4s ease-out;
-  }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .slide-card:hover {
-    border-color: rgba(251, 146, 60, 0.5);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
-  }
-
-  .slide-card.dragging { opacity: 0.4; cursor: grabbing; }
-
-  .slide-card.drag-over {
-    border-color: var(--accent);
-    border-style: dashed;
-    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
-  }
-
-  .slide-card.customized::after {
-    content: '✏️ Custom';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: linear-gradient(135deg, var(--purple), var(--blue));
-    color: #0a0e1a;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 6px;
-    letter-spacing: 0.05em;
-    z-index: 3;
-  }
-
-  .order-badge {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    width: 34px;
-    height: 34px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 14px;
-    color: #0a0e1a;
-    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.4);
-    z-index: 2;
-    border: 2px solid var(--bg-card);
-  }
-
-  .slide-preview {
-    width: 100%;
-    aspect-ratio: 16/9;
     background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 10px;
-    margin-top: 8px;
+    color: #e2e8f0;
+    user-select: none;
   }
 
-  .slide-preview img {
+  #stage {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    opacity: 1;
+    z-index: 2;
+  }
+
+  /* TRANSITIONS */
+  .slide.transition-fade.active { animation: fadeIn 0.6s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .slide.transition-slide.active { animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .slide.transition-zoom.active { animation: zoomIn 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes zoomIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .slide.transition-dissolve.active { animation: dissolve 0.9s ease; }
+  @keyframes dissolve {
+    0% { filter: blur(20px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+  }
+
+  .slide.transition-flip.active {
+    animation: flipIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  @keyframes flipIn {
+    from { transform: perspective(1200px) rotateY(90deg); opacity: 0; }
+    to { transform: perspective(1200px) rotateY(0); opacity: 1; }
+  }
+
+  .slide-media {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border: none;
     pointer-events: none;
   }
 
-  /* Video element — full interactive tapi kita disable pointer events untuk drag */
-  .slide-preview video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+  .slide video.slide-media {
     object-fit: cover;
-    border: none;
-    pointer-events: none;
-    background: #000;
   }
 
-  /* Iframe fallback */
-  .slide-preview iframe {
+  .slide iframe.slide-media {
+    border: none;
+    pointer-events: none;
+  }
+
+  .slide-overlay {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
     pointer-events: none;
+    z-index: 5;
   }
 
-  .slide-preview .mini-name,
-  .slide-preview .mini-matrik {
+  .slide-tag {
     position: absolute;
     font-weight: 800;
-    color: #fff;
     transform: translate(-50%, -50%);
     white-space: nowrap;
-    line-height: 1;
-    z-index: 3;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+    line-height: 1.1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.8);
+    z-index: 10;
     pointer-events: none;
+    transition: all 0.3s;
   }
 
-  .slide-preview .no-template {
-    position: absolute;
-    inset: 0;
+  .empty-slide {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1a1f35, #0d1424);
-    color: var(--text-muted);
-    font-size: 11px;
-    gap: 4px;
+    gap: 12px;
+    color: #475569;
+    font-size: 18px;
+    text-align: center;
+    padding: 40px;
   }
 
-  .slide-preview .no-template .emoji { font-size: 28px; opacity: 0.5; }
+  .empty-slide .icon { font-size: 80px; opacity: 0.4; }
 
-  .slide-info { padding: 0 4px; }
+  /* UI OVERLAY */
+  .ui-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
 
-  .slide-info .name {
-    font-size: 13.5px;
+  .ui-overlay.visible { opacity: 1; }
+
+  .ui-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px 28px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    pointer-events: auto;
+    flex-wrap: wrap;
+  }
+
+  .ui-top-left { display: flex; align-items: center; gap: 16px; }
+
+  .ui-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--text);
+    color: #f1f5f9;
+  }
+
+  .ui-brand .logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #fb923c, #a78bfa);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .ui-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #34d399;
+    letter-spacing: 0.05em;
+  }
+
+  .ui-status .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 10px #34d399;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .ui-top-right { display: flex; align-items: center; gap: 8px; }
+
+  .ui-btn {
+    padding: 9px 16px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .ui-btn:hover {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: #fb923c;
+    color: #fb923c;
+    transform: translateY(-1px);
+  }
+
+  .ui-btn.active {
+    background: rgba(251, 146, 60, 0.2);
+    border-color: #fb923c;
+    color: #fb923c;
+  }
+
+  .ui-btn svg { width: 14px; height: 14px; }
+
+  .ui-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 28px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    pointer-events: auto;
+    flex-wrap: wrap;
+  }
+
+  .ui-bottom-left { display: flex; align-items: center; gap: 8px; }
+
+  .nav-btn {
+    width: 44px; height: 44px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 12px;
+    color: #e2e8f0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: rgba(251, 146, 60, 0.2);
+    border-color: #fb923c;
+    color: #fb923c;
+    transform: translateY(-2px);
+  }
+
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav-btn svg { width: 20px; height: 20px; }
+
+  .ui-info { text-align: center; flex: 1; min-width: 200px; }
+
+  .ui-info .name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #f1f5f9;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ui-info .matrik {
+    font-size: 13px;
+    color: #94a3b8;
+    font-family: 'Courier New', monospace;
+    margin-top: 2px;
+  }
+
+  .ui-bottom-right { display: flex; align-items: center; gap: 12px; }
+
+  .slide-counter {
+    padding: 10px 18px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fb923c;
+    letter-spacing: 0.05em;
+  }
+
+  .progress-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fb923c, #a78bfa);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.6);
+  }
+
+  /* SETTINGS PANEL */
+  .settings-panel {
+    position: fixed;
+    top: 50%;
+    right: -400px;
+    transform: translateY(-50%);
+    width: 360px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(10, 14, 26, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 20px 0 0 20px;
+    padding: 24px;
+    z-index: 200;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.7);
+  }
+
+  .settings-panel.open { right: 0; }
+
+  .settings-panel h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fb923c;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .settings-section {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .settings-section h4 {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    margin-bottom: 12px;
+  }
+
+  .settings-field { margin-bottom: 12px; }
+  .settings-field:last-child { margin-bottom: 0; }
+
+  .settings-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .settings-field select,
+  .settings-field input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1.5px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .settings-field select:focus,
+  .settings-field input[type="number"]:focus {
+    outline: none;
+    border-color: #fb923c;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.15);
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+
+  .toggle-row + .toggle-row { border-top: 1px solid rgba(148, 163, 184, 0.1); }
+
+  .toggle-row .label {
+    font-size: 12px;
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 3px;
+    background: #94a3b8;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #fb923c, #a78bfa);
+  }
+
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #fff;
+  }
+
+  .close-settings {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px; height: 32px;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .close-settings:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  /* JUMP PANEL */
+  .jump-panel {
+    position: fixed;
+    top: 50%;
+    left: -400px;
+    transform: translateY(-50%);
+    width: 360px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(10, 14, 26, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0 20px 20px 0;
+    padding: 24px;
+    z-index: 200;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 20px 0 60px rgba(0,0,0,0.7);
+  }
+
+  .jump-panel.open { left: 0; }
+
+  .jump-panel h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .jump-item {
+    padding: 12px 14px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+
+  .jump-item:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: #38bdf8;
+    transform: translateX(4px);
+  }
+
+  .jump-item.current {
+    background: rgba(251, 146, 60, 0.15);
+    border-color: #fb923c;
+  }
+
+  .jump-num {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #38bdf8, #a78bfa);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0a0e1a;
+    flex-shrink: 0;
+  }
+
+  .jump-item.current .jump-num {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+  }
+
+  .jump-info { flex: 1; min-width: 0; }
+
+  .jump-info .name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
     text-transform: uppercase;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-bottom: 3px;
   }
 
-  .slide-info .matrik {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-  }
-
-  .slide-info .bc-line {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border);
-  }
-
-  .slide-info .bc {
-    font-family: 'Courier New', monospace;
+  .jump-info .bc {
     font-size: 11px;
-    background: rgba(251, 146, 60, 0.15);
-    color: var(--accent);
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-weight: 700;
-    border: 1px solid rgba(251, 146, 60, 0.3);
+    color: #64748b;
+    font-family: 'Courier New', monospace;
   }
 
-  .slide-info .status {
-    font-size: 10.5px;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-
-  .slide-info .status.hadir { color: var(--green); }
-
-  .card-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-
-  .arrow-btn {
-    flex: 1;
-    padding: 8px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text-dim);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .arrow-btn:hover:not(:disabled) {
-    background: rgba(251, 146, 60, 0.1);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .arrow-btn svg { width: 14px; height: 14px; }
-
-  .edit-btn {
-    padding: 8px 12px;
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(56, 189, 248, 0.15));
-    border: 1px solid rgba(167, 139, 250, 0.4);
-    border-radius: 8px;
-    color: var(--purple);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    transition: all 0.2s;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: inherit;
-  }
-
-  .edit-btn:hover {
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(56, 189, 248, 0.25));
-    border-color: var(--purple);
-    transform: translateY(-1px);
-  }
-
-  .edit-btn svg { width: 12px; height: 12px; }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-    background: var(--bg-card);
-    border: 1px dashed var(--border);
-    border-radius: 16px;
-  }
-  .empty-state .icon { font-size: 56px; margin-bottom: 12px; opacity: 0.4; }
-  .empty-state h3 { font-size: 15px; color: var(--text-dim); margin-bottom: 8px; font-weight: 700; }
-  .empty-state p { font-size: 13px; line-height: 1.6; }
-
-  .modal-overlay {
+  /* SCAN MODAL */
+  .scan-modal {
     position: fixed;
     inset: 0;
-    background: rgba(5, 8, 16, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 9998;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -686,422 +584,54 @@
     pointer-events: none;
     transition: opacity 0.3s;
   }
-  .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-  .modal {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+  .scan-modal.active { opacity: 1; pointer-events: auto; }
+
+  .scan-box {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.3);
     border-radius: 20px;
+    padding: 24px;
+    max-width: 560px;
     width: 100%;
-    max-width: 520px;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: scale(0.9);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   }
-  .modal.large { max-width: 1100px; }
-  .modal-overlay.active .modal { transform: scale(1); }
 
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
+  .scan-box h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fb923c;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
-    top: 0;
-    background: var(--bg-card);
-    z-index: 5;
   }
 
-  .modal-header h3 {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .modal-header h3 .badge-custom {
-    font-size: 10px;
-    background: linear-gradient(135deg, var(--purple), var(--blue));
-    color: #0a0e1a;
-    padding: 3px 8px;
-    border-radius: 6px;
-    letter-spacing: 0.05em;
-    font-weight: 800;
-  }
-
-  .modal-close {
-    width: 34px; height: 34px;
-    border-radius: 8px;
+  .scan-close {
+    width: 32px; height: 32px;
     background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    color: #94a3b8;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-  }
-  .modal-close:hover {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: var(--red);
-    color: var(--red);
-  }
-  .modal-close svg { width: 16px; height: 16px; }
-
-  .modal-body { padding: 24px; }
-
-  .modal-body-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 20px;
   }
 
-  @media (max-width: 900px) {
-    .modal-body-grid { grid-template-columns: 1fr; }
-  }
-
-  .mini-stage {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    user-select: none;
-  }
-
-  .mini-stage img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border: none;
-    pointer-events: none;
-  }
-
-  .mini-stage video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border: none;
-    pointer-events: none;
-    background: #000;
-  }
-
-  .mini-stage iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    pointer-events: none;
-  }
-
-  .mini-stage .placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 12px;
-    gap: 6px;
-  }
-
-  .mini-stage .placeholder .emoji { font-size: 40px; opacity: 0.4; }
-
-  .mini-drag-tag {
-    position: absolute;
-    padding: 3px 8px;
-    border-radius: 5px;
-    cursor: move;
-    user-select: none;
-    white-space: nowrap;
-    transform: translate(-50%, -50%);
-    border: 2px dashed transparent;
-    font-weight: 700;
-    line-height: 1.2;
-    z-index: 10;
-    transition: box-shadow 0.2s;
-  }
-
-  .mini-drag-tag:hover {
-    border-color: rgba(251, 146, 60, 0.8);
-    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
-  }
-
-  .mini-drag-tag.dragging {
-    border-color: var(--accent);
-    border-style: solid;
-    z-index: 100;
-    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.3);
-  }
-
-  .mini-drag-tag.name { background: rgba(56, 189, 248, 0.9); color: #0a0e1a; }
-  .mini-drag-tag.matrik { background: rgba(52, 211, 153, 0.9); color: #0a0e1a; }
-
-  .mini-drag-tag .lbl {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 8px;
-    font-weight: 800;
-    padding: 2px 5px;
-    border-radius: 3px;
-    opacity: 0;
-    white-space: nowrap;
-    transition: opacity 0.2s;
-  }
-
-  .mini-drag-tag:hover .lbl { opacity: 1; }
-  .mini-drag-tag.name .lbl { background: var(--blue); color: #0a0e1a; }
-  .mini-drag-tag.matrik .lbl { background: var(--green); color: #0a0e1a; }
-
-  .edit-section {
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 14px;
-  }
-
-  .edit-section:last-child { margin-bottom: 0; }
-
-  .edit-section h4 {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .edit-section h4 .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--purple);
-    box-shadow: 0 0 8px var(--purple);
-  }
-
-  .edit-field { margin-bottom: 12px; }
-  .edit-field:last-child { margin-bottom: 0; }
-
-  .edit-field label {
-    display: block;
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-  }
-
-  .edit-field input[type="text"],
-  .edit-field input[type="number"],
-  .edit-field select {
-    width: 100%;
-    padding: 9px 12px;
-    background: var(--bg-card);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-  }
-
-  .edit-field input[type="text"]:focus,
-  .edit-field input[type="number"]:focus,
-  .edit-field select:focus {
-    outline: none;
-    border-color: var(--purple);
-    background: rgba(167, 139, 250, 0.04);
-    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
-  }
-
-  .edit-field input[type="text"].nama-input { text-transform: uppercase; }
-
-  .edit-field input[type="color"] {
-    width: 100%;
-    height: 38px;
-    padding: 4px;
-    background: var(--bg-card);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  .edit-field input:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .edit-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .toggle-row-mini {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .toggle-row-mini:last-child { border-bottom: none; padding-bottom: 0; }
-
-  .toggle-row-mini .lbl-small {
-    font-size: 12px;
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .toggle-switch-mini {
-    position: relative;
-    width: 36px;
-    height: 20px;
-    flex-shrink: 0;
-  }
-
-  .toggle-switch-mini input { opacity: 0; width: 0; height: 0; }
-
-  .toggle-slider-mini {
-    position: absolute;
-    inset: 0;
-    background: var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .toggle-slider-mini::before {
-    content: '';
-    position: absolute;
-    width: 14px; height: 14px;
-    left: 3px; top: 3px;
-    background: #94a3b8;
-    border-radius: 50%;
-    transition: 0.3s;
-  }
-
-  .toggle-switch-mini input:checked + .toggle-slider-mini {
-    background: linear-gradient(135deg, var(--purple), var(--blue));
-  }
-
-  .toggle-switch-mini input:checked + .toggle-slider-mini::before {
-    transform: translateX(16px);
-    background: #fff;
-  }
-
-  .override-banner {
-    padding: 10px 14px;
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(56, 189, 248, 0.15));
-    border: 1px solid rgba(167, 139, 250, 0.4);
-    border-radius: 10px;
-    margin-bottom: 14px;
-    font-size: 12px;
-    color: var(--purple);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .override-banner button {
-    padding: 6px 12px;
-    background: rgba(167, 139, 250, 0.25);
-    border: 1px solid rgba(167, 139, 250, 0.5);
-    border-radius: 7px;
-    color: #fff;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .override-banner button:hover { background: rgba(167, 139, 250, 0.4); }
-
-  .modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    position: sticky;
-    bottom: 0;
-    background: var(--bg-card);
-    z-index: 5;
-  }
-
-  .btn-secondary, .btn-danger-modal, .btn-primary-modal {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: none;
-  }
-
-  .btn-secondary {
-    background: var(--bg-input);
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { background: var(--border); color: var(--text); }
-
-  .btn-primary-modal {
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    color: #0a0e1a;
-    box-shadow: 0 6px 20px -6px rgba(251, 146, 60, 0.5);
-  }
-  .btn-primary-modal:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px -6px rgba(251, 146, 60, 0.6);
-  }
-
-  .btn-danger-modal {
+  .scan-close:hover {
     background: rgba(239, 68, 68, 0.15);
-    color: var(--red);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-  .btn-danger-modal:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: var(--red);
+    border-color: #ef4444;
+    color: #ef4444;
   }
 
-  .btn-secondary svg, .btn-primary-modal svg, .btn-danger-modal svg { width: 14px; height: 14px; }
-
-  .video-wrapper {
+  .scan-video-wrap {
     position: relative;
     width: 100%;
     aspect-ratio: 4/3;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(148, 163, 184, 0.3);
   }
 
   #scanVideo {
@@ -1123,7 +653,7 @@
   .scan-frame {
     width: 70%;
     aspect-ratio: 1.6;
-    border: 3px solid var(--accent);
+    border: 3px solid #fb923c;
     border-radius: 14px;
     position: relative;
     box-shadow: 0 0 24px rgba(251, 146, 60, 0.5), inset 0 0 24px rgba(251, 146, 60, 0.2);
@@ -1131,11 +661,10 @@
 
   .scan-line {
     position: absolute;
-    left: 8%;
-    right: 8%;
+    left: 8%; right: 8%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    box-shadow: 0 0 12px var(--accent);
+    background: linear-gradient(90deg, transparent, #fb923c, transparent);
+    box-shadow: 0 0 12px #fb923c;
     animation: scanLine 2s ease-in-out infinite;
   }
 
@@ -1147,30 +676,23 @@
   .scan-status {
     margin-top: 16px;
     padding: 12px 16px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.3);
     border-radius: 10px;
     font-size: 13px;
-    color: var(--text-dim);
+    color: #94a3b8;
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.3s;
-  }
-  .scan-status.success { border-color: var(--green); background: rgba(52, 211, 153, 0.08); color: var(--green); }
-  .scan-status.error { border-color: var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); }
-
-  .scan-status .pulse-icon {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-    animation: pulse 1.5s infinite;
   }
 
-  .scan-status.success .pulse-icon { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
-  .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
+  .scan-status.success {
+    border-color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+  }
 
+  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -1184,347 +706,407 @@
 
   .toast {
     padding: 14px 20px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-left: 4px solid #fb923c;
     border-radius: 12px;
-    color: var(--text);
+    color: #e2e8f0;
     font-size: 13.5px;
     font-weight: 600;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
     animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 340px;
     display: flex;
     align-items: center;
     gap: 10px;
+    backdrop-filter: blur(10px);
   }
-  .toast.success { border-left-color: var(--green); }
-  .toast.error { border-left-color: var(--red); }
-  .toast.warn { border-left-color: var(--yellow); }
+
+  .toast.success { border-left-color: #34d399; }
+  .toast.error { border-left-color: #ef4444; }
+  .toast.warn { border-left-color: #fbbf24; }
+
   .toast .icon { font-size: 18px; }
+
   @keyframes toastIn {
     from { transform: translateX(400px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
 
-  .fade-up {
+  /* LOADING */
+  .loading-state {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 5000;
+    transition: opacity 0.5s;
+  }
+
+  .loading-state.hide {
     opacity: 0;
-    transform: translateY(12px);
-    animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
   }
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
+
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(251, 146, 60, 0.2);
+    border-top-color: #fb923c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
   }
-  .delay-1 { animation-delay: 0.05s; }
-  .delay-2 { animation-delay: 0.1s; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state p {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* START BUTTON OVERLAY — untuk unlock autoplay */
+  .start-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 40px;
+    text-align: center;
+    transition: opacity 0.4s;
+  }
+
+  .start-overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .start-overlay .icon {
+    font-size: 72px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .start-overlay h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+  }
+
+  .start-overlay h2 span {
+    background: linear-gradient(135deg, #fb923c, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .start-overlay p {
+    font-size: 14px;
+    color: #94a3b8;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  .start-btn {
+    padding: 18px 48px;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #0a0e1a;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s;
+    box-shadow: 0 12px 40px -8px rgba(251, 146, 60, 0.6);
+    margin-top: 8px;
+  }
+
+  .start-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 20px 50px -8px rgba(251, 146, 60, 0.7);
+  }
+
+  .start-btn svg { width: 22px; height: 22px; }
+
+  .start-hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 768px) {
+    .settings-panel, .jump-panel { width: 100%; }
+    .ui-info .name { font-size: 14px; }
+    .ui-info .matrik { font-size: 11px; }
+    .nav-btn { width: 38px; height: 38px; }
+    .slide-counter { padding: 8px 12px; font-size: 12px; }
+    .ui-btn { padding: 8px 12px; font-size: 11px; }
+    .start-overlay h2 { font-size: 22px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="grid-overlay"></div>
-
-<div class="topbar">
-  <a href="index.html" class="back-btn">
+<!-- ============ START OVERLAY (unlock autoplay) ============ -->
+<div class="start-overlay" id="startOverlay">
+  <div class="icon">🎬</div>
+  <h2>Mod <span>Presentation</span></h2>
+  <p>Klik butang di bawah untuk mula. Ini membolehkan video auto-play semasa presentation.</p>
+  <button class="start-btn" id="btnStart">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12"></line>
-      <polyline points="12 19 5 12 12 5"></polyline>
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
     </svg>
-    Kembali ke Menu
-  </a>
-  <div class="topbar-title">
-    <span class="dot"></span>
-    URUS URUTAN SLIDE
-  </div>
-  <div id="statusBadge" class="status-badge connecting">
-    <span class="status-dot"></span>
-    <span id="statusText">Menyambung...</span>
-  </div>
+    Mula Presentation
+  </button>
+  <div class="start-hint">Tekan F untuk fullscreen selepas ini</div>
 </div>
 
-<div class="container">
+<!-- ============ LOADING ============ -->
+<div class="loading-state hide" id="loadingState">
+  <div class="loading-spinner"></div>
+  <p>Memuatkan slide...</p>
+</div>
 
-  <div class="header-section fade-up">
-    <div>
-      <h1 class="page-title">Urus <span>Urutan Slide</span></h1>
-      <p class="page-desc">
-        Scan atau pilih penerima untuk masukkan ke urutan. Drag untuk susun, atau klik <strong>Edit</strong> untuk ubah nama, posisi & style khas untuk penerima tu.
-      </p>
-    </div>
+<!-- ============ STAGE ============ -->
+<div id="stage"></div>
 
-    <div class="card">
-      <h2><span class="icon">🎯</span> Scan / Cari Penerima</h2>
-      <div class="input-row">
-        <input type="text" id="inpBarcode" placeholder="Taip nombor barcode..." maxlength="20" autocomplete="off">
-        <button class="btn-icon" id="btnOpenScan" title="Scan dengan kamera">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-            <line x1="7" y1="12" x2="17" y2="12"></line>
-          </svg>
-          Scan
-        </button>
+<!-- ============ UI OVERLAY ============ -->
+<div class="ui-overlay visible" id="uiOverlay">
+
+  <div class="ui-top">
+    <div class="ui-top-left">
+      <div class="ui-brand">
+        <div class="logo">🎓</div>
+        <div>SLIDE PRESENTATION</div>
       </div>
-      <div class="suggestions" id="suggestions"></div>
-      <button class="btn-add" id="btnAdd">
+      <div class="ui-status" id="statusBadge">
+        <span class="dot"></span>
+        <span id="statusText">Menyambung...</span>
+      </div>
+    </div>
+
+    <div class="ui-top-right">
+      <button class="ui-btn" id="btnJump" title="Senarai slide (J)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
         </svg>
-        <span>Tambah ke Urutan</span>
+        Senarai (J)
+      </button>
+
+      <button class="ui-btn" id="btnScan" title="Scan barcode (S)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+          <line x1="7" y1="12" x2="17" y2="12"></line>
+        </svg>
+        Scan (S)
+      </button>
+
+      <button class="ui-btn" id="btnSettings" title="Tetapan (C)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Tetapan (C)
+      </button>
+
+      <button class="ui-btn" id="btnFullscreen" title="Fullscreen (F)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <span id="fsLabel">Fullscreen</span>
       </button>
     </div>
   </div>
 
-  <div class="stats-row fade-up delay-1">
-    <div class="stat-mini"><div class="num" id="statTotal">0</div><div class="label">Dalam Urutan</div></div>
-    <div class="stat-mini"><div class="num" id="statAvailable">0</div><div class="label">Belum Masuk</div></div>
-    <div class="stat-mini"><div class="num" id="statHadir">0</div><div class="label">Sudah Hadir</div></div>
-  </div>
-
-  <div class="gallery-header fade-up delay-2">
-    <div class="gallery-title">
-      🎬 Urutan Slide
-      <span style="color:var(--text-muted);font-weight:500;font-size:13px;" id="orderCount"></span>
+  <div class="ui-bottom">
+    <div class="ui-bottom-left">
+      <button class="nav-btn" id="btnPrev" title="Slide sebelum (<)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="nav-btn" id="btnNext" title="Slide seterusnya (>)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
     </div>
-    <div class="gallery-controls">
-      <button class="chip-btn" id="btnAutoOrder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-        Auto-susun
-      </button>
-      <button class="chip-btn" id="btnShuffle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="16 3 21 3 21 8"></polyline>
-          <line x1="4" y1="20" x2="21" y2="3"></line>
-          <polyline points="21 16 21 21 16 21"></polyline>
-          <line x1="15" y1="15" x2="21" y2="21"></line>
-          <line x1="4" y1="4" x2="9" y2="9"></line>
-        </svg>
-        Rawak
-      </button>
-      <button class="chip-btn danger" id="btnClearAll">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-        </svg>
-        Kosongkan
-      </button>
+
+    <div class="ui-info">
+      <div class="name" id="infoName">—</div>
+      <div class="matrik" id="infoMatrik">—</div>
+    </div>
+
+    <div class="ui-bottom-right">
+      <div class="slide-counter" id="slideCounter">0 / 0</div>
     </div>
   </div>
 
-  <div id="galleryContainer" class="gallery-grid">
-    <div class="empty-state" style="grid-column:1/-1;">
-      <div class="icon">🎬</div>
-      <h3>Belum ada urutan</h3>
-      <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
-    </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
   </div>
 
 </div>
 
-<!-- SCAN MODAL -->
-<div class="modal-overlay" id="scanModal">
-  <div class="modal" style="max-width: 560px;">
-    <div class="modal-header">
-      <h3>📷 Scan Barcode</h3>
-      <button class="modal-close" id="btnCloseScan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<!-- ============ SETTINGS PANEL ============ -->
+<div class="settings-panel" id="settingsPanel">
+  <button class="close-settings" id="btnCloseSettings">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <h3>⚙️ Tetapan Presentation</h3>
+
+  <div class="settings-section">
+    <h4>Transition</h4>
+    <div class="settings-field">
+      <label>Jenis Transition</label>
+      <select id="selTransition">
+        <option value="fade">Fade (Pudar)</option>
+        <option value="slide">Slide (Guling)</option>
+        <option value="zoom">Zoom</option>
+        <option value="dissolve">Dissolve (Blur)</option>
+        <option value="flip">Flip (Putar)</option>
+        <option value="none">Tiada</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h4>Auto Advance</h4>
+    <div class="toggle-row">
+      <div class="label">Auto Maju Slide</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleAutoAdvance">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="settings-field" id="autoAdvanceDelayGroup" style="display:none; margin-top:10px;">
+      <label>Masa (saat)</label>
+      <input type="number" id="inpAutoAdvanceDelay" min="2" max="60" step="1" value="8">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h4>Paparan</h4>
+    <div class="toggle-row">
+      <div class="label">Auto-hide UI Bar</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleAutoHideUI" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="label">Mute Video</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleMuteVideo" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="label">Loop Video (per slide)</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleLoopVideo" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h4>Pintasan Papan Kekunci</h4>
+    <div style="font-size:12px; color:#94a3b8; line-height:1.9;">
+      <div><b style="color:#fb923c;">&gt;</b> atau <b style="color:#fb923c;">→</b> atau <b style="color:#fb923c;">Space</b> — Slaid seterusnya</div>
+      <div><b style="color:#fb923c;">&lt;</b> atau <b style="color:#fb923c;">←</b> — Slaid sebelum</div>
+      <div><b style="color:#fb923c;">Home</b> / <b style="color:#fb923c;">End</b> — Slaid pertama / terakhir</div>
+      <div><b style="color:#fb923c;">F</b> — Fullscreen</div>
+      <div><b style="color:#fb923c;">S</b> — Scan barcode</div>
+      <div><b style="color:#fb923c;">J</b> — Senarai slide</div>
+      <div><b style="color:#fb923c;">C</b> — Tetapan</div>
+      <div><b style="color:#fb923c;">H</b> — Tunjuk/sorok UI bar</div>
+      <div><b style="color:#fb923c;">Esc</b> — Tutup panel</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ JUMP PANEL ============ -->
+<div class="jump-panel" id="jumpPanel">
+  <h3>
+    📋 Senarai Slide
+    <button class="close-settings" id="btnCloseJump" style="margin-left:auto;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </h3>
+  <div id="jumpList"></div>
+</div>
+
+<!-- ============ SCAN MODAL ============ -->
+<div class="scan-modal" id="scanModal">
+  <div class="scan-box">
+    <h3>
+      📷 Scan Barcode
+      <button class="scan-close" id="btnCloseScan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
-    </div>
-    <div class="modal-body">
-      <div class="video-wrapper">
-        <video id="scanVideo" autoplay muted playsinline></video>
-        <div class="scan-overlay">
-          <div class="scan-frame"><div class="scan-line"></div></div>
-        </div>
-      </div>
-      <div class="scan-status" id="scanStatus">
-        <span class="pulse-icon"></span>
-        <span id="scanStatusText">Menghidupkan kamera...</span>
+    </h3>
+    <div class="scan-video-wrap">
+      <video id="scanVideo" autoplay muted playsinline></video>
+      <div class="scan-overlay">
+        <div class="scan-frame"><div class="scan-line"></div></div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal large">
-    <div class="modal-header">
-      <h3>
-        ✏️ Edit Penerima
-        <span class="badge-custom" id="customBadge" style="display:none;">Custom</span>
-      </h3>
-      <button class="modal-close" id="btnCloseEdit">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-
-    <div class="modal-body">
-      <div class="override-banner" id="overrideBanner" style="display:none;">
-        <span>🎨 Penerima ini guna setting custom (bukan default)</span>
-        <button id="btnResetOverride">Reset ke Default</button>
-      </div>
-
-      <div class="modal-body-grid">
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-            <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">
-              🎨 Posisi Preview
-            </div>
-            <div style="font-size:11px;color:var(--text-muted);" id="coordDisplayMini">Drag tag untuk ubah posisi</div>
-          </div>
-
-          <div class="mini-stage" id="miniStage">
-            <div class="placeholder">
-              <div class="emoji">🖼️</div>
-              <div>Tiada template</div>
-            </div>
-          </div>
-
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="chip-btn" id="btnResetPosMini">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-              </svg>
-              Reset Posisi
-            </button>
-            <button class="chip-btn" id="btnCopyGlobal">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-              Salin dari Default
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <div class="edit-section">
-            <h4><span class="dot"></span> Data Penerima</h4>
-            <div class="edit-field">
-              <label>Nama Penuh</label>
-              <input type="text" id="editNama" class="nama-input" maxlength="100">
-            </div>
-            <div class="edit-field">
-              <label>Nombor Matriks</label>
-              <input type="text" id="editMatrik" class="nama-input" maxlength="30">
-            </div>
-            <div class="edit-field">
-              <label>Barcode (tak boleh edit)</label>
-              <input type="text" id="editBarcode" disabled>
-            </div>
-          </div>
-
-          <div class="edit-section">
-            <h4><span class="dot"></span> Saiz & Warna Text</h4>
-            <div class="edit-row">
-              <div class="edit-field">
-                <label>Saiz Nama</label>
-                <input type="number" id="editSizeNama" min="8" max="200" step="2">
-              </div>
-              <div class="edit-field">
-                <label>Saiz Matriks</label>
-                <input type="number" id="editSizeMatrik" min="8" max="200" step="2">
-              </div>
-            </div>
-            <div class="edit-field">
-              <label>Warna Text</label>
-              <input type="color" id="editColor">
-            </div>
-            <div class="edit-field">
-              <label>Font</label>
-              <select id="editFont">
-                <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="'Times New Roman', serif">Times New Roman</option>
-                <option value="Georgia, serif">Georgia</option>
-                <option value="'Courier New', monospace">Courier New</option>
-                <option value="Impact, sans-serif">Impact</option>
-                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
-              </select>
-            </div>
-            <div class="edit-field">
-              <label>Weight</label>
-              <select id="editWeight">
-                <option value="400">Normal</option>
-                <option value="600">Semi Bold</option>
-                <option value="700">Bold</option>
-                <option value="900">Extra Bold</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="edit-section">
-            <h4><span class="dot"></span> Video & Overlay</h4>
-            <div class="toggle-row-mini">
-              <div class="lbl-small">Loop Video</div>
-              <label class="toggle-switch-mini">
-                <input type="checkbox" id="editLoop">
-                <span class="toggle-slider-mini"></span>
-              </label>
-            </div>
-            <div class="toggle-row-mini">
-              <div class="lbl-small">Autoplay</div>
-              <label class="toggle-switch-mini">
-                <input type="checkbox" id="editAutoplay">
-                <span class="toggle-slider-mini"></span>
-              </label>
-            </div>
-            <div class="toggle-row-mini">
-              <div class="lbl-small">Overlay Gelap</div>
-              <label class="toggle-switch-mini">
-                <input type="checkbox" id="editOverlay">
-                <span class="toggle-slider-mini"></span>
-              </label>
-            </div>
-            <div class="edit-field" id="editOpacityGroup" style="margin-top:10px;display:none;">
-              <label>Kepekatan Overlay (%)</label>
-              <input type="number" id="editOverlayOpacity" min="0" max="100" step="5">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-danger-modal" id="btnRemoveFromOrder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-        </svg>
-        Keluar dari Urutan
-      </button>
-      <div style="flex:1"></div>
-      <button class="btn-secondary" id="btnCancelEdit">Batal</button>
-      <button class="btn-primary-modal" id="btnSaveEdit">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        Simpan
-      </button>
+    <div class="scan-status" id="scanStatus">
+      <span id="scanStatusText">Menghidupkan kamera...</span>
     </div>
   </div>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ============ FIREBASE + LOGIC ============ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 import {
-  getFirestore, collection, doc, onSnapshot, query,
-  orderBy, setDoc, updateDoc, serverTimestamp
+  getFirestore, collection, doc, onSnapshot, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1540,26 +1122,47 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
+/* ============================================================
+   STATE
+   ============================================================ */
 let recipients = [];
 let slideOrder = [];
 let configState = {};
 let overrides = {};
-let editingId = null;
-let draggedId = null;
+
+let currentIndex = 0;
+let uiVisible = true;
+let uiHideTimer = null;
+let autoAdvanceTimer = null;
+let codeReader = null;
+let scanActive = false;
+let presentationStarted = false;
+
+const settings = {
+  transition: 'fade',
+  autoAdvance: false,
+  autoAdvanceDelay: 8,
+  autoHideUI: true,
+  muteVideo: true,
+  loopVideo: true
+};
 
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
   styles: {
-    nameSize: 32, matrikSize: 22,
+    nameSize: 60, matrikSize: 36,
     color: '#ffffff',
     font: "'Segoe UI', system-ui, sans-serif",
-    weight: 700
+    weight: 800
   },
   video: { loop: true, autoplay: true, muted: true },
   overlay: { enabled: false, opacity: 30 }
 };
 
-function toast(msg, type = 'info', duration = 3500) {
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function toast(msg, type = 'info', duration = 3000) {
   const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -1575,8 +1178,21 @@ function toast(msg, type = 'info', duration = 3500) {
 
 function setStatus(state, text) {
   const b = document.getElementById('statusBadge');
-  b.className = 'status-badge ' + state;
   document.getElementById('statusText').textContent = text;
+
+  if (state === 'online') {
+    b.style.background = 'rgba(52, 211, 153, 0.15)';
+    b.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+    b.style.color = '#34d399';
+  } else if (state === 'offline') {
+    b.style.background = 'rgba(239, 68, 68, 0.15)';
+    b.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+    b.style.color = '#ef4444';
+  } else {
+    b.style.background = 'rgba(251, 191, 36, 0.15)';
+    b.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+    b.style.color = '#fbbf24';
+  }
 }
 
 function escapeHtml(s) {
@@ -1590,10 +1206,8 @@ function getEffectiveSettings(id) {
     video: configState.video || DEFAULT_SETTINGS.video,
     overlay: configState.overlay || DEFAULT_SETTINGS.overlay
   };
-
   const ov = overrides[id];
   if (!ov) return base;
-
   return {
     positions: ov.positions || base.positions,
     styles: ov.styles || base.styles,
@@ -1602,29 +1216,17 @@ function getEffectiveSettings(id) {
   };
 }
 
-function hasOverride(id) {
-  return !!overrides[id];
-}
-
 /* ============================================================
-   🎬 GOOGLE DRIVE VIDEO — GUNA <VIDEO> TAG DENGAN DIRECT URL
+   GOOGLE DRIVE
    ============================================================ */
 function getDriveVideoEmbedUrl(fileId) {
   return `https://drive.google.com/file/d/${fileId}/preview`;
 }
 
-/* Direct download URL — boleh main dalam <video> tag */
 function getDriveVideoDirectUrl(fileId) {
-  // Format ini Google Drive benarkan untuk stream video
   return `https://drive.google.com/uc?export=download&id=${fileId}`;
 }
 
-/* lh3 format — alternatif yang lebih stabil untuk stream */
-function getDriveVideoLh3Url(fileId) {
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
-}
-
-/* Extract file ID dari pelbagai format URL */
 function extractDriveFileId(input) {
   if (!input) return null;
   const str = String(input).trim();
@@ -1641,34 +1243,58 @@ function extractDriveFileId(input) {
 function getTemplateFileId() {
   let fileId = extractDriveFileId(configState.templateFileId);
   if (fileId) return fileId;
-  fileId = extractDriveFileId(configState.template);
-  if (fileId) {
-    console.log('🔧 Auto-extract fileId dari template URL:', fileId);
-    return fileId;
-  }
-  return null;
+  return extractDriveFileId(configState.template);
 }
 
 /* ============================================================
-   LISTENERS
+   AUTOPLAY UNLOCK
+   ============================================================ */
+function unlockAutoplay() {
+  // Buat audio context kosong untuk unlock
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    // Main bunyi kosong
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.01);
+  } catch(e) {}
+
+  // Play video kosong (silent) untuk unlock video autoplay
+  try {
+    const v = document.createElement('video');
+    v.muted = true;
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch(e) {}
+
+  console.log('🔓 Autoplay unlocked');
+}
+
+/* ============================================================
+   FIREBASE LISTENERS
    ============================================================ */
 const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
-  console.log('📋 Config updated:', configState);
-  renderGallery();
-}, (err) => console.error('config listener:', err));
+  renderSlides();
+}, (err) => console.error('config:', err));
 
 const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
 
 onSnapshot(recipientsQ, (snap) => {
   recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   setStatus('online', 'Online');
-  renderGallery();
-  updateStats();
+  renderSlides();
 }, (err) => {
-  console.error('recipients listener:', err);
+  console.error('recipients:', err);
   setStatus('offline', 'Offline');
 });
 
@@ -1683,800 +1309,494 @@ onSnapshot(orderDoc, (snap) => {
     slideOrder = [];
     overrides = {};
   }
-  renderGallery();
-  updateStats();
-}, (err) => console.error('order listener:', err));
-
-async function saveOrder() {
-  try {
-    await setDoc(orderDoc, {
-      order: slideOrder,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  } catch (e) {
-    console.error('save order error:', e);
-    toast('Gagal simpan urutan: ' + e.message, 'error');
-  }
-}
-
-async function saveOverrides() {
-  try {
-    await setDoc(orderDoc, {
-      overrides,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-  } catch (e) {
-    console.error('save override error:', e);
-    toast('Gagal simpan: ' + e.message, 'error');
-  }
-}
+  renderSlides();
+}, (err) => console.error('order:', err));
 
 /* ============================================================
-   RENDER VIDEO HELPER — cuba <video>, fallback ke iframe
+   RENDER SLIDES
    ============================================================ */
-function buildVideoPreviewHTML(fileId, eff, overlayHTML, nameOverlayStyle, matrikOverlayStyle, nama, matrik) {
-  const directUrl = getDriveVideoDirectUrl(fileId);
-  const embedUrl = getDriveVideoEmbedUrl(fileId);
-  const uniqueId = 'vid_' + Math.random().toString(36).slice(2, 9);
+const stage = document.getElementById('stage');
 
-  return `
-    <div class="slide-preview">
-      <video
-        id="${uniqueId}"
-        src="${directUrl}"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto"
-        crossorigin="anonymous"
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;background:#000;"
-        onerror="handleVideoError('${uniqueId}', '${embedUrl}')"
-      ></video>
-      <div id="${uniqueId}_fallback" style="display:none;position:absolute;inset:0;"></div>
-      ${overlayHTML}
-      <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(nama)}</span>
-      <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(matrik)}</span>
-    </div>
-  `;
-}
-
-/* Global error handler — switch ke iframe kalau <video> gagal */
-window.handleVideoError = function(videoId, embedUrl) {
-  const video = document.getElementById(videoId);
-  if (!video) return;
-
-  console.warn('⚠️ Video gagal load, tukar ke iframe:', embedUrl);
-
-  const parent = video.parentElement;
-  if (!parent) return;
-
-  // Buang video, ganti dengan iframe
-  video.remove();
-
-  const iframe = document.createElement('iframe');
-  iframe.src = embedUrl;
-  iframe.allow = 'autoplay; encrypted-media';
-  iframe.allowFullscreen = true;
-  iframe.frameBorder = '0';
-  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
-  parent.insertBefore(iframe, parent.firstChild);
-};
-
-/* ============================================================
-   RENDER GALLERY
-   ============================================================ */
-const galleryContainer = document.getElementById('galleryContainer');
-
-function renderGallery() {
+function renderSlides() {
+  const wasIndex = currentIndex;
   const orderedRecipients = slideOrder
     .map(id => recipients.find(r => r.id === id))
     .filter(Boolean);
 
-  document.getElementById('orderCount').textContent = orderedRecipients.length > 0
-    ? `(${orderedRecipients.length} slaid)`
-    : '';
+  stage.innerHTML = '';
 
   if (orderedRecipients.length === 0) {
-    galleryContainer.innerHTML = `
-      <div class="empty-state" style="grid-column:1/-1;">
+    stage.innerHTML = `
+      <div class="empty-slide">
         <div class="icon">🎬</div>
-        <h3>Belum ada urutan</h3>
-        <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
+        <div>Belum ada slide</div>
+        <div style="font-size:13px;opacity:0.7;">Pergi ke page Urutan untuk susun slide</div>
       </div>
     `;
+    document.getElementById('slideCounter').textContent = '0 / 0';
+    document.getElementById('infoName').textContent = '—';
+    document.getElementById('infoMatrik').textContent = '—';
+    updateProgress();
+    document.getElementById('loadingState').classList.add('hide');
     return;
   }
 
-  galleryContainer.innerHTML = orderedRecipients.map((r, idx) =>
-    renderSlideCard(r, idx, orderedRecipients.length)
-  ).join('');
+  if (wasIndex >= orderedRecipients.length) {
+    currentIndex = Math.max(0, orderedRecipients.length - 1);
+  }
 
-  galleryContainer.querySelectorAll('.slide-card').forEach(card => setupCardEvents(card));
-}
+  const transitionClass = settings.transition !== 'none' ? `transition-${settings.transition}` : '';
 
-function renderSlideCard(r, idx, total) {
-  const isFirst = idx === 0;
-  const isLast = idx === total - 1;
-  const isCustom = hasOverride(r.id);
-  const eff = getEffectiveSettings(r.id);
+  orderedRecipients.forEach((r, idx) => {
+    const eff = getEffectiveSettings(r.id);
+    const slide = document.createElement('div');
+    slide.className = `slide ${transitionClass}`;
+    slide.dataset.index = idx;
+    slide.dataset.id = r.id;
 
-  const p = eff.positions;
-  const s = eff.styles;
+    if (configState.template) {
+      if (configState.templateType === 'video') {
+        const fileId = getTemplateFileId();
+        if (fileId) {
+          const directUrl = getDriveVideoDirectUrl(fileId);
+          const embedUrl = getDriveVideoEmbedUrl(fileId);
+          const videoId = 'presvid_' + r.id;
 
-  const nameOverlayStyle = `
-    left:${p.name.x}%;
-    top:${p.name.y}%;
-    color:${s.color};
-    font-family:${s.font};
-    font-weight:${s.weight};
-    font-size:14px;
-    text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
-  `;
-  const matrikOverlayStyle = `
-    left:${p.matrik.x}%;
-    top:${p.matrik.y}%;
-    color:${s.color};
-    font-family:${s.font};
-    font-weight:${s.weight};
-    font-size:11px;
-    text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
-  `;
-
-  let previewHTML = '';
-  const overlayHTML = eff.overlay.enabled
-    ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>`
-    : '';
-
-  if (configState.template) {
-    if (configState.templateType === 'video') {
-      const fileId = getTemplateFileId();
-      if (fileId) {
-        previewHTML = buildVideoPreviewHTML(
-          fileId, eff, overlayHTML,
-          nameOverlayStyle, matrikOverlayStyle,
-          r.nama || '-', r.matrik || '-'
-        );
-      } else {
-        previewHTML = `
-          <div class="slide-preview">
-            <div class="no-template">
-              <div class="emoji">⚠️</div>
+          // CRITICAL: muted + playsinline + autoplay SEMUA ada untuk autoplay berfungsi
+          slide.innerHTML = `
+            <video
+              id="${videoId}"
+              class="slide-media"
+              src="${directUrl}"
+              autoplay
+              muted
+              ${settings.loopVideo ? 'loop' : ''}
+              playsinline
+              webkit-playsinline
+              preload="auto"
+              crossorigin="anonymous"
+              onerror="handlePresVideoError('${videoId}', '${embedUrl}')"
+            ></video>
+          `;
+        } else {
+          slide.innerHTML = `
+            <div class="empty-slide">
+              <div class="icon">⚠️</div>
               <div>File ID video tak dijumpai</div>
             </div>
-          </div>
-        `;
+          `;
+        }
+      } else if (configState.templateType === 'image') {
+        slide.innerHTML = `<img src="${configState.template}" class="slide-media" alt="">`;
       }
-    } else if (configState.templateType === 'image') {
-      previewHTML = `
-        <div class="slide-preview">
-          <img src="${configState.template}" alt="" onerror="this.style.display='none'">
-          ${overlayHTML}
-          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
-          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
-        </div>
-      `;
     } else {
-      previewHTML = `
-        <div class="slide-preview">
-          <div class="no-template">
-            <div class="emoji">🎬</div>
-            <div>Template</div>
-          </div>
-          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
-          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
+      slide.innerHTML = `
+        <div class="empty-slide">
+          <div class="icon">🖼️</div>
+          <div>Tiada template</div>
         </div>
       `;
     }
+
+    if (eff.overlay.enabled) {
+      const ov = document.createElement('div');
+      ov.className = 'slide-overlay';
+      ov.style.background = `rgba(0,0,0,${eff.overlay.opacity / 100})`;
+      slide.appendChild(ov);
+    }
+
+    // Nama
+    const nameEl = document.createElement('div');
+    nameEl.className = 'slide-tag';
+    nameEl.textContent = r.nama || '-';
+    nameEl.style.left = eff.positions.name.x + '%';
+    nameEl.style.top = eff.positions.name.y + '%';
+    nameEl.style.color = eff.styles.color;
+    nameEl.style.fontFamily = eff.styles.font;
+    nameEl.style.fontWeight = eff.styles.weight;
+    nameEl.style.fontSize = eff.styles.nameSize + 'px';
+    slide.appendChild(nameEl);
+
+    // Matrik
+    const matrikEl = document.createElement('div');
+    matrikEl.className = 'slide-tag';
+    matrikEl.textContent = r.matrik || '-';
+    matrikEl.style.left = eff.positions.matrik.x + '%';
+    matrikEl.style.top = eff.positions.matrik.y + '%';
+    matrikEl.style.color = eff.styles.color;
+    matrikEl.style.fontFamily = eff.styles.font;
+    matrikEl.style.fontWeight = eff.styles.weight;
+    matrikEl.style.fontSize = eff.styles.matrikSize + 'px';
+    slide.appendChild(matrikEl);
+
+    stage.appendChild(slide);
+  });
+
+  applyActiveSlide(true);
+
+  setTimeout(() => {
+    document.getElementById('loadingState').classList.add('hide');
+  }, 300);
+}
+
+window.handlePresVideoError = function(videoId, embedUrl) {
+  const video = document.getElementById(videoId);
+  if (!video) return;
+
+  console.warn('⚠️ Video gagal, tukar ke iframe:', embedUrl);
+
+  const parent = video.parentElement;
+  if (!parent) return;
+
+  video.remove();
+
+  const autoplayUrl = embedUrl + (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1&mute=1';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = autoplayUrl;
+  iframe.className = 'slide-media';
+  iframe.allow = 'autoplay; encrypted-media; fullscreen';
+  iframe.allowFullscreen = true;
+  iframe.frameBorder = '0';
+  parent.insertBefore(iframe, parent.firstChild);
+};
+
+/* ============================================================
+   APPLY ACTIVE SLIDE (with autoplay force)
+   ============================================================ */
+function applyActiveSlide(initial = false) {
+  const slides = stage.querySelectorAll('.slide');
+  if (slides.length === 0) return;
+
+  slides.forEach((s, i) => {
+    if (i === currentIndex) {
+      s.classList.add('active');
+    } else {
+      s.classList.remove('active');
+    }
+  });
+
+  slides.forEach((s, i) => {
+    const video = s.querySelector('video');
+    if (!video) return;
+
+    if (i === currentIndex) {
+      // Reset ke awal
+      try { video.currentTime = 0; } catch(e) {}
+
+      // Paksa semua attribute autoplay
+      video.muted = true; // SELALU muted untuk autoplay
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.autoplay = true;
+      video.loop = settings.loopVideo;
+
+      // Play dengan retry
+      const tryPlay = () => {
+        const p = video.play();
+        if (p && p.catch) {
+          p.catch((err) => {
+            console.warn('⚠️ Play gagal, retry:', err.message);
+            video.muted = true;
+            video.play().catch(e => console.error('❌ Retry fail:', e));
+          });
+        }
+      };
+
+      if (video.readyState >= 2) {
+        tryPlay();
+      } else {
+        video.addEventListener('canplay', tryPlay, { once: true });
+        setTimeout(tryPlay, 300);
+      }
+    } else {
+      video.pause();
+    }
+  });
+
+  updateInfo();
+  updateProgress();
+  updateJumpList();
+  scheduleAutoAdvance();
+}
+
+function goToSlide(index, smooth = true) {
+  const total = slideOrder.length;
+  if (total === 0) return;
+
+  if (index < 0) index = 0;
+  if (index >= total) index = total - 1;
+  if (index === currentIndex && smooth) return;
+
+  currentIndex = index;
+  applyActiveSlide();
+}
+
+function nextSlide() {
+  if (currentIndex < slideOrder.length - 1) {
+    goToSlide(currentIndex + 1);
   } else {
-    previewHTML = `
-      <div class="slide-preview">
-        <div class="no-template">
-          <div class="emoji">🖼️</div>
-          <div>Tiada template</div>
-        </div>
-        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:14px;">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:11px;">${escapeHtml(r.matrik || '-')}</span>
-      </div>
-    `;
+    toast('Slaid terakhir', 'info', 1500);
+  }
+}
+
+function prevSlide() {
+  if (currentIndex > 0) {
+    goToSlide(currentIndex - 1);
+  } else {
+    toast('Slaid pertama', 'info', 1500);
+  }
+}
+
+function updateInfo() {
+  const orderedRecipients = slideOrder
+    .map(id => recipients.find(r => r.id === id))
+    .filter(Boolean);
+
+  const r = orderedRecipients[currentIndex];
+  const total = orderedRecipients.length;
+
+  if (r) {
+    document.getElementById('infoName').textContent = r.nama || '—';
+    document.getElementById('infoMatrik').textContent = r.matrik || '—';
+    document.getElementById('slideCounter').textContent = `${currentIndex + 1} / ${total}`;
+  } else {
+    document.getElementById('infoName').textContent = '—';
+    document.getElementById('infoMatrik').textContent = '—';
+    document.getElementById('slideCounter').textContent = `0 / ${total}`;
   }
 
-  return `
-    <div class="slide-card ${isCustom ? 'customized' : ''}" data-id="${r.id}" draggable="true">
-      <div class="order-badge">${idx + 1}</div>
-      ${previewHTML}
-      <div class="slide-info">
-        <div class="name">${escapeHtml(r.nama || '-')}</div>
-        <div class="matrik">${escapeHtml(r.matrik || '-')}</div>
-        <div class="bc-line">
-          <span class="bc">#${escapeHtml(r.barcode || '----')}</span>
-          <span class="status ${r.hadir ? 'hadir' : ''}">${r.hadir ? '✅ Hadir' : '⏳ Belum'}</span>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="arrow-btn" data-action="left" ${isFirst ? 'disabled' : ''} title="Ke kiri">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-        <button class="arrow-btn" data-action="right" ${isLast ? 'disabled' : ''} title="Ke kanan">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-        <button class="edit-btn" data-action="edit" title="Edit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
-          Edit
-        </button>
-      </div>
-    </div>
-  `;
+  document.getElementById('btnPrev').disabled = currentIndex === 0;
+  document.getElementById('btnNext').disabled = currentIndex >= total - 1;
 }
 
-function setupCardEvents(card) {
-  const id = card.dataset.id;
-
-  card.querySelectorAll('.arrow-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const action = btn.dataset.action;
-      const currentIdx = slideOrder.indexOf(id);
-      if (currentIdx === -1) return;
-
-      if (action === 'left' && currentIdx > 0) {
-        [slideOrder[currentIdx - 1], slideOrder[currentIdx]] = [slideOrder[currentIdx], slideOrder[currentIdx - 1]];
-        saveOrder();
-      } else if (action === 'right' && currentIdx < slideOrder.length - 1) {
-        [slideOrder[currentIdx + 1], slideOrder[currentIdx]] = [slideOrder[currentIdx], slideOrder[currentIdx + 1]];
-        saveOrder();
-      }
-    });
-  });
-
-  const editBtn = card.querySelector('.edit-btn');
-  editBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openEditModal(id);
-  });
-
-  card.addEventListener('dragstart', (e) => {
-    draggedId = id;
-    card.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  });
-
-  card.addEventListener('dragend', () => {
-    card.classList.remove('dragging');
-    galleryContainer.querySelectorAll('.slide-card').forEach(c => c.classList.remove('drag-over'));
-    draggedId = null;
-  });
-
-  card.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    if (draggedId && draggedId !== id) card.classList.add('drag-over');
-  });
-
-  card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-
-  card.addEventListener('drop', (e) => {
-    e.preventDefault();
-    card.classList.remove('drag-over');
-    if (!draggedId || draggedId === id) return;
-
-    const fromIdx = slideOrder.indexOf(draggedId);
-    const toIdx = slideOrder.indexOf(id);
-    if (fromIdx === -1 || toIdx === -1) return;
-
-    slideOrder.splice(fromIdx, 1);
-    slideOrder.splice(toIdx, 0, draggedId);
-    saveOrder();
-    toast('Urutan dikemas kini', 'success', 1500);
-  });
-}
-
-function updateStats() {
-  document.getElementById('statTotal').textContent = slideOrder.length;
-  document.getElementById('statAvailable').textContent = recipients.length - slideOrder.length;
-  document.getElementById('statHadir').textContent = recipients.filter(r => r.hadir).length;
+function updateProgress() {
+  const total = slideOrder.length;
+  const pct = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
 }
 
 /* ============================================================
-   ADD TO ORDER
+   JUMP LIST
    ============================================================ */
-const inpBarcode = document.getElementById('inpBarcode');
-const suggestionsEl = document.getElementById('suggestions');
+function updateJumpList() {
+  const list = document.getElementById('jumpList');
+  const orderedRecipients = slideOrder
+    .map(id => recipients.find(r => r.id === id))
+    .filter(Boolean);
 
-inpBarcode.addEventListener('input', (e) => {
-  const val = e.target.value.trim().toUpperCase();
-  if (!val) { suggestionsEl.classList.remove('show'); return; }
+  if (orderedRecipients.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:#64748b;font-size:13px;">Belum ada slide</div>';
+    return;
+  }
 
-  const matches = recipients.filter(r =>
-    String(r.barcode || '').toUpperCase().includes(val) ||
-    String(r.nama || '').toUpperCase().includes(val) ||
-    String(r.matrik || '').toUpperCase().includes(val)
-  ).slice(0, 8);
-
-  if (matches.length === 0) { suggestionsEl.classList.remove('show'); return; }
-
-  suggestionsEl.innerHTML = matches.map(r => `
-    <div class="suggestion-item" data-id="${r.id}">
-      <div>
-        <div class="name">${escapeHtml(r.nama)}</div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:monospace;">${escapeHtml(r.matrik)}</div>
+  list.innerHTML = orderedRecipients.map((r, idx) => `
+    <div class="jump-item ${idx === currentIndex ? 'current' : ''}" data-index="${idx}">
+      <div class="jump-num">${idx + 1}</div>
+      <div class="jump-info">
+        <div class="name">${escapeHtml(r.nama || '-')}</div>
+        <div class="bc">#${escapeHtml(r.barcode || '----')}</div>
       </div>
-      <span class="bc">#${escapeHtml(r.barcode)}</span>
     </div>
   `).join('');
 
-  suggestionsEl.classList.add('show');
-
-  suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
+  list.querySelectorAll('.jump-item').forEach(item => {
     item.addEventListener('click', () => {
-      inpBarcode.value = item.querySelector('.bc').textContent.replace('#', '');
-      suggestionsEl.classList.remove('show');
-      addToOrder();
+      const idx = parseInt(item.dataset.index);
+      goToSlide(idx);
+      closeJumpPanel();
     });
   });
-});
-
-inpBarcode.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); addToOrder(); }
-});
-
-document.getElementById('btnAdd').addEventListener('click', addToOrder);
-
-async function addToOrder() {
-  const val = inpBarcode.value.trim().toUpperCase();
-  if (!val) return toast('Masukkan barcode dulu', 'warn');
-
-  const found = recipients.find(r =>
-    String(r.barcode || '').toUpperCase() === val ||
-    String(r.nama || '').toUpperCase() === val
-  );
-
-  if (!found) return toast('Barcode ' + val + ' tidak dijumpai', 'error');
-  if (slideOrder.includes(found.id)) return toast(found.nama + ' sudah dalam urutan', 'warn');
-
-  slideOrder.push(found.id);
-  await saveOrder();
-
-  inpBarcode.value = '';
-  suggestionsEl.classList.remove('show');
-  inpBarcode.focus();
-  toast('✅ ' + found.nama + ' ditambah ke urutan', 'success');
 }
 
-document.getElementById('btnAutoOrder').addEventListener('click', async () => {
-  const allSorted = [...recipients].sort((a, b) =>
-    String(a.barcode || '').localeCompare(String(b.barcode || ''), undefined, { numeric: true })
-  );
-  slideOrder = allSorted.map(r => r.id);
-  await saveOrder();
-  toast('✅ Urutan disusun ikut barcode', 'success');
-});
+/* ============================================================
+   AUTO ADVANCE
+   ============================================================ */
+function scheduleAutoAdvance() {
+  if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
 
-document.getElementById('btnShuffle').addEventListener('click', async () => {
-  if (slideOrder.length < 2) return toast('Perlu sekurang-kurangnya 2 penerima', 'warn');
-  const arr = [...slideOrder];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  if (!settings.autoAdvance) return;
+  if (currentIndex >= slideOrder.length - 1) return;
+
+  autoAdvanceTimer = setTimeout(() => {
+    if (settings.autoAdvance) nextSlide();
+  }, settings.autoAdvanceDelay * 1000);
+}
+
+/* ============================================================
+   UI VISIBILITY
+   ============================================================ */
+const uiOverlay = document.getElementById('uiOverlay');
+
+function showUI() {
+  uiVisible = true;
+  uiOverlay.classList.add('visible');
+  resetUIHideTimer();
+}
+
+function hideUI() {
+  uiVisible = false;
+  uiOverlay.classList.remove('visible');
+}
+
+function toggleUI() {
+  if (uiVisible) hideUI();
+  else showUI();
+}
+
+function resetUIHideTimer() {
+  if (uiHideTimer) clearTimeout(uiHideTimer);
+  if (settings.autoHideUI && uiVisible) {
+    uiHideTimer = setTimeout(() => {
+      if (settings.autoHideUI) hideUI();
+    }, 3000);
   }
-  slideOrder = arr;
-  await saveOrder();
-  toast('🔀 Urutan dirawakkan', 'success');
-});
+}
 
-document.getElementById('btnClearAll').addEventListener('click', async () => {
-  if (slideOrder.length === 0) return;
-  if (!confirm('Kosongkan semua urutan slide?')) return;
-  slideOrder = [];
-  await saveOrder();
-  toast('Urutan dikosongkan', 'success');
+document.addEventListener('mousemove', () => {
+  if (!uiVisible && !settings.autoHideUI) return;
+  showUI();
 });
 
 /* ============================================================
-   EDIT MODAL
+   FULLSCREEN
    ============================================================ */
-const editModal = document.getElementById('editModal');
-const miniStage = document.getElementById('miniStage');
-
-function openEditModal(id) {
-  const r = recipients.find(x => x.id === id);
-  if (!r) return;
-
-  editingId = id;
-  const eff = getEffectiveSettings(id);
-
-  document.getElementById('editNama').value = (r.nama || '').toUpperCase();
-  document.getElementById('editMatrik').value = (r.matrik || '').toUpperCase();
-  document.getElementById('editBarcode').value = (r.barcode || '').toUpperCase();
-
-  document.getElementById('editSizeNama').value = eff.styles.nameSize;
-  document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
-  document.getElementById('editColor').value = eff.styles.color;
-  document.getElementById('editFont').value = eff.styles.font;
-  document.getElementById('editWeight').value = String(eff.styles.weight);
-
-  document.getElementById('editLoop').checked = eff.video.loop;
-  document.getElementById('editAutoplay').checked = eff.video.autoplay;
-
-  document.getElementById('editOverlay').checked = eff.overlay.enabled;
-  document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
-  document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
-
-  const isCustom = hasOverride(id);
-  document.getElementById('overrideBanner').style.display = isCustom ? 'flex' : 'none';
-  document.getElementById('customBadge').style.display = isCustom ? 'inline-block' : 'none';
-
-  renderMiniStage();
-  editModal.classList.add('active');
-}
-
-function closeEditModal() {
-  editModal.classList.remove('active');
-  editingId = null;
-}
-
-document.getElementById('btnCloseEdit').addEventListener('click', closeEditModal);
-document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
-editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
-
-/* ============================================================
-   RENDER MINI STAGE — VIDEO untuk edit
-   ============================================================ */
-function renderMiniStage() {
-  if (!editingId) return;
-
-  const r = recipients.find(x => x.id === editingId);
-  if (!r) return;
-
-  const eff = getEffectiveSettings(editingId);
-
-  miniStage.innerHTML = '';
-
-  if (configState.template && configState.templateType === 'image') {
-    const img = document.createElement('img');
-    img.src = configState.template;
-    img.draggable = false;
-    miniStage.appendChild(img);
-  } else if (configState.template && configState.templateType === 'video') {
-    const fileId = getTemplateFileId();
-    if (fileId) {
-      // Cuba <video> dulu
-      const video = document.createElement('video');
-      video.src = getDriveVideoDirectUrl(fileId);
-      video.autoplay = true;
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.preload = 'auto';
-      video.crossOrigin = 'anonymous';
-      video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;background:#000;z-index:1;';
-
-      video.addEventListener('error', () => {
-        // Fallback ke iframe
-        console.warn('⚠️ Mini stage video gagal, tukar ke iframe');
-        video.remove();
-
-        const iframe = document.createElement('iframe');
-        iframe.src = getDriveVideoEmbedUrl(fileId);
-        iframe.allow = 'autoplay; encrypted-media';
-        iframe.allowFullscreen = true;
-        iframe.frameBorder = '0';
-        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:1;';
-        miniStage.insertBefore(iframe, miniStage.firstChild);
-      });
-
-      miniStage.appendChild(video);
-    } else {
-      miniStage.innerHTML = `
-        <div class="placeholder">
-          <div class="emoji">⚠️</div>
-          <div>File ID video tak dijumpai</div>
-        </div>`;
-    }
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(e => {
+      toast('Fullscreen tak dibenarkan: ' + e.message, 'error');
+    });
   } else {
-    miniStage.innerHTML = `
-      <div class="placeholder">
-        <div class="emoji">🖼️</div>
-        <div>Tiada template</div>
-      </div>`;
+    document.exitFullscreen();
   }
-
-  if (eff.overlay.enabled) {
-    const ov = document.createElement('div');
-    ov.style.cssText = `position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:5;`;
-    miniStage.appendChild(ov);
-  }
-
-  addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name');
-  addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik');
 }
 
-function addMiniDragTag(type, text, xPct, yPct, styles, tagClass) {
-  const tag = document.createElement('div');
-  tag.className = `mini-drag-tag ${tagClass}`;
-  tag.dataset.type = type;
-  tag.style.left = xPct + '%';
-  tag.style.top = yPct + '%';
-  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.6 + 'px';
-  tag.style.color = styles.color;
-  tag.style.fontFamily = styles.font;
-  tag.style.fontWeight = styles.weight;
-  tag.style.textShadow = '0 2px 8px rgba(0,0,0,0.6)';
-
-  tag.innerHTML = `
-    <span class="lbl">${type === 'name' ? 'Nama' : 'Matriks'}</span>
-    <span>${escapeHtml(text)}</span>
-  `;
-
-  miniStage.appendChild(tag);
-  makeMiniDraggable(tag, type);
-}
-
-function makeMiniDraggable(el, type) {
-  let dragging = false;
-  let startX, startY, startXPct, startYPct;
-
-  el.addEventListener('mousedown', (e) => {
-    dragging = true;
-    el.classList.add('dragging');
-    startX = e.clientX; startY = e.clientY;
-    startXPct = parseFloat(el.style.left);
-    startYPct = parseFloat(el.style.top);
-    e.preventDefault();
-  });
-
-  el.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    dragging = true;
-    el.classList.add('dragging');
-    startX = t.clientX; startY = t.clientY;
-    startXPct = parseFloat(el.style.left);
-    startYPct = parseFloat(el.style.top);
-  }, { passive: true });
-
-  function move(cx, cy) {
-    if (!dragging) return;
-    const rect = miniStage.getBoundingClientRect();
-    const dx = ((cx - startX) / rect.width) * 100;
-    const dy = ((cy - startY) / rect.height) * 100;
-
-    const newX = Math.max(0, Math.min(100, startXPct + dx));
-    const newY = Math.max(0, Math.min(100, startYPct + dy));
-
-    el.style.left = newX + '%';
-    el.style.top = newY + '%';
-
-    document.getElementById('coordDisplayMini').textContent =
-      `${type === 'name' ? 'Nama' : 'Matriks'}: x ${newX.toFixed(1)}% · y ${newY.toFixed(1)}%`;
-
-    if (editingId) {
-      const ov = overrides[editingId] || {};
-      const eff = getEffectiveSettings(editingId);
-      ov.positions = ov.positions || { ...eff.positions };
-      ov.positions[type] = { x: newX, y: newY };
-      ov.styles = ov.styles || { ...eff.styles };
-      ov.video = ov.video || { ...eff.video };
-      ov.overlay = ov.overlay || { ...eff.overlay };
-      overrides[editingId] = ov;
-    }
-  }
-
-  function end() {
-    if (!dragging) return;
-    dragging = false;
-    el.classList.remove('dragging');
-    if (editingId) {
-      document.getElementById('overrideBanner').style.display = 'flex';
-      document.getElementById('customBadge').style.display = 'inline-block';
-    }
-  }
-
-  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
-  document.addEventListener('mouseup', end);
-  document.addEventListener('touchmove', e => {
-    if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); }
-  }, { passive: true });
-  document.addEventListener('touchend', end);
-}
+document.addEventListener('fullscreenchange', () => {
+  const isFs = !!document.fullscreenElement;
+  document.getElementById('fsLabel').textContent = isFs ? 'Keluar FS' : 'Fullscreen';
+});
 
 /* ============================================================
-   OVERRIDE HELPERS
+   SETTINGS PANEL
    ============================================================ */
-function ensureOverride(id) {
-  if (!overrides[id]) {
-    const eff = getEffectiveSettings(id);
-    overrides[id] = {
-      positions: { ...eff.positions },
-      styles: { ...eff.styles },
-      video: { ...eff.video },
-      overlay: { ...eff.overlay }
-    };
+const settingsPanel = document.getElementById('settingsPanel');
+const jumpPanel = document.getElementById('jumpPanel');
+
+function toggleSettings() {
+  settingsPanel.classList.toggle('open');
+  jumpPanel.classList.remove('open');
+}
+
+function closeSettings() { settingsPanel.classList.remove('open'); }
+
+function toggleJumpPanel() {
+  jumpPanel.classList.toggle('open');
+  settingsPanel.classList.remove('open');
+}
+
+function closeJumpPanel() { jumpPanel.classList.remove('open'); }
+
+document.getElementById('btnSettings').addEventListener('click', toggleSettings);
+document.getElementById('btnCloseSettings').addEventListener('click', closeSettings);
+document.getElementById('btnJump').addEventListener('click', toggleJumpPanel);
+document.getElementById('btnCloseJump').addEventListener('click', closeJumpPanel);
+
+document.getElementById('selTransition').addEventListener('change', (e) => {
+  settings.transition = e.target.value;
+  renderSlides();
+  toast('Transition: ' + e.target.value, 'success', 1500);
+});
+
+document.getElementById('toggleAutoAdvance').addEventListener('change', (e) => {
+  settings.autoAdvance = e.target.checked;
+  document.getElementById('autoAdvanceDelayGroup').style.display = e.target.checked ? 'block' : 'none';
+  scheduleAutoAdvance();
+});
+
+document.getElementById('inpAutoAdvanceDelay').addEventListener('input', (e) => {
+  settings.autoAdvanceDelay = parseInt(e.target.value) || 8;
+  scheduleAutoAdvance();
+});
+
+document.getElementById('toggleAutoHideUI').addEventListener('change', (e) => {
+  settings.autoHideUI = e.target.checked;
+  if (settings.autoHideUI) resetUIHideTimer();
+  else showUI();
+});
+
+document.getElementById('toggleMuteVideo').addEventListener('change', (e) => {
+  settings.muteVideo = e.target.checked;
+  // NOTE: unmute hanya works kalau user dah interaksi dengan page
+});
+
+document.getElementById('toggleLoopVideo').addEventListener('change', (e) => {
+  settings.loopVideo = e.target.checked;
+  document.querySelectorAll('#stage video').forEach(v => v.loop = settings.loopVideo);
+});
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
   }
-  return overrides[id];
-}
 
-function markCustomized() {
-  document.getElementById('overrideBanner').style.display = 'flex';
-  document.getElementById('customBadge').style.display = 'inline-block';
-}
+  switch (e.key) {
+    case '>':
+    case '.':
+    case 'ArrowRight':
+    case 'PageDown':
+    case ' ':
+      e.preventDefault();
+      nextSlide();
+      break;
 
-['editNama', 'editMatrik'].forEach(id => {
-  document.getElementById(id).addEventListener('input', (e) => {
-    const s = e.target.selectionStart, t = e.target.selectionEnd;
-    e.target.value = e.target.value.toUpperCase();
-    e.target.setSelectionRange(s, t);
-  });
-});
+    case '<':
+    case ',':
+    case 'ArrowLeft':
+    case 'PageUp':
+      e.preventDefault();
+      prevSlide();
+      break;
 
-document.getElementById('editSizeNama').addEventListener('input', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.styles.nameSize = parseInt(e.target.value) || 32;
-  markCustomized();
-  renderMiniStage();
-});
+    case 'Home': e.preventDefault(); goToSlide(0); break;
+    case 'End': e.preventDefault(); goToSlide(slideOrder.length - 1); break;
+    case 'f': case 'F': e.preventDefault(); toggleFullscreen(); break;
+    case 's': case 'S': e.preventDefault(); openScanModal(); break;
+    case 'j': case 'J': e.preventDefault(); toggleJumpPanel(); break;
+    case 'c': case 'C': e.preventDefault(); toggleSettings(); break;
+    case 'h': case 'H': e.preventDefault(); toggleUI(); break;
 
-document.getElementById('editSizeMatrik').addEventListener('input', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.styles.matrikSize = parseInt(e.target.value) || 22;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editColor').addEventListener('input', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.styles.color = e.target.value;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editFont').addEventListener('change', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.styles.font = e.target.value;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editWeight').addEventListener('change', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.styles.weight = parseInt(e.target.value);
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editLoop').addEventListener('change', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.video.loop = e.target.checked;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editAutoplay').addEventListener('change', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.video.autoplay = e.target.checked;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editOverlay').addEventListener('change', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.overlay.enabled = e.target.checked;
-  document.getElementById('editOpacityGroup').style.display = e.target.checked ? 'block' : 'none';
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('editOverlayOpacity').addEventListener('input', (e) => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.overlay.opacity = parseInt(e.target.value) || 0;
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('btnResetPosMini').addEventListener('click', () => {
-  if (!editingId) return;
-  const ov = ensureOverride(editingId);
-  ov.positions = { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } };
-  markCustomized();
-  renderMiniStage();
-});
-
-document.getElementById('btnCopyGlobal').addEventListener('click', () => {
-  if (!editingId) return;
-  const base = {
-    positions: configState.positions || DEFAULT_SETTINGS.positions,
-    styles: configState.styles || DEFAULT_SETTINGS.styles,
-    video: configState.video || DEFAULT_SETTINGS.video,
-    overlay: configState.overlay || DEFAULT_SETTINGS.overlay
-  };
-  overrides[editingId] = {
-    positions: { ...base.positions },
-    styles: { ...base.styles },
-    video: { ...base.video },
-    overlay: { ...base.overlay }
-  };
-  const eff = getEffectiveSettings(editingId);
-  document.getElementById('editSizeNama').value = eff.styles.nameSize;
-  document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
-  document.getElementById('editColor').value = eff.styles.color;
-  document.getElementById('editFont').value = eff.styles.font;
-  document.getElementById('editWeight').value = String(eff.styles.weight);
-  document.getElementById('editLoop').checked = eff.video.loop;
-  document.getElementById('editAutoplay').checked = eff.video.autoplay;
-  document.getElementById('editOverlay').checked = eff.overlay.enabled;
-  document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
-  document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
-  markCustomized();
-  renderMiniStage();
-  toast('Disalin dari setting default', 'success', 1500);
-});
-
-document.getElementById('btnResetOverride').addEventListener('click', () => {
-  if (!editingId) return;
-  if (!confirm('Reset ke setting default?')) return;
-  delete overrides[editingId];
-  closeEditModal();
-  saveOverrides();
-  toast('Reset ke default', 'success');
-});
-
-document.getElementById('btnSaveEdit').addEventListener('click', async () => {
-  if (!editingId) return;
-
-  const nama = document.getElementById('editNama').value.trim().toUpperCase();
-  const matrik = document.getElementById('editMatrik').value.trim().toUpperCase();
-
-  if (!nama || !matrik) return toast('Sila isi nama dan matriks', 'error');
-
-  try {
-    await updateDoc(doc(db, 'recipients', editingId), { nama, matrik });
-    await saveOverrides();
-    toast('✅ Perubahan disimpan', 'success');
-    closeEditModal();
-  } catch (e) {
-    console.error(e);
-    toast('Gagal simpan: ' + e.message, 'error');
+    case 'Escape':
+      if (document.getElementById('scanModal').classList.contains('active')) closeScanModal();
+      else if (settingsPanel.classList.contains('open')) closeSettings();
+      else if (jumpPanel.classList.contains('open')) closeJumpPanel();
+      else if (document.fullscreenElement) document.exitFullscreen();
+      break;
   }
 });
 
-document.getElementById('btnRemoveFromOrder').addEventListener('click', async () => {
-  if (!editingId) return;
-  if (!confirm('Keluarkan dari urutan? (Data penerima masih kekal)')) return;
-  slideOrder = slideOrder.filter(id => id !== editingId);
-  await saveOrder();
-  toast('Dikeluarkan dari urutan', 'success');
-  closeEditModal();
-});
+document.getElementById('btnPrev').addEventListener('click', prevSlide);
+document.getElementById('btnNext').addEventListener('click', nextSlide);
+document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+document.getElementById('btnScan').addEventListener('click', openScanModal);
 
 /* ============================================================
    SCAN
    ============================================================ */
-let codeReader = null;
-let scanActive = false;
 const scanModal = document.getElementById('scanModal');
 const scanVideo = document.getElementById('scanVideo');
 const scanStatus = document.getElementById('scanStatus');
 const scanStatusText = document.getElementById('scanStatusText');
 
-document.getElementById('btnOpenScan').addEventListener('click', openScanModal);
 document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
 scanModal.addEventListener('click', (e) => { if (e.target === scanModal) closeScanModal(); });
 
 async function openScanModal() {
+  if (scanActive) return;
   scanModal.classList.add('active');
   scanStatus.className = 'scan-status';
   scanStatusText.textContent = 'Menghidupkan kamera...';
@@ -2503,8 +1823,7 @@ async function openScanModal() {
 
     scanStatusText.textContent = '✅ Kamera aktif';
   } catch (e) {
-    console.error(e);
-    scanStatus.className = 'scan-status error';
+    console.error('Camera:', e);
     scanStatusText.textContent = '❌ ' + e.message;
   }
 }
@@ -2528,11 +1847,25 @@ function handleScanResult(code) {
 
   try { playBeep(); } catch(e) {}
 
+  const orderedIds = slideOrder;
+  const foundIdx = orderedIds.findIndex(id => {
+    const r = recipients.find(x => x.id === id);
+    return r && String(r.barcode || '').toUpperCase() === code;
+  });
+
   setTimeout(() => {
     closeScanModal();
-    inpBarcode.value = code;
-    addToOrder();
-  }, 600);
+
+    if (foundIdx >= 0) {
+      goToSlide(foundIdx);
+      const r = recipients.find(x => x.id === orderedIds[foundIdx]);
+      toast('✅ ' + (r?.nama || code), 'success', 2500);
+    } else {
+      const r = recipients.find(x => String(x.barcode || '').toUpperCase() === code);
+      if (r) toast('⚠️ ' + r.nama + ' belum dalam urutan slide', 'warn', 3000);
+      else toast('❌ Barcode tak dijumpai: ' + code, 'error', 3000);
+    }
+  }, 500);
 }
 
 function playBeep() {
@@ -2548,9 +1881,55 @@ function playBeep() {
   } catch (e) {}
 }
 
+/* ============================================================
+   START OVERLAY — unlock autoplay
+   ============================================================ */
+const startOverlay = document.getElementById('startOverlay');
+
+document.getElementById('btnStart').addEventListener('click', async () => {
+  // Unlock autoplay
+  unlockAutoplay();
+
+  // Hide overlay
+  startOverlay.classList.add('hide');
+
+  // Auto request fullscreen
+  try {
+    await document.documentElement.requestFullscreen();
+  } catch(e) {
+    console.log('Fullscreen auto request denied:', e);
+  }
+
+  // Set flag
+  presentationStarted = true;
+
+  // Trigger play semua video dalam current slide
+  setTimeout(() => {
+    applyActiveSlide(true);
+    toast('✅ Presentation dimulakan', 'success', 2500);
+  }, 300);
+
+  // Show UI
+  showUI();
+});
+
+// Auto-hide start overlay if presentation was already running
+document.addEventListener('click', () => {
+  if (!presentationStarted && startOverlay.classList.contains('hide')) {
+    presentationStarted = true;
+  }
+}, { once: true });
+
+/* ============================================================
+   INIT
+   ============================================================ */
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide · Video Auto-Fallback', 'color: #fb923c; font-size: 14px; font-weight: bold;');
-console.log('%c💡 Kalau video tak main, check Console untuk error', 'color: #94a3b8;');
+
+console.log('%c📺 Slide Presentation Mode', 'color: #fb923c; font-size: 16px; font-weight: bold;');
+console.log('%cPintasan:', 'color: #94a3b8; font-weight: bold;');
+console.log('%c> atau → — Seterusnya', 'color: #94a3b8;');
+console.log('%c< atau ← — Sebelum', 'color: #94a3b8;');
+console.log('%cF — Fullscreen · S — Scan · J — Senarai · C — Tetapan · H — Hide UI', 'color: #94a3b8;');
 </script>
 
 </body>
