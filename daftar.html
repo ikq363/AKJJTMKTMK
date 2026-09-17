@@ -55,6 +55,7 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
+  /* ============ TOPBAR ============ */
   .topbar {
     position: relative;
     z-index: 2;
@@ -110,6 +111,7 @@
     box-shadow: 0 0 12px var(--accent);
   }
 
+  /* ============ CONTAINER ============ */
   .container {
     position: relative;
     z-index: 1;
@@ -130,6 +132,7 @@
     }
   }
 
+  /* ============ HEADINGS ============ */
   .page-header { margin-bottom: 28px; }
 
   .page-header h1 {
@@ -157,6 +160,7 @@
     max-width: 480px;
   }
 
+  /* ============ FORM CARD ============ */
   .form-card {
     background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
     border: 1px solid var(--border);
@@ -247,6 +251,7 @@
     gap: 6px;
   }
 
+  /* Barcode field with scan button */
   .input-with-btn {
     display: flex;
     gap: 8px;
@@ -281,6 +286,7 @@
 
   .btn-scan svg { width: 16px; height: 16px; }
 
+  /* ============ SUBMIT BUTTON ============ */
   .btn-daftar {
     width: 100%;
     padding: 15px 24px;
@@ -317,6 +323,7 @@
 
   .btn-daftar svg { width: 18px; height: 18px; }
 
+  /* ============ LIST CARD ============ */
   .list-card {
     background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
     border: 1px solid var(--border);
@@ -370,6 +377,7 @@
     border-radius: 3px;
   }
 
+  /* ============ RECIPIENT ITEM ============ */
   .recipient-item {
     display: flex;
     align-items: center;
@@ -456,6 +464,7 @@
 
   .btn-hapus svg { width: 15px; height: 15px; }
 
+  /* ============ EMPTY STATE ============ */
   .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -465,6 +474,7 @@
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
   .empty-state p { font-size: 13.5px; }
 
+  /* ============ TOAST ============ */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -503,6 +513,7 @@
     to { transform: translateX(0); opacity: 1; }
   }
 
+  /* ============ STATUS BADGE ============ */
   .status-badge {
     display: inline-flex;
     align-items: center;
@@ -544,6 +555,7 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
+  /* ============ SPINNER ============ */
   .spinner {
     width: 16px; height: 16px;
     border: 2px solid rgba(10, 14, 26, 0.3);
@@ -553,7 +565,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* MODAL SCAN */
+  /* ============ MODAL SCAN ============ */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -670,10 +682,10 @@
   }
 
   .scan-frame {
-    width: 82%;
-    aspect-ratio: 1.9;
+    width: 70%;
+    aspect-ratio: 1.6;
     border: 3px solid var(--accent);
-    border-radius: 12px;
+    border-radius: 14px;
     position: relative;
     box-shadow: 0 0 24px rgba(56, 189, 248, 0.5), inset 0 0 24px rgba(56, 189, 248, 0.2);
   }
@@ -691,14 +703,14 @@
     top: -3px; left: -3px;
     border-right: none;
     border-bottom: none;
-    border-top-left-radius: 12px;
+    border-top-left-radius: 14px;
   }
 
   .scan-frame::after {
     bottom: -3px; right: -3px;
     border-left: none;
     border-top: none;
-    border-bottom-right-radius: 12px;
+    border-bottom-right-radius: 14px;
   }
 
   .scan-line {
@@ -708,7 +720,7 @@
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
     box-shadow: 0 0 12px var(--accent);
-    animation: scanLine 1.8s ease-in-out infinite;
+    animation: scanLine 2s ease-in-out infinite;
   }
 
   @keyframes scanLine {
@@ -716,65 +728,52 @@
     50% { top: 80%; }
   }
 
-  /* TORCH BUTTON */
-  .torch-btn {
+  /* ============ FLASHLIGHT BUTTON ============ */
+  .btn-flashlight {
     position: absolute;
     top: 12px;
     right: 12px;
     width: 44px;
     height: 44px;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(148, 163, 184, 0.4);
     border-radius: 12px;
-    color: #e2e8f0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(148, 163, 184, 0.4);
+    color: #94a3b8;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     transition: all 0.25s;
     z-index: 10;
-    pointer-events: auto;
   }
 
-  .torch-btn.show { display: flex; }
-
-  .torch-btn:hover {
-    background: rgba(30, 41, 59, 0.95);
+  .btn-flashlight:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
     transform: scale(1.05);
   }
 
-  .torch-btn.active {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  .btn-flashlight.active {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
     border-color: #fbbf24;
-    color: #0a0e1a;
-    box-shadow: 0 0 24px rgba(251, 191, 36, 0.7);
+    color: #fbbf24;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
   }
 
-  .torch-btn svg {
+  .btn-flashlight.active svg {
+    filter: drop-shadow(0 0 6px #fbbf24);
+  }
+
+  .btn-flashlight svg {
     width: 22px;
     height: 22px;
   }
 
-  /* SCAN HINTS */
-  .scan-hints {
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
-
-  .scan-hints strong {
-    color: var(--accent);
-    font-weight: 700;
-  }
-
   .scan-status {
-    margin-top: 12px;
+    margin-top: 16px;
     padding: 12px 16px;
     background: var(--bg-input);
     border: 1px solid var(--border);
@@ -805,7 +804,6 @@
     background: var(--accent);
     box-shadow: 0 0 10px var(--accent);
     animation: pulse 1.5s infinite;
-    flex-shrink: 0;
   }
 
   .scan-status.success .pulse-icon { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
@@ -832,6 +830,7 @@
     color: var(--text-dim);
   }
 
+  /* ============ FADE UP ============ */
   .fade-up {
     opacity: 0;
     transform: translateY(16px);
@@ -850,6 +849,7 @@
 
 <div class="grid-overlay"></div>
 
+<!-- TOPBAR -->
 <div class="topbar">
   <a href="index.html" class="back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -868,8 +868,10 @@
   </div>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="container">
 
+  <!-- LEFT: FORM -->
   <div>
     <div class="page-header fade-up">
       <h1>Daftar <span>Penerima</span> Anugerah</h1>
@@ -921,6 +923,7 @@
     </div>
   </div>
 
+  <!-- RIGHT: LIST -->
   <div class="list-card fade-up delay-2">
     <div class="list-header">
       <h2>Senarai Penerima <span class="count-badge" id="countBadge">0</span></h2>
@@ -935,9 +938,12 @@
 
 </div>
 
+<!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- MODAL SCAN -->
+<!-- ============================================================
+     MODAL SCAN BARCODE
+     ============================================================ -->
 <div class="modal-overlay" id="scanModal">
   <div class="modal-scan">
     <div class="modal-header">
@@ -961,34 +967,33 @@
             <div class="scan-line"></div>
           </div>
         </div>
-        <button class="torch-btn" id="btnTorch" title="Toggle Flashlight">
+
+        <!-- BUTANG FLASHLIGHT -->
+        <button type="button" class="btn-flashlight" id="btnFlashlight" title="Toggle Flashlight">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 2h6l-1 7h4l-8 13v-9H6l3-11z"></path>
+            <path d="M9 18h6"></path>
+            <path d="M10 22h4"></path>
+            <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
           </svg>
         </button>
       </div>
 
       <div class="scan-status" id="scanStatus">
         <span class="pulse-icon"></span>
-        <span id="scanStatusText">Menghidupkan kamera...</span>
-      </div>
-
-      <div class="scan-hints">
-        <strong>💡 Tips scan lebih cepat:</strong><br>
-        • Jarak ideal: <strong>10-20cm</strong> dari barcode<br>
-        • Pastikan <strong>cahaya cukup</strong> — guna torch kalau gelap<br>
-        • Pegang kamera <strong>stabil</strong>, jangan gerak laju<br>
-        • Barcode penuhkan dalam <strong>frame biru</strong>
+        <span id="scanStatusText">Menghalakan kamera ke barcode...</span>
       </div>
     </div>
 
     <div class="modal-footer">
       <span>Letakkan barcode dalam kotak</span>
-      <span><kbd>ESC</kbd> tutup</span>
+      <span><kbd>ESC</kbd> untuk tutup</span>
     </div>
   </div>
 </div>
 
+<!-- ============================================================
+     FIREBASE SDK
+     ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
@@ -1065,22 +1070,22 @@ async function suggestNextBarcode() {
 }
 
 /* ============================================================
-   SCAN BARCODE MODAL — ENHANCED
+   SCAN BARCODE MODAL + FLASHLIGHT
    ============================================================ */
 let codeReader = null;
 let scanActive = false;
 let lastScannedCode = '';
 let lastScannedTime = 0;
-let currentStream = null;       // MediaStream
-let currentTrack = null;         // Video track (untuk torch)
-let torchSupported = false;
+
+/* Flashlight state */
+let videoTrack = null;
 let torchOn = false;
 
 const scanModal = document.getElementById('scanModal');
 const scanVideo = document.getElementById('scanVideo');
 const scanStatus = document.getElementById('scanStatus');
 const scanStatusText = document.getElementById('scanStatusText');
-const btnTorch = document.getElementById('btnTorch');
+const btnFlashlight = document.getElementById('btnFlashlight');
 
 document.getElementById('btnOpenScan').addEventListener('click', openScanModal);
 document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
@@ -1093,254 +1098,171 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && scanModal.classList.contains('active')) {
     closeScanModal();
   }
-  // Tekan T untuk toggle torch
-  if ((e.key === 't' || e.key === 'T') && scanModal.classList.contains('active') && torchSupported) {
-    toggleTorch();
-  }
 });
 
-/* ============================================================
-   OPEN SCAN MODAL — REQUEST CAMERA + SETUP TORCH
-   ============================================================ */
 async function openScanModal() {
   scanModal.classList.add('active');
   scanStatus.className = 'scan-status';
   scanStatusText.textContent = 'Menghidupkan kamera...';
-  btnTorch.classList.remove('show', 'active');
   torchOn = false;
 
+  // Reset flashlight button
+  btnFlashlight.style.display = 'none';
+  btnFlashlight.classList.remove('active');
+
   try {
-    // Step 1: Request camera dengan resolution tinggi
-    const constraints = {
-      video: {
-        facingMode: { ideal: 'environment' },   // kamera belakang
-        width: { ideal: 1920, min: 640 },       // resolusi tinggi
-        height: { ideal: 1080, min: 480 },
-        frameRate: { ideal: 30, min: 15 },
-        // Focus mode continuous kalau support
-        focusMode: 'continuous',
-        // Zoom ke sikit (untuk majlis besar)
-        zoom: { ideal: 1.0 }
-      },
-      audio: false
-    };
-
-    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-    currentTrack = currentStream.getVideoTracks()[0];
-
-    // Apply advanced constraints (focus, exposure) kalau support
-    try {
-      const caps = currentTrack.getCapabilities ? currentTrack.getCapabilities() : {};
-
-      console.log('📷 Camera capabilities:', caps);
-
-      // Check torch support
-      if (caps.torch) {
-        torchSupported = true;
-        btnTorch.classList.add('show');
-        console.log('✅ Torch supported');
-      } else {
-        torchSupported = false;
-        console.log('❌ Torch NOT supported on this device');
-      }
-
-      // Apply focus mode continuous
-      if (caps.focusMode && caps.focusMode.includes('continuous')) {
-        await currentTrack.applyConstraints({
-          advanced: [{ focusMode: 'continuous' }]
-        });
-        console.log('✅ Continuous autofocus enabled');
-      }
-
-      // Apply exposure continuous
-      if (caps.exposureMode && caps.exposureMode.includes('continuous')) {
-        await currentTrack.applyConstraints({
-          advanced: [{ exposureMode: 'continuous' }]
-        });
-      }
-
-      // Apply white balance continuous
-      if (caps.whiteBalanceMode && caps.whiteBalanceMode.includes('continuous')) {
-        await currentTrack.applyConstraints({
-          advanced: [{ whiteBalanceMode: 'continuous' }]
-        });
-      }
-    } catch (e) {
-      console.log('Advanced constraints not supported:', e);
-    }
-
-    // Attach stream ke video element
-    scanVideo.srcObject = currentStream;
-    await scanVideo.play();
-
-    // Step 2: Setup ZXing reader dengan hints agresif
     codeReader = new ZXing.BrowserMultiFormatReader();
 
+    // Senarai hints untuk barcode format biasa
     const hints = new Map();
-    // Fokus CODE_128 je dulu — scan lagi cepat & tepat
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    const formats = [
       ZXing.BarcodeFormat.CODE_128,
       ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.CODE_93,
       ZXing.BarcodeFormat.EAN_13,
       ZXing.BarcodeFormat.EAN_8,
       ZXing.BarcodeFormat.UPC_A,
       ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.QR_CODE,
       ZXing.BarcodeFormat.ITF,
-      ZXing.BarcodeFormat.CODABAR,
-      ZXing.BarcodeFormat.QR_CODE
-    ]);
+      ZXing.BarcodeFormat.CODABAR
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-    hints.set(ZXing.DecodeHintType.PURE_BARCODE, false);
-    hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
 
     codeReader.hints = hints;
     scanActive = true;
 
-    // Step 3: Decode loop
-    const decodeFromVideo = () => {
-      if (!scanActive) return;
-
-      try {
-        codeReader.decodeFromVideoElement(scanVideo, (result, err) => {
-          if (result && scanActive) {
-            const code = result.getText().trim().toUpperCase();
-            handleScanResult(code);
-          }
-          // Continue loop
-          if (scanActive) {
-            requestAnimationFrame(decodeFromVideo);
-          }
-        });
-      } catch (e) {
-        console.warn('Decode error:', e);
-        if (scanActive) {
-          setTimeout(decodeFromVideo, 100);
+    await codeReader.decodeFromVideoDevice(
+      null,
+      'scanVideo',
+      (result, err) => {
+        if (result && scanActive) {
+          const code = result.getText().trim().toUpperCase();
+          handleScanResult(code);
         }
       }
-    };
-
-    decodeFromVideo();
+    );
 
     scanStatusText.textContent = '✅ Kamera aktif — halakan ke barcode';
-    console.log('✅ Scanner ready');
+
+    // Setup flashlight selepas kamera ready
+    setTimeout(setupFlashlight, 500);
+
   } catch (e) {
     console.error('Camera error:', e);
     scanStatus.className = 'scan-status error';
-
-    let errMsg = e.message;
-    if (e.name === 'NotAllowedError') {
-      errMsg = 'Kebenaran kamera ditolak. Benarkan akses kamera dalam browser settings.';
-    } else if (e.name === 'NotFoundError') {
-      errMsg = 'Tiada kamera dikesan pada peranti ini.';
-    } else if (e.name === 'NotReadableError') {
-      errMsg = 'Kamera sedang digunakan oleh aplikasi lain.';
-    }
-    scanStatusText.textContent = '❌ ' + errMsg;
+    scanStatusText.textContent = '❌ Gagal buka kamera: ' + e.message;
   }
 }
 
-/* ============================================================
-   TOGGLE TORCH (FLASHLIGHT)
-   ============================================================ */
-async function toggleTorch() {
-  if (!torchSupported || !currentTrack) return;
+/* ============ SETUP FLASHLIGHT ============ */
+function setupFlashlight() {
+  const video = document.getElementById('scanVideo');
 
-  try {
-    torchOn = !torchOn;
+  // Cuba dapatkan stream dari video element
+  let stream = video.srcObject;
 
-    await currentTrack.applyConstraints({
-      advanced: [{ torch: torchOn }]
-    });
+  // Fallback: cari stream dalam ZXing reader (property berbeza ikut versi)
+  if (!stream && codeReader) {
+    stream = codeReader.stream
+      || codeReader.getStream?.()
+      || codeReader._stream
+      || codeReader.streams?.get?.('video');
+  }
 
-    if (torchOn) {
-      btnTorch.classList.add('active');
-      toast('🔦 Flashlight ON', 'success', 1500);
-    } else {
-      btnTorch.classList.remove('active');
-      toast('Flashlight OFF', 'info', 1500);
-    }
+  if (!stream) {
+    console.warn('⚠️ Tak jumpa stream untuk flashlight');
+    return;
+  }
 
-    console.log('🔦 Torch:', torchOn ? 'ON' : 'OFF');
-  } catch (e) {
-    console.error('Torch toggle error:', e);
-    toast('Flashlight tak boleh guna: ' + e.message, 'error');
-    torchOn = false;
-    btnTorch.classList.remove('active');
+  const tracks = stream.getVideoTracks?.() || [];
+  videoTrack = tracks[0];
+
+  if (!videoTrack) {
+    console.warn('⚠️ Takde video track');
+    return;
+  }
+
+  // Check capabilities
+  const capabilities = videoTrack.getCapabilities?.() || {};
+
+  if (capabilities.torch) {
+    // Device support torch — tunjuk butang
+    btnFlashlight.style.display = 'flex';
+    console.log('✅ Flashlight supported');
+
+    // Setup click handler
+    btnFlashlight.onclick = async () => {
+      try {
+        torchOn = !torchOn;
+        await videoTrack.applyConstraints({
+          advanced: [{ torch: torchOn }]
+        });
+        btnFlashlight.classList.toggle('active', torchOn);
+        console.log('🔦 Torch:', torchOn ? 'ON' : 'OFF');
+      } catch (err) {
+        console.error('Torch error:', err);
+        toast('Flashlight gagal: ' + err.message, 'error');
+        torchOn = false;
+        btnFlashlight.classList.remove('active');
+      }
+    };
+  } else {
+    // Device tak support torch
+    btnFlashlight.style.display = 'none';
+    console.log('ℹ️ Flashlight not supported on this device');
   }
 }
 
-btnTorch.addEventListener('click', toggleTorch);
-
-/* ============================================================
-   CLOSE SCAN MODAL — STOP CAMERA
-   ============================================================ */
 function closeScanModal() {
   scanActive = false;
 
-  // Stop ZXing
+  // Matikan flashlight dulu
+  if (torchOn && videoTrack) {
+    try {
+      videoTrack.applyConstraints({ advanced: [{ torch: false }] });
+    } catch(e) {}
+    torchOn = false;
+  }
+
   if (codeReader) {
     try { codeReader.reset(); } catch (e) {}
     codeReader = null;
   }
 
-  // Stop camera stream
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => {
-      try { track.stop(); } catch(e) {}
-    });
-    currentStream = null;
-    currentTrack = null;
-  }
-
-  // Clear video
-  if (scanVideo.srcObject) {
-    scanVideo.srcObject = null;
-  }
-
-  torchOn = false;
-  torchSupported = false;
-  btnTorch.classList.remove('show', 'active');
+  btnFlashlight.classList.remove('active');
+  btnFlashlight.style.display = 'none';
+  videoTrack = null;
 
   scanModal.classList.remove('active');
 }
 
-/* ============================================================
-   HANDLE SCAN RESULT
-   ============================================================ */
 function handleScanResult(code) {
   const now = Date.now();
-
-  // Elak duplicate scan terlalu cepat (2 saat)
-  if (code === lastScannedCode && now - lastScannedTime < 2000) return;
+  // elak scan duplicate terlalu cepat
+  if (code === lastScannedCode && now - lastScannedTime < 1500) return;
   lastScannedCode = code;
   lastScannedTime = now;
-
-  console.log('✅ Barcode detected:', code);
 
   const inpBarcode = document.getElementById('inpBarcode');
   inpBarcode.value = code;
   inpBarcode.classList.add('scanned');
   setTimeout(() => inpBarcode.classList.remove('scanned'), 900);
 
-  // Feedback
+  // Feedback visual
   scanStatus.className = 'scan-status success';
   scanStatusText.textContent = `✅ Barcode dikesan: ${code}`;
 
-  // Vibrate (kalau support)
-  if (navigator.vibrate) {
-    navigator.vibrate(80);
-  }
-
-  // Beep
+  // Bunyi beep pendek
   try { playBeep(); } catch(e) {}
 
-  // Auto-close modal
+  // Auto-close modal selepas 800ms
   setTimeout(() => {
     closeScanModal();
+    // auto-focus ke nama
     document.getElementById('inpNama').focus();
-    toast('✅ Barcode: ' + code, 'success');
-  }, 700);
+    toast('Barcode diisi: ' + code, 'success');
+  }, 800);
 }
 
 function playBeep() {
@@ -1351,9 +1273,9 @@ function playBeep() {
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.frequency.value = 1200;
-    gain.gain.value = 0.1;
+    gain.gain.value = 0.08;
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
+    osc.stop(audioCtx.currentTime + 0.08);
   } catch (e) {}
 }
 
@@ -1387,6 +1309,7 @@ form.addEventListener('submit', async (e) => {
   btnDaftar.insertBefore(spinner, btnText);
 
   try {
+    // Semak barcode duplicate
     const allSnap = await getDocs(collection(db, 'recipients'));
     const duplicate = allSnap.docs.find(d =>
       String(d.data().barcode).toUpperCase() === barcode
@@ -1495,7 +1418,7 @@ document.querySelectorAll('.field input').forEach(inp => {
   inp.addEventListener('input', () => inp.classList.remove('error'));
 });
 
-console.log('%c📝 Daftar Penerima + Scan', 'color: #38bdf8; font-size: 14px; font-weight: bold;');
+console.log('%c📝 Daftar Penerima + Scan + Flashlight', 'color: #38bdf8; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
