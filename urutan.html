@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urus Urutan Slide · Sistem Anugerah</title>
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131a2e;
+    --bg-input: #0d1424;
+    --border: #1f2b47;
+    --border-focus: #fb923c;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #fb923c;
+    --accent-hover: #f97316;
+    --blue: #38bdf8;
+    --purple: #a78bfa;
+    --green: #34d399;
+    --red: #ef4444;
+    --yellow: #fbbf24;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(251, 146, 60, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(251, 146, 60, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251, 146, 60, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: relative;
+    z-index: 2;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+  .back-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(251, 146, 60, 0.08);
+    transform: translateX(-3px);
+  }
+  .back-btn svg { width: 14px; height: 14px; }
+
+  .topbar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  .topbar-title .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .status-badge.online {
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: var(--green);
+  }
+  .status-badge.connecting {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: var(--yellow);
+  }
+  .status-badge.offline {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+  }
+  .status-badge.online .status-dot { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* CONTAINER */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  /* HEADER + SCAN SECTION */
+  .header-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .header-section { grid-template-columns: 1fr; }
+    .container { padding: 20px 16px; }
+  }
+
+  .page-title {
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-title span {
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-desc {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .card {
+    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(167, 139, 250, 0.2));
+    border: 1px solid rgba(251, 146, 60, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* INPUT ROW */
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-row input {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .input-row input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .input-row input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.12);
+  }
+
+  .btn-icon {
+    padding: 0 16px;
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(167, 139, 250, 0.15));
+    border: 1.5px solid rgba(251, 146, 60, 0.4);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-icon:hover {
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(167, 139, 250, 0.25));
+    border-color: var(--accent);
+  }
+  .btn-icon svg { width: 16px; height: 16px; }
+
+  .btn-add {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px -6px rgba(251, 146, 60, 0.5);
+  }
+  .btn-add:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(251, 146, 60, 0.6);
+  }
+  .btn-add:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn-add svg { width: 16px; height: 16px; }
+
+  /* SEARCH SUGGESTION */
+  .suggestions {
+    margin-top: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: none;
+  }
+  .suggestions.show { display: block; }
+
+  .suggestion-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover {
+    background: rgba(251, 146, 60, 0.08);
+  }
+  .suggestion-item .name {
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  .suggestion-item .bc {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(251, 146, 60, 0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-mini {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-mini::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .stat-mini .num {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-mini .label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  /* GALLERY GRID */
+  .gallery-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .gallery-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .gallery-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .chip-btn {
+    padding: 7px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(251, 146, 60, 0.08);
+  }
+  .chip-btn.danger:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.08);
+  }
+  .chip-btn svg { width: 13px; height: 13px; }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* SLIDE CARD */
+  .slide-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    position: relative;
+    transition: all 0.25s;
+    cursor: grab;
+    animation: cardIn 0.4s ease-out;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .slide-card:hover {
+    border-color: rgba(251, 146, 60, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  }
+
+  .slide-card.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+    transform: scale(0.98);
+  }
+
+  .slide-card.drag-over {
+    border-color: var(--accent);
+    border-style: dashed;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+  }
+
+  .slide-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent), 0 8px 24px -6px rgba(251, 146, 60, 0.4);
+  }
+
+  /* ORDER BADGE */
+  .order-badge {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    color: #0a0e1a;
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.4);
+    z-index: 2;
+    border: 2px solid var(--bg-card);
+  }
+
+  /* DRAG HANDLE */
+  .drag-handle {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    cursor: grab;
+  }
+
+  /* PREVIEW THUMBNAIL */
+  .slide-preview {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 10px;
+    margin-top: 8px;
+  }
+
+  .slide-preview img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .slide-preview .mini-name,
+  .slide-preview .mini-matrik {
+    position: absolute;
+    font-weight: 800;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    line-height: 1;
+    z-index: 2;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  }
+
+  .slide-preview .no-template {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1f35, #0d1424);
+    color: var(--text-muted);
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .slide-preview .no-template .emoji {
+    font-size: 28px;
+    opacity: 0.5;
+  }
+
+  /* CARD INFO */
+  .slide-info {
+    padding: 0 4px;
+  }
+
+  .slide-info .name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 3px;
+  }
+
+  .slide-info .matrik {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+  }
+
+  .slide-info .bc-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .slide-info .bc {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    border: 1px solid rgba(251, 146, 60, 0.3);
+  }
+
+  .slide-info .status {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .slide-info .status.hadir {
+    color: var(--green);
+  }
+
+  /* CARD ACTIONS */
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .arrow-btn {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .arrow-btn:hover:not(:disabled) {
+    background: rgba(251, 146, 60, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .arrow-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .arrow-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .edit-btn {
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+  }
+
+  .edit-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .edit-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+  }
+  .empty-state .icon {
+    font-size: 56px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  .empty-state h3 {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .empty-state p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 16, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  }
+  .modal-overlay.active .modal {
+    transform: scale(1);
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 2;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-close {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .modal-close svg { width: 16px; height: 16px; }
+
+  .modal-body {
+    padding: 24px;
+  }
+
+  .modal-field {
+    margin-bottom: 16px;
+  }
+  .modal-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .modal-field input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .modal-field input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: rgba(251, 146, 60, 0.04);
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.12);
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-card);
+  }
+
+  .btn-secondary, .btn-danger-modal, .btn-primary-modal {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: var(--bg-input);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .btn-primary-modal {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    box-shadow: 0 6px 20px -6px rgba(251, 146, 60, 0.5);
+  }
+  .btn-primary-modal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -6px rgba(251, 146, 60, 0.6);
+  }
+
+  .btn-danger-modal {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .btn-danger-modal:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: var(--red);
+  }
+
+  .btn-danger-modal svg, .btn-primary-modal svg, .btn-secondary svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* SCAN VIDEO */
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  #scanVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-frame {
+    width: 70%;
+    aspect-ratio: 1.6;
+    border: 3px solid var(--accent);
+    border-radius: 14px;
+    position: relative;
+    box-shadow: 0 0 24px rgba(251, 146, 60, 0.5), inset 0 0 24px rgba(251, 146, 60, 0.2);
+  }
+
+  .scan-line {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: scanLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scanLine {
+    0%, 100% { top: 20%; }
+    50% { top: 80%; }
+  }
+
+  .scan-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  .scan-status.success {
+    border-color: var(--green);
+    background: rgba(52, 211, 153, 0.08);
+    color: var(--green);
+  }
+  .scan-status.error {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+  }
+
+  .scan-status .pulse-icon {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+
+  .scan-status.success .pulse-icon { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
+  .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.warn { border-left-color: var(--yellow); }
+  .toast .icon { font-size: 18px; }
+  @keyframes toastIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* FADE UP */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.1s; }
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Kembali ke Menu
+  </a>
+  <div class="topbar-title">
+    <span class="dot"></span>
+    URUS URUTAN SLIDE
+  </div>
+  <div id="statusBadge" class="status-badge connecting">
+    <span class="status-dot"></span>
+    <span id="statusText">Menyambung...</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header-section fade-up">
+    <div>
+      <h1 class="page-title">Urus <span>Urutan Slide</span></h1>
+      <p class="page-desc">
+        Scan barcode atau pilih penerima untuk masukkan ke urutan. Drag card untuk susun semula, atau guna butang anak panah.
+      </p>
+    </div>
+
+    <!-- SCAN / INPUT CARD -->
+    <div class="card">
+      <h2><span class="icon">🎯</span> Scan / Cari Penerima</h2>
+
+      <div class="input-row">
+        <input
+          type="text"
+          id="inpBarcode"
+          placeholder="Taip nombor barcode..."
+          maxlength="20"
+          autocomplete="off"
+        >
+        <button class="btn-icon" id="btnOpenScan" title="Scan dengan kamera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg>
+          Scan
+        </button>
+      </div>
+
+      <div class="suggestions" id="suggestions"></div>
+
+      <button class="btn-add" id="btnAdd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Tambah ke Urutan</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row fade-up delay-1">
+    <div class="stat-mini">
+      <div class="num" id="statTotal">0</div>
+      <div class="label">Dalam Urutan</div>
+    </div>
+    <div class="stat-mini">
+      <div class="num" id="statAvailable">0</div>
+      <div class="label">Belum Masuk</div>
+    </div>
+    <div class="stat-mini">
+      <div class="num" id="statHadir">0</div>
+      <div class="label">Sudah Hadir</div>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery-header fade-up delay-2">
+    <div class="gallery-title">
+      🎬 Urutan Slide
+      <span style="color:var(--text-muted);font-weight:500;font-size:13px;" id="orderCount"></span>
+    </div>
+    <div class="gallery-controls">
+      <button class="chip-btn" id="btnAutoOrder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        Auto-susun ikut Barcode
+      </button>
+      <button class="chip-btn" id="btnShuffle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"></polyline>
+          <line x1="4" y1="20" x2="21" y2="3"></line>
+          <polyline points="21 16 21 21 16 21"></polyline>
+          <line x1="15" y1="15" x2="21" y2="21"></line>
+          <line x1="4" y1="4" x2="9" y2="9"></line>
+        </svg>
+        Rawak
+      </button>
+      <button class="chip-btn danger" id="btnClearAll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        </svg>
+        Kosongkan
+      </button>
+    </div>
+  </div>
+
+  <div id="galleryContainer" class="gallery-grid">
+    <div class="empty-state">
+      <div class="icon">🎬</div>
+      <h3>Belum ada urutan</h3>
+      <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- SCAN MODAL -->
+<div class="modal-overlay" id="scanModal">
+  <div class="modal" style="max-width: 560px;">
+    <div class="modal-header">
+      <h3>📷 Scan Barcode</h3>
+      <button class="modal-close" id="btnCloseScan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="video-wrapper">
+        <video id="scanVideo" autoplay muted playsinline></video>
+        <div class="scan-overlay">
+          <div class="scan-frame">
+            <div class="scan-line"></div>
+          </div>
+        </div>
+      </div>
+      <div class="scan-status" id="scanStatus">
+        <span class="pulse-icon"></span>
+        <span id="scanStatusText">Menghidupkan kamera...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Edit Penerima</h3>
+      <button class="modal-close" id="btnCloseEdit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>Nama Penuh</label>
+        <input type="text" id="editNama" maxlength="100">
+      </div>
+      <div class="modal-field">
+        <label>Nombor Matriks</label>
+        <input type="text" id="editMatrik" maxlength="30">
+      </div>
+      <div class="modal-field">
+        <label>Nombor Barcode</label>
+        <input type="text" id="editBarcode" maxlength="20" disabled style="opacity:0.6;cursor:not-allowed;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger-modal" id="btnDeleteFromOrder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        </svg>
+        Keluarkan
+      </button>
+      <div style="flex:1"></div>
+      <button class="btn-secondary" id="btnCancelEdit">Batal</button>
+      <button class="btn-primary-modal" id="btnSaveEdit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     FIREBASE + LOGIC
+     ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import {
+  getFirestore, collection, doc, onSnapshot, query,
+  orderBy, setDoc, updateDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
+  authDomain: "akjjtmk.firebaseapp.com",
+  projectId: "akjjtmk",
+  storageBucket: "akjjtmk.firebasestorage.app",
+  messagingSenderId: "28020787148",
+  appId: "1:28020787148:web:47c3c3c62e11f71c59ff69"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let recipients = [];       // semua penerima dari Firestore
+let slideOrder = [];       // array of recipient IDs (urutan)
+let configState = {};      // config dari Firestore
+let selectedId = null;     // currently selected card
+let draggedId = null;      // card yang sedang di-drag
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function toast(msg, type = 'info', duration = 3500) {
+  const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="icon">${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'all 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(400px)';
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
+function setStatus(state, text) {
+  const b = document.getElementById('statusBadge');
+  b.className = 'status-badge ' + state;
+  document.getElementById('statusText').textContent = text;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================================================
+   LOAD CONFIG (untuk preview template)
+   ============================================================ */
+const configDoc = doc(db, 'config', 'main');
+
+onSnapshot(configDoc, (snap) => {
+  configState = snap.exists() ? snap.data() : {};
+  renderGallery();
+}, (err) => {
+  console.error('config listener:', err);
+});
+
+/* ============================================================
+   LOAD RECIPIENTS
+   ============================================================ */
+const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
+
+onSnapshot(recipientsQ, (snap) => {
+  recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  setStatus('online', 'Online');
+  renderGallery();
+  updateStats();
+}, (err) => {
+  console.error('recipients listener:', err);
+  setStatus('offline', 'Offline');
+});
+
+/* ============================================================
+   LOAD SLIDE ORDER
+   ============================================================ */
+const orderDoc = doc(db, 'config', 'slideOrder');
+
+onSnapshot(orderDoc, (snap) => {
+  if (snap.exists() && Array.isArray(snap.data().order)) {
+    slideOrder = snap.data().order;
+  } else {
+    slideOrder = [];
+  }
+  renderGallery();
+  updateStats();
+}, (err) => {
+  console.error('order listener:', err);
+});
+
+/* ============================================================
+   SAVE ORDER
+   ============================================================ */
+async function saveOrder() {
+  try {
+    await setDoc(orderDoc, {
+      order: slideOrder,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.error('save order error:', e);
+    toast('Gagal simpan urutan: ' + e.message, 'error');
+  }
+}
+
+/* ============================================================
+   RENDER GALLERY
+   ============================================================ */
+const galleryContainer = document.getElementById('galleryContainer');
+
+function renderGallery() {
+  const orderedRecipients = slideOrder
+    .map(id => recipients.find(r => r.id === id))
+    .filter(Boolean);
+
+  document.getElementById('orderCount').textContent = orderedRecipients.length > 0
+    ? `(${orderedRecipients.length} slaid)`
+    : '';
+
+  if (orderedRecipients.length === 0) {
+    galleryContainer.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="icon">🎬</div>
+        <h3>Belum ada urutan</h3>
+        <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
+      </div>
+    `;
+    return;
+  }
+
+  galleryContainer.innerHTML = orderedRecipients.map((r, idx) => {
+    return renderSlideCard(r, idx, orderedRecipients.length);
+  }).join('');
+
+  // Attach events
+  galleryContainer.querySelectorAll('.slide-card').forEach(card => {
+    setupCardEvents(card);
+  });
+}
+
+function renderSlideCard(r, idx, total) {
+  const isFirst = idx === 0;
+  const isLast = idx === total - 1;
+  const isSelected = selectedId === r.id;
+
+  // Preview - guna template kalau ada
+  let previewHTML = '';
+  if (configState.template && configState.templateType === 'image') {
+    const positions = configState.positions || { name: {x:50,y:40}, matrik: {x:50,y:60} };
+    const styles = configState.styles || { nameSize: 32, matrikSize: 22, color: '#fff', font: "'Segoe UI', sans-serif", weight: 700 };
+
+    const nameStyle = `
+      left: ${positions.name.x}%;
+      top: ${positions.name.y}%;
+      color: ${styles.color};
+      font-family: ${styles.font};
+      font-weight: ${styles.weight};
+      font-size: 10px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    `;
+    const matrikStyle = `
+      left: ${positions.matrik.x}%;
+      top: ${positions.matrik.y}%;
+      color: ${styles.color};
+      font-family: ${styles.font};
+      font-weight: ${styles.weight};
+      font-size: 8px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    `;
+
+    previewHTML = `
+      <div class="slide-preview">
+        <img src="${configState.template}" alt="" onerror="this.style.display='none'">
+        ${configState.overlay?.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${configState.overlay.opacity/100});"></div>` : ''}
+        <span class="mini-name" style="${nameStyle}">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="${matrikStyle}">${escapeHtml(r.matrik || '-')}</span>
+      </div>
+    `;
+  } else if (configState.template && configState.templateType === 'video') {
+    previewHTML = `
+      <div class="slide-preview">
+        <div class="no-template">
+          <div class="emoji">🎬</div>
+          <div>Video Template</div>
+        </div>
+        <span class="mini-name" style="left:50%;top:40%;color:#38bdf8;font-size:10px;">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:50%;top:60%;color:#34d399;font-size:8px;">${escapeHtml(r.matrik || '-')}</span>
+      </div>
+    `;
+  } else {
+    previewHTML = `
+      <div class="slide-preview">
+        <div class="no-template">
+          <div class="emoji">🖼️</div>
+          <div>Tiada template</div>
+        </div>
+        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:11px;">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:9px;">${escapeHtml(r.matrik || '-')}</span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="slide-card ${isSelected ? 'selected' : ''}" data-id="${r.id}" draggable="true">
+      <div class="order-badge">${idx + 1}</div>
+
+      ${previewHTML}
+
+      <div class="slide-info">
+        <div class="name">${escapeHtml(r.nama || '-')}</div>
+        <div class="matrik">${escapeHtml(r.matrik || '-')}</div>
+        <div class="bc-line">
+          <span class="bc">#${escapeHtml(r.barcode || '----')}</span>
+          <span class="status ${r.hadir ? 'hadir' : ''}">${r.hadir ? '✅ Hadir' : '⏳ Belum'}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="arrow-btn" data-action="left" ${isFirst ? 'disabled' : ''} title="Gerak ke kiri">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="arrow-btn" data-action="right" ${isLast ? 'disabled' : ''} title="Gerak ke kanan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <button class="edit-btn" data-action="edit" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   CARD EVENTS
+   ============================================================ */
+function setupCardEvents(card) {
+  const id = card.dataset.id;
+
+  // Arrow buttons
+  card.querySelectorAll('.arrow-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      const currentIdx = slideOrder.indexOf(id);
+      if (currentIdx === -1) return;
+
+      if (action === 'left' && currentIdx > 0) {
+        [slideOrder[currentIdx - 1], slideOrder[currentIdx]] = [slideOrder[currentIdx], slideOrder[currentIdx - 1]];
+        saveOrder();
+      } else if (action === 'right' && currentIdx < slideOrder.length - 1) {
+        [slideOrder[currentIdx + 1], slideOrder[currentIdx]] = [slideOrder[currentIdx], slideOrder[currentIdx + 1]];
+        saveOrder();
+      }
+    });
+  });
+
+  // Edit button
+  const editBtn = card.querySelector('.edit-btn');
+  if (editBtn) {
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditModal(id);
+    });
+  }
+
+  // Click card to select
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    if (selectedId === id) {
+      selectedId = null;
+    } else {
+      selectedId = id;
+    }
+    renderGallery();
+  });
+
+  // Drag events
+  card.addEventListener('dragstart', (e) => {
+    draggedId = id;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  });
+
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    galleryContainer.querySelectorAll('.slide-card').forEach(c => c.classList.remove('drag-over'));
+    draggedId = null;
+  });
+
+  card.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (draggedId && draggedId !== id) {
+      card.classList.add('drag-over');
+    }
+  });
+
+  card.addEventListener('dragleave', () => {
+    card.classList.remove('drag-over');
+  });
+
+  card.addEventListener('drop', (e) => {
+    e.preventDefault();
+    card.classList.remove('drag-over');
+    if (!draggedId || draggedId === id) return;
+
+    const fromIdx = slideOrder.indexOf(draggedId);
+    const toIdx = slideOrder.indexOf(id);
+
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    // Remove and insert
+    slideOrder.splice(fromIdx, 1);
+    slideOrder.splice(toIdx, 0, draggedId);
+
+    saveOrder();
+    toast('Urutan dikemas kini', 'success', 1500);
+  });
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+function updateStats() {
+  document.getElementById('statTotal').textContent = slideOrder.length;
+  document.getElementById('statAvailable').textContent = recipients.length - slideOrder.length;
+  document.getElementById('statHadir').textContent = recipients.filter(r => r.hadir).length;
+}
+
+/* ============================================================
+   ADD TO ORDER
+   ============================================================ */
+const inpBarcode = document.getElementById('inpBarcode');
+const suggestionsEl = document.getElementById('suggestions');
+
+inpBarcode.addEventListener('input', (e) => {
+  const val = e.target.value.trim().toUpperCase();
+  if (!val) {
+    suggestionsEl.classList.remove('show');
+    return;
+  }
+
+  const matches = recipients.filter(r =>
+    String(r.barcode || '').toUpperCase().includes(val) ||
+    String(r.nama || '').toUpperCase().includes(val) ||
+    String(r.matrik || '').toUpperCase().includes(val)
+  ).slice(0, 8);
+
+  if (matches.length === 0) {
+    suggestionsEl.classList.remove('show');
+    return;
+  }
+
+  suggestionsEl.innerHTML = matches.map(r => `
+    <div class="suggestion-item" data-id="${r.id}">
+      <div>
+        <div class="name">${escapeHtml(r.nama)}</div>
+        <div style="font-size:11px;color:var(--text-muted);font-family:monospace;">${escapeHtml(r.matrik)}</div>
+      </div>
+      <span class="bc">#${escapeHtml(r.barcode)}</span>
+    </div>
+  `).join('');
+
+  suggestionsEl.classList.add('show');
+
+  suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
+    item.addEventListener('click', () => {
+      inpBarcode.value = item.querySelector('.bc').textContent.replace('#', '');
+      suggestionsEl.classList.remove('show');
+      addToOrder();
+    });
+  });
+});
+
+inpBarcode.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addToOrder();
+  }
+});
+
+document.getElementById('btnAdd').addEventListener('click', addToOrder);
+
+async function addToOrder() {
+  const val = inpBarcode.value.trim().toUpperCase();
+  if (!val) return toast('Masukkan barcode dulu', 'warn');
+
+  // Cari penerima ikut barcode atau nama
+  const found = recipients.find(r =>
+    String(r.barcode || '').toUpperCase() === val ||
+    String(r.nama || '').toUpperCase() === val
+  );
+
+  if (!found) {
+    return toast('Barcode ' + val + ' tidak dijumpai', 'error');
+  }
+
+  if (slideOrder.includes(found.id)) {
+    return toast(found.nama + ' sudah dalam urutan', 'warn');
+  }
+
+  slideOrder.push(found.id);
+  await saveOrder();
+
+  inpBarcode.value = '';
+  suggestionsEl.classList.remove('show');
+  inpBarcode.focus();
+
+  toast('✅ ' + found.nama + ' ditambah ke urutan', 'success');
+}
+
+/* ============================================================
+   AUTO-SUSUN & SHUFFLE
+   ============================================================ */
+document.getElementById('btnAutoOrder').addEventListener('click', async () => {
+  const orderedSet = new Set(slideOrder);
+  const inOrder = slideOrder.map(id => recipients.find(r => r.id === id)).filter(Boolean);
+  const notInOrder = recipients.filter(r => !orderedSet.has(r.id));
+
+  // Sort semua by barcode
+  const allSorted = [...recipients].sort((a, b) =>
+    String(a.barcode || '').localeCompare(String(b.barcode || ''), undefined, { numeric: true })
+  );
+
+  slideOrder = allSorted.map(r => r.id);
+  await saveOrder();
+  toast('✅ Urutan disusun ikut barcode', 'success');
+});
+
+document.getElementById('btnShuffle').addEventListener('click', async () => {
+  if (slideOrder.length < 2) return toast('Perlu sekurang-kurangnya 2 penerima', 'warn');
+
+  // Fisher-Yates shuffle
+  const arr = [...slideOrder];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  slideOrder = arr;
+  await saveOrder();
+  toast('🔀 Urutan dirawakkan', 'success');
+});
+
+document.getElementById('btnClearAll').addEventListener('click', async () => {
+  if (slideOrder.length === 0) return;
+  if (!confirm('Kosongkan semua urutan slide?')) return;
+
+  slideOrder = [];
+  await saveOrder();
+  toast('Urutan dikosongkan', 'success');
+});
+
+/* ============================================================
+   EDIT MODAL
+   ============================================================ */
+const editModal = document.getElementById('editModal');
+let editingId = null;
+
+function openEditModal(id) {
+  const r = recipients.find(x => x.id === id);
+  if (!r) return;
+
+  editingId = id;
+  document.getElementById('editNama').value = (r.nama || '').toUpperCase();
+  document.getElementById('editMatrik').value = (r.matrik || '').toUpperCase();
+  document.getElementById('editBarcode').value = (r.barcode || '').toUpperCase();
+
+  editModal.classList.add('active');
+  setTimeout(() => document.getElementById('editNama').focus(), 100);
+}
+
+function closeEditModal() {
+  editModal.classList.remove('active');
+  editingId = null;
+}
+
+document.getElementById('btnCloseEdit').addEventListener('click', closeEditModal);
+document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+
+editModal.addEventListener('click', (e) => {
+  if (e.target === editModal) closeEditModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && editModal.classList.contains('active')) closeEditModal();
+});
+
+// Auto uppercase in modal
+['editNama', 'editMatrik'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    const start = e.target.selectionStart;
+    const end = e.target.selectionEnd;
+    e.target.value = e.target.value.toUpperCase();
+    e.target.setSelectionRange(start, end);
+  });
+});
+
+document.getElementById('btnSaveEdit').addEventListener('click', async () => {
+  if (!editingId) return;
+
+  const nama = document.getElementById('editNama').value.trim().toUpperCase();
+  const matrik = document.getElementById('editMatrik').value.trim().toUpperCase();
+
+  if (!nama || !matrik) return toast('Sila isi nama dan matriks', 'error');
+
+  try {
+    await updateDoc(doc(db, 'recipients', editingId), { nama, matrik });
+    toast('✅ Maklumat dikemas kini', 'success');
+    closeEditModal();
+  } catch (e) {
+    console.error(e);
+    toast('Gagal simpan: ' + e.message, 'error');
+  }
+});
+
+document.getElementById('btnDeleteFromOrder').addEventListener('click', async () => {
+  if (!editingId) return;
+  if (!confirm('Keluarkan dari urutan? (Penerima masih kekal dalam sistem)')) return;
+
+  slideOrder = slideOrder.filter(id => id !== editingId);
+  await saveOrder();
+  toast('Dikeluarkan dari urutan', 'success');
+  closeEditModal();
+});
+
+/* ============================================================
+   SCAN BARCODE
+   ============================================================ */
+let codeReader = null;
+let scanActive = false;
+const scanModal = document.getElementById('scanModal');
+const scanVideo = document.getElementById('scanVideo');
+const scanStatus = document.getElementById('scanStatus');
+const scanStatusText = document.getElementById('scanStatusText');
+
+document.getElementById('btnOpenScan').addEventListener('click', openScanModal);
+document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
+
+scanModal.addEventListener('click', (e) => {
+  if (e.target === scanModal) closeScanModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && scanModal.classList.contains('active')) closeScanModal();
+});
+
+async function openScanModal() {
+  scanModal.classList.add('active');
+  scanStatus.className = 'scan-status';
+  scanStatusText.textContent = 'Menghidupkan kamera...';
+
+  try {
+    codeReader = new ZXing.BrowserMultiFormatReader();
+
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A,
+      ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.ITF,
+      ZXing.BarcodeFormat.CODABAR
+    ]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+    codeReader.hints = hints;
+    scanActive = true;
+
+    await codeReader.decodeFromVideoDevice(null, 'scanVideo', (result, err) => {
+      if (result && scanActive) {
+        const code = result.getText().trim().toUpperCase();
+        handleScanResult(code);
+      }
+    });
+
+    scanStatusText.textContent = '✅ Kamera aktif — halakan ke barcode';
+  } catch (e) {
+    console.error('Camera error:', e);
+    scanStatus.className = 'scan-status error';
+    scanStatusText.textContent = '❌ Gagal buka kamera: ' + e.message;
+  }
+}
+
+function closeScanModal() {
+  scanActive = false;
+  if (codeReader) {
+    try { codeReader.reset(); } catch (e) {}
+    codeReader = null;
+  }
+  scanModal.classList.remove('active');
+}
+
+let lastScanCode = '';
+let lastScanTime = 0;
+
+function handleScanResult(code) {
+  const now = Date.now();
+  if (code === lastScanCode && now - lastScanTime < 1500) return;
+  lastScanCode = code;
+  lastScanTime = now;
+
+  scanStatus.className = 'scan-status success';
+  scanStatusText.textContent = `✅ Barcode: ${code}`;
+
+  // Beep
+  try { playBeep(); } catch(e) {}
+
+  // Auto-add to order
+  setTimeout(() => {
+    closeScanModal();
+    inpBarcode.value = code;
+    addToOrder();
+  }, 600);
+}
+
+function playBeep() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 1200;
+    gain.gain.value = 0.08;
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+  } catch (e) {}
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+setStatus('connecting', 'Menyambung...');
+
+document.querySelectorAll('.field input').forEach(inp => {
+  inp.addEventListener('input', () => inp.classList.remove('error'));
+});
+
+console.log('%c🎬 Urus Urutan Slide', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+</script>
+
+</body>
+</html>
