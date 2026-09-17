@@ -1267,23 +1267,6 @@
       <span style="color:var(--text-muted);font-weight:500;font-size:13px;" id="orderCount"></span>
     </div>
     <div class="gallery-controls">
-      <button class="chip-btn" id="btnAutoOrder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-        Auto-susun
-      </button>
-      <button class="chip-btn" id="btnShuffle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="16 3 21 3 21 8"></polyline>
-          <line x1="4" y1="20" x2="21" y2="3"></line>
-          <polyline points="21 16 21 21 16 21"></polyline>
-          <line x1="15" y1="15" x2="21" y2="21"></line>
-          <line x1="4" y1="4" x2="9" y2="9"></line>
-        </svg>
-        Rawak
-      </button>
       <button class="chip-btn danger" id="btnClearAll">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"></polyline>
@@ -1720,7 +1703,6 @@ function renderSlideCard(r, idx, total) {
 
   if (configState.template) {
     if (configState.templateType === 'video') {
-      // CLOUDINARY — direct video play
       previewHTML = `
         <div class="slide-preview">
           <video
@@ -1939,27 +1921,6 @@ async function addToOrder() {
   toast('✅ ' + found.nama + ' ditambah ke urutan', 'success');
 }
 
-document.getElementById('btnAutoOrder').addEventListener('click', async () => {
-  const allSorted = [...recipients].sort((a, b) =>
-    String(a.barcode || '').localeCompare(String(b.barcode || ''), undefined, { numeric: true })
-  );
-  slideOrder = allSorted.map(r => r.id);
-  await saveOrder();
-  toast('✅ Urutan disusun ikut barcode', 'success');
-});
-
-document.getElementById('btnShuffle').addEventListener('click', async () => {
-  if (slideOrder.length < 2) return toast('Perlu sekurang-kurangnya 2 penerima', 'warn');
-  const arr = [...slideOrder];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  slideOrder = arr;
-  await saveOrder();
-  toast('🔀 Urutan dirawakkan', 'success');
-});
-
 document.getElementById('btnClearAll').addEventListener('click', async () => {
   if (slideOrder.length === 0) return;
   if (!confirm('Kosongkan semua urutan slide?')) return;
@@ -2016,7 +1977,7 @@ document.getElementById('btnCancelEdit').addEventListener('click', closeEditModa
 editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
 /* ============================================================
-   RENDER MINI STAGE — VIDEO CLOUDINARY
+   RENDER MINI STAGE
    ============================================================ */
 function renderMiniStage() {
   if (!editingId) return;
