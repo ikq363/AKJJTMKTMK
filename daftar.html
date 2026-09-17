@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daftar Penerima · Sistem Anugerah</title>
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,7 +31,6 @@
     color: var(--text);
   }
 
-  /* Background decoration */
   body::before {
     content: '';
     position: fixed;
@@ -179,9 +179,7 @@
     opacity: 0.6;
   }
 
-  .field {
-    margin-bottom: 20px;
-  }
+  .field { margin-bottom: 20px; }
 
   .field label {
     display: flex;
@@ -235,6 +233,15 @@
     background: rgba(239, 68, 68, 0.06);
   }
 
+  .field input.scanned {
+    animation: scanPulse 0.8s ease-out;
+  }
+
+  @keyframes scanPulse {
+    0% { background: rgba(52, 211, 153, 0.3); }
+    100% { background: var(--bg-input); }
+  }
+
   .field-hint {
     font-size: 11.5px;
     color: var(--text-muted);
@@ -244,7 +251,40 @@
     gap: 6px;
   }
 
-  .field-hint.warn { color: var(--yellow); }
+  /* Barcode field with scan button */
+  .input-with-btn {
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-with-btn input { flex: 1; }
+
+  .btn-scan {
+    padding: 0 18px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(167, 139, 250, 0.15));
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    border-radius: 12px;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+
+  .btn-scan:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(167, 139, 250, 0.25));
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-scan:active { transform: translateY(0); }
+
+  .btn-scan svg { width: 16px; height: 16px; }
 
   /* ============ SUBMIT BUTTON ============ */
   .btn-daftar {
@@ -274,8 +314,6 @@
     box-shadow: 0 14px 32px -8px rgba(56, 189, 248, 0.6);
   }
 
-  .btn-daftar:active:not(:disabled) { transform: translateY(0); }
-
   .btn-daftar:disabled {
     background: #334155;
     color: #94a3b8;
@@ -291,7 +329,7 @@
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 24px;
-    max-height: 720px;
+    max-height: 780px;
     display: flex;
     flex-direction: column;
   }
@@ -338,7 +376,6 @@
     background: var(--border);
     border-radius: 3px;
   }
-  .list-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
 
   /* ============ RECIPIENT ITEM ============ */
   .recipient-item {
@@ -387,7 +424,6 @@
     font-size: 14px;
     color: #f1f5f9;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -397,10 +433,6 @@
     font-size: 12px;
     color: var(--text-muted);
     margin-top: 3px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
   }
 
   .recipient-info .meta .matrik {
@@ -439,12 +471,7 @@
     color: var(--text-muted);
   }
 
-  .empty-state .icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.5;
-  }
-
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
   .empty-state p { font-size: 13.5px; }
 
   /* ============ TOAST ============ */
@@ -479,7 +506,6 @@
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
   .toast.warn { border-left-color: var(--yellow); }
-
   .toast .icon { font-size: 18px; }
 
   @keyframes toastIn {
@@ -497,7 +523,6 @@
     font-size: 11.5px;
     font-weight: 700;
     letter-spacing: 0.04em;
-    transition: all 0.3s;
   }
 
   .status-badge.online {
@@ -505,13 +530,11 @@
     border: 1px solid rgba(52, 211, 153, 0.3);
     color: var(--green);
   }
-
   .status-badge.connecting {
     background: rgba(251, 191, 36, 0.1);
     border: 1px solid rgba(251, 191, 36, 0.3);
     color: var(--yellow);
   }
-
   .status-badge.offline {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -519,8 +542,7 @@
   }
 
   .status-dot {
-    width: 7px;
-    height: 7px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: currentColor;
     box-shadow: 0 0 10px currentColor;
@@ -533,17 +555,236 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* ============ LOADING SPINNER ============ */
+  /* ============ SPINNER ============ */
   .spinner {
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border: 2px solid rgba(10, 14, 26, 0.3);
     border-top-color: #0a0e1a;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ MODAL SCAN ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 16, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-scan {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 560px;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  }
+
+  .modal-overlay.active .modal-scan {
+    transform: scale(1);
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-header h3 .icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(167, 139, 250, 0.2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .modal-close {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .modal-close svg { width: 16px; height: 16px; }
+
+  .modal-body {
+    padding: 24px;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  #scanVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-frame {
+    width: 70%;
+    aspect-ratio: 1.6;
+    border: 3px solid var(--accent);
+    border-radius: 14px;
+    position: relative;
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.5), inset 0 0 24px rgba(56, 189, 248, 0.2);
+  }
+
+  .scan-frame::before,
+  .scan-frame::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 4px solid var(--accent);
+  }
+
+  .scan-frame::before {
+    top: -3px; left: -3px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 14px;
+  }
+
+  .scan-frame::after {
+    bottom: -3px; right: -3px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 14px;
+  }
+
+  .scan-line {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: scanLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scanLine {
+    0%, 100% { top: 20%; }
+    50% { top: 80%; }
+  }
+
+  .scan-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+
+  .scan-status.success {
+    border-color: var(--green);
+    background: rgba(52, 211, 153, 0.08);
+    color: var(--green);
+  }
+
+  .scan-status.error {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+  }
+
+  .scan-status .pulse-icon {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+
+  .scan-status.success .pulse-icon { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
+  .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .modal-footer kbd {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
 
   /* ============ FADE UP ============ */
   .fade-up {
@@ -558,7 +799,6 @@
 
   .delay-1 { animation-delay: 0.05s; }
   .delay-2 { animation-delay: 0.15s; }
-  .delay-3 { animation-delay: 0.25s; }
 </style>
 </head>
 <body>
@@ -591,58 +831,40 @@
   <div>
     <div class="page-header fade-up">
       <h1>Daftar <span>Penerima</span> Anugerah</h1>
-      <p>Isi maklumat penerima dengan lengkap. Sistem akan simpan data secara automatik ke pangkalan data Firestore.</p>
+      <p>Isi maklumat penerima. Boleh scan barcode terus atau taip manual.</p>
     </div>
 
     <div class="form-card fade-up delay-1">
       <form id="formDaftar" autocomplete="off">
 
         <div class="field">
-          <label for="inpNama">
-            Nama Penuh <span class="req">*</span>
-          </label>
-          <input
-            type="text"
-            id="inpNama"
-            name="nama"
-            placeholder="Contoh: Ahmad bin Ali"
-            maxlength="100"
-            required
-            autofocus
-          >
+          <label for="inpNama">Nama Penuh <span class="req">*</span></label>
+          <input type="text" id="inpNama" name="nama" placeholder="Contoh: Ahmad bin Ali" maxlength="100" required autofocus>
           <div class="field-hint">Nama akan dipaparkan dalam slaid anugerah</div>
         </div>
 
         <div class="field">
-          <label for="inpMatrik">
-            Nombor Matriks <span class="req">*</span>
-          </label>
-          <input
-            type="text"
-            id="inpMatrik"
-            name="matrik"
-            placeholder="Contoh: 18DIT21F1001"
-            maxlength="30"
-            required
-          >
+          <label for="inpMatrik">Nombor Matriks <span class="req">*</span></label>
+          <input type="text" id="inpMatrik" name="matrik" placeholder="Contoh: 18DIT21F1001" maxlength="30" required>
           <div class="field-hint">Contoh format: 18DIT21F1001</div>
         </div>
 
         <div class="field">
-          <label for="inpBarcode">
-            Nombor Barcode <span class="req">*</span>
-          </label>
-          <input
-            type="text"
-            id="inpBarcode"
-            name="barcode"
-            placeholder="Contoh: 0001"
-            maxlength="20"
-            required
-          >
-          <div class="field-hint" id="barcodeHint">
-            Nombor unik untuk scan semasa majlis
+          <label for="inpBarcode">Nombor Barcode <span class="req">*</span></label>
+          <div class="input-with-btn">
+            <input type="text" id="inpBarcode" name="barcode" placeholder="Contoh: 0001" maxlength="20" required>
+            <button type="button" class="btn-scan" id="btnOpenScan" title="Scan barcode">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                <line x1="7" y1="12" x2="17" y2="12"></line>
+              </svg>
+              Scan
+            </button>
           </div>
+          <div class="field-hint">Scan barcode atau taip manual</div>
         </div>
 
         <button type="submit" class="btn-daftar" id="btnDaftar">
@@ -660,10 +882,7 @@
   <!-- RIGHT: LIST -->
   <div class="list-card fade-up delay-2">
     <div class="list-header">
-      <h2>
-        Senarai Penerima
-        <span class="count-badge" id="countBadge">0</span>
-      </h2>
+      <h2>Senarai Penerima <span class="count-badge" id="countBadge">0</span></h2>
     </div>
     <div class="list-scroll" id="listContainer">
       <div class="empty-state">
@@ -679,27 +898,57 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ============================================================
-     FIREBASE SDK (MODULE)
+     MODAL SCAN BARCODE
+     ============================================================ -->
+<div class="modal-overlay" id="scanModal">
+  <div class="modal-scan">
+    <div class="modal-header">
+      <h3>
+        <span class="icon">📷</span>
+        Scan Barcode
+      </h3>
+      <button class="modal-close" id="btnCloseScan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="video-wrapper">
+        <video id="scanVideo" autoplay muted playsinline></video>
+        <div class="scan-overlay">
+          <div class="scan-frame">
+            <div class="scan-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scan-status" id="scanStatus">
+        <span class="pulse-icon"></span>
+        <span id="scanStatusText">Menghalakan kamera ke barcode...</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <span>Letakkan barcode dalam kotak</span>
+      <span><kbd>ESC</kbd> untuk tutup</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FIREBASE SDK
      ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  orderBy,
-  serverTimestamp,
-  getDocs
+  getFirestore, collection, addDoc, deleteDoc, doc,
+  onSnapshot, query, orderBy, serverTimestamp, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ============================================================
-   FIREBASE CONFIG
-   ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
   authDomain: "akjjtmk.firebaseapp.com",
@@ -714,9 +963,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
+/* ============ HELPERS ============ */
 function toast(message, type = 'info') {
   const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
   const el = document.createElement('div');
@@ -743,9 +990,7 @@ function escapeHtml(s) {
   }[c]));
 }
 
-/* ============================================================
-   AUTO-UPPERCASE INPUT
-   ============================================================ */
+/* ============ AUTO-UPPERCASE ============ */
 ['inpNama', 'inpMatrik', 'inpBarcode'].forEach(id => {
   const input = document.getElementById(id);
   input.addEventListener('input', () => {
@@ -756,13 +1001,10 @@ function escapeHtml(s) {
   });
 });
 
-/* ============================================================
-   AUTO-SUGGEST BARCODE (nombor seterusnya)
-   ============================================================ */
+/* ============ AUTO-SUGGEST BARCODE ============ */
 async function suggestNextBarcode() {
   const inpBarcode = document.getElementById('inpBarcode');
-  if (inpBarcode.value.trim()) return; // jangan override kalau user dah isi
-
+  if (inpBarcode.value.trim()) return;
   try {
     const snap = await getDocs(collection(db, 'recipients'));
     const maxNum = snap.docs.reduce((max, d) => {
@@ -771,14 +1013,133 @@ async function suggestNextBarcode() {
       return isNaN(n) ? max : Math.max(max, n);
     }, 0);
     inpBarcode.value = String(maxNum + 1).padStart(4, '0');
-  } catch (e) {
-    console.error('suggest barcode error:', e);
-  }
+  } catch (e) { console.error('suggest:', e); }
 }
 
 /* ============================================================
-   FORM SUBMIT
+   SCAN BARCODE MODAL
    ============================================================ */
+let codeReader = null;
+let scanActive = false;
+let lastScannedCode = '';
+let lastScannedTime = 0;
+
+const scanModal = document.getElementById('scanModal');
+const scanVideo = document.getElementById('scanVideo');
+const scanStatus = document.getElementById('scanStatus');
+const scanStatusText = document.getElementById('scanStatusText');
+
+document.getElementById('btnOpenScan').addEventListener('click', openScanModal);
+document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
+
+scanModal.addEventListener('click', (e) => {
+  if (e.target === scanModal) closeScanModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && scanModal.classList.contains('active')) {
+    closeScanModal();
+  }
+});
+
+async function openScanModal() {
+  scanModal.classList.add('active');
+  scanStatus.className = 'scan-status';
+  scanStatusText.textContent = 'Menghidupkan kamera...';
+
+  try {
+    codeReader = new ZXing.BrowserMultiFormatReader();
+
+    // Senarai hints untuk barcode format biasa
+    const hints = new Map();
+    const formats = [
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A,
+      ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.ITF,
+      ZXing.BarcodeFormat.CODABAR
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+    codeReader.hints = hints;
+    scanActive = true;
+
+    await codeReader.decodeFromVideoDevice(
+      null,
+      'scanVideo',
+      (result, err) => {
+        if (result && scanActive) {
+          const code = result.getText().trim().toUpperCase();
+          handleScanResult(code);
+        }
+      }
+    );
+
+    scanStatusText.textContent = '✅ Kamera aktif — halakan ke barcode';
+  } catch (e) {
+    console.error('Camera error:', e);
+    scanStatus.className = 'scan-status error';
+    scanStatusText.textContent = '❌ Gagal buka kamera: ' + e.message;
+  }
+}
+
+function closeScanModal() {
+  scanActive = false;
+  if (codeReader) {
+    try { codeReader.reset(); } catch (e) {}
+    codeReader = null;
+  }
+  scanModal.classList.remove('active');
+}
+
+function handleScanResult(code) {
+  const now = Date.now();
+  // elak scan duplicate terlalu cepat
+  if (code === lastScannedCode && now - lastScannedTime < 1500) return;
+  lastScannedCode = code;
+  lastScannedTime = now;
+
+  const inpBarcode = document.getElementById('inpBarcode');
+  inpBarcode.value = code;
+  inpBarcode.classList.add('scanned');
+  setTimeout(() => inpBarcode.classList.remove('scanned'), 900);
+
+  // Feedback visual
+  scanStatus.className = 'scan-status success';
+  scanStatusText.textContent = `✅ Barcode dikesan: ${code}`;
+
+  // Bunyi beep pendek (optional)
+  try { playBeep(); } catch(e) {}
+
+  // Auto-close modal selepas 800ms
+  setTimeout(() => {
+    closeScanModal();
+    // auto-focus ke nama
+    document.getElementById('inpNama').focus();
+    toast('Barcode diisi: ' + code, 'success');
+  }, 800);
+}
+
+function playBeep() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 1200;
+    gain.gain.value = 0.08;
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+  } catch (e) {}
+}
+
+/* ============ FORM SUBMIT ============ */
 const form = document.getElementById('formDaftar');
 const btnDaftar = document.getElementById('btnDaftar');
 const btnText = document.getElementById('btnText');
@@ -790,23 +1151,19 @@ form.addEventListener('submit', async (e) => {
   const matrik = document.getElementById('inpMatrik').value.trim().toUpperCase();
   const barcode = document.getElementById('inpBarcode').value.trim().toUpperCase();
 
-  // Validasi
   if (!nama || !matrik || !barcode) {
     toast('Sila isi semua medan yang bertanda *', 'error');
     return;
   }
-
   if (nama.length < 3) {
     toast('Nama terlalu pendek', 'error');
     document.getElementById('inpNama').focus();
     return;
   }
 
-  // Disable button
   btnDaftar.disabled = true;
   btnText.textContent = 'Menyimpan...';
   btnDaftar.querySelector('svg').style.display = 'none';
-
   const spinner = document.createElement('div');
   spinner.className = 'spinner';
   btnDaftar.insertBefore(spinner, btnText);
@@ -825,25 +1182,18 @@ form.addEventListener('submit', async (e) => {
       return;
     }
 
-    // Simpan ke Firestore
     await addDoc(collection(db, 'recipients'), {
-      nama,
-      matrik,
-      barcode,
+      nama, matrik, barcode,
       hadir: false,
       createdAt: serverTimestamp()
     });
 
     toast('✅ ' + nama + ' berjaya didaftarkan', 'success');
-
-    // Reset form
     form.reset();
     document.getElementById('inpNama').focus();
     document.getElementById('inpBarcode').classList.remove('error');
 
-    // Auto-suggest next barcode
     setTimeout(suggestNextBarcode, 500);
-
   } catch (err) {
     console.error('Firestore error:', err);
     toast('Gagal simpan: ' + err.message, 'error');
@@ -855,9 +1205,7 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-/* ============================================================
-   REAL-TIME LISTENER
-   ============================================================ */
+/* ============ REAL-TIME LISTENER ============ */
 const listContainer = document.getElementById('listContainer');
 const countBadge = document.getElementById('countBadge');
 
@@ -900,15 +1248,12 @@ onSnapshot(q,
       `;
     }).join('');
 
-    // Attach delete handlers
     listContainer.querySelectorAll('.btn-hapus').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
         const item = listContainer.querySelector(`[data-id="${id}"]`);
         const nama = item?.querySelector('.name')?.textContent || 'penerima ini';
-
         if (!confirm(`Padam "${nama}"?`)) return;
-
         try {
           await deleteDoc(doc(db, 'recipients', id));
           toast('Penerima dipadam', 'success');
@@ -925,18 +1270,15 @@ onSnapshot(q,
   }
 );
 
-/* ============================================================
-   INIT
-   ============================================================ */
+/* ============ INIT ============ */
 setStatus('connecting', 'Menyambung...');
 setTimeout(suggestNextBarcode, 800);
 
-// Track focus style cleanup
 document.querySelectorAll('.field input').forEach(inp => {
   inp.addEventListener('input', () => inp.classList.remove('error'));
 });
 
-console.log('%c📝 Daftar Penerima · Sistem Anugerah', 'color: #38bdf8; font-size: 14px; font-weight: bold;');
+console.log('%c📝 Daftar Penerima + Scan', 'color: #38bdf8; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
