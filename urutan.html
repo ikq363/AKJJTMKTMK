@@ -57,7 +57,6 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
-  /* TOPBAR */
   .topbar {
     position: relative;
     z-index: 2;
@@ -421,7 +420,6 @@
     gap: 16px;
   }
 
-  /* SLIDE CARD */
   .slide-card {
     background: var(--bg-card);
     border: 1.5px solid var(--border);
@@ -498,7 +496,6 @@
   }
 
   .slide-preview img,
-  .slide-preview video,
   .slide-preview iframe {
     position: absolute;
     inset: 0;
@@ -507,29 +504,6 @@
     object-fit: contain;
     border: none;
     pointer-events: none;
-  }
-
-  /* Overlay for video - tunjuk live preview (iframe tak boleh pointer events) */
-  .slide-preview .video-cover {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(20, 15, 40, 0.85), rgba(10, 15, 30, 0.85));
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-dim);
-    gap: 6px;
-    z-index: 1;
-  }
-
-  .slide-preview .video-cover .emoji { font-size: 32px; opacity: 0.7; }
-  .slide-preview .video-cover .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-
-  /* Actually play video — pakai video tag terus, bukan iframe */
-  .slide-preview video.actual-video {
-    pointer-events: auto;
-    object-fit: cover;
   }
 
   .slide-preview .mini-name,
@@ -675,7 +649,6 @@
   .empty-state h3 { font-size: 15px; color: var(--text-dim); margin-bottom: 8px; font-weight: 700; }
   .empty-state p { font-size: 13px; line-height: 1.6; }
 
-  /* MODAL */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -782,7 +755,6 @@
   }
 
   .mini-stage img,
-  .mini-stage video,
   .mini-stage iframe {
     position: absolute;
     inset: 0;
@@ -1081,7 +1053,6 @@
 
   .btn-secondary svg, .btn-primary-modal svg, .btn-danger-modal svg { width: 14px; height: 14px; }
 
-  /* SCAN */
   .video-wrapper {
     position: relative;
     width: 100%;
@@ -1159,7 +1130,6 @@
   .scan-status.success .pulse-icon { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
   .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
 
-  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -1535,7 +1505,6 @@ let configState = {};
 let overrides = {};
 let editingId = null;
 let draggedId = null;
-let currentPage = 'order'; // untuk reset video playback kalau perlu
 
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
@@ -1597,23 +1566,10 @@ function hasOverride(id) {
 }
 
 /* ============================================================
-   GOOGLE DRIVE VIDEO URL HELPERS
+   GOOGLE DRIVE VIDEO URL — GUNA IFRAME
    ============================================================ */
-function getDriveVideoDirectUrl(fileId) {
-  // Direct MP4 stream dari Google Drive — boleh main dalam <video>
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
-}
-
-function getDriveVideoPreviewUrl(fileId) {
+function getDriveVideoEmbedUrl(fileId) {
   return `https://drive.google.com/file/d/${fileId}/preview`;
-}
-
-/* Cuba dapatkan direct URL untuk main dalam video tag */
-function getVideoPlayableUrl(fileId) {
-  // Priority:
-  // 1. lh3.googleusercontent.com (untuk video kecil, kadang boleh direct)
-  // 2. drive.google.com/uc?export=download
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
 }
 
 /* ============================================================
@@ -1718,7 +1674,6 @@ function renderSlideCard(r, idx, total) {
   const p = eff.positions;
   const s = eff.styles;
 
-  // Nama & matriks overlay style
   const nameOverlayStyle = `
     left:${p.name.x}%;
     top:${p.name.y}%;
@@ -1742,30 +1697,24 @@ function renderSlideCard(r, idx, total) {
 
   if (configState.template) {
     if (configState.templateType === 'video' && configState.templateFileId) {
-      // ===== VIDEO PREVIEW — guna <video> tag dengan Google Drive direct URL =====
-      const videoUrl = getVideoPlayableUrl(configState.templateFileId);
+      // ===== VIDEO — GUNA IFRAME =====
+      const embedUrl = getDriveVideoEmbedUrl(configState.templateFileId);
       previewHTML = `
         <div class="slide-preview">
-          <video
-            src="${videoUrl}"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            onerror="this.style.display='none'; this.parentElement.querySelector('.video-fallback').style.display='flex';"
-          ></video>
-          <div class="video-fallback video-cover" style="display:none;">
-            <div class="emoji">🎬</div>
-            <div class="lbl">Video Template</div>
-          </div>
+          <iframe
+            src="${embedUrl}"
+            allow="autoplay; encrypted-media"
+            allowfullscreen
+            frameborder="0"
+            style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"
+          ></iframe>
           ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>` : ''}
           <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
           <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
         </div>
       `;
     } else if (configState.templateType === 'image') {
-      // ===== IMAGE PREVIEW =====
+      // ===== IMAGE =====
       previewHTML = `
         <div class="slide-preview">
           <img src="${configState.template}" alt="" onerror="this.style.display='none'">
@@ -1775,7 +1724,6 @@ function renderSlideCard(r, idx, total) {
         </div>
       `;
     } else {
-      // Template ada tapi tak pasti jenis
       previewHTML = `
         <div class="slide-preview">
           <div class="no-template">
@@ -1788,7 +1736,6 @@ function renderSlideCard(r, idx, total) {
       `;
     }
   } else {
-    // ===== TAKDE TEMPLATE =====
     previewHTML = `
       <div class="slide-preview">
         <div class="no-template">
@@ -2046,7 +1993,7 @@ document.getElementById('btnCancelEdit').addEventListener('click', closeEditModa
 editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
 /* ============================================================
-   RENDER MINI STAGE — support IMAGE + VIDEO
+   RENDER MINI STAGE — GUNA IFRAME UNTUK VIDEO
    ============================================================ */
 function renderMiniStage() {
   if (!editingId) return;
@@ -2058,41 +2005,22 @@ function renderMiniStage() {
 
   miniStage.innerHTML = '';
 
-  // ===== TEMPLATE =====
   if (configState.template && configState.templateType === 'image') {
     const img = document.createElement('img');
     img.src = configState.template;
     img.draggable = false;
     miniStage.appendChild(img);
   } else if (configState.template && configState.templateType === 'video' && configState.templateFileId) {
-    // ===== VIDEO — main guna <video> tag =====
-    const videoUrl = getVideoPlayableUrl(configState.templateFileId);
+    // ===== VIDEO — GUNA IFRAME =====
+    const embedUrl = getDriveVideoEmbedUrl(configState.templateFileId);
 
-    const video = document.createElement('video');
-    video.src = videoUrl;
-    video.autoplay = eff.video.autoplay !== false;
-    video.muted = true; // force muted untuk preview
-    video.loop = eff.video.loop !== false;
-    video.playsInline = true;
-    video.preload = 'metadata';
-    video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;';
-
-    video.addEventListener('error', () => {
-      // Fallback UI kalau video tak boleh main
-      video.style.display = 'none';
-      if (!miniStage.querySelector('.video-fallback')) {
-        const fb = document.createElement('div');
-        fb.className = 'placeholder video-fallback';
-        fb.innerHTML = `
-          <div class="emoji">🎬</div>
-          <div>Video Template</div>
-          <div style="font-size:9px;opacity:0.6;margin-top:4px;">(Preview tak available)</div>
-        `;
-        miniStage.insertBefore(fb, miniStage.firstChild);
-      }
-    });
-
-    miniStage.appendChild(video);
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    iframe.frameBorder = '0';
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
+    miniStage.appendChild(iframe);
   } else {
     miniStage.innerHTML = `
       <div class="placeholder">
@@ -2101,14 +2029,12 @@ function renderMiniStage() {
       </div>`;
   }
 
-  // Overlay
   if (eff.overlay.enabled) {
     const ov = document.createElement('div');
     ov.style.cssText = `position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:5;`;
     miniStage.appendChild(ov);
   }
 
-  // Drag tags
   addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name');
   addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik');
 }
@@ -2463,7 +2389,7 @@ function playBeep() {
 }
 
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide · Video Support', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide · Iframe Video', 'color: #fb923c; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
