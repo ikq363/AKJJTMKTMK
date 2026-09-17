@@ -156,7 +156,6 @@
     padding: 32px;
   }
 
-  /* HEADER + SCAN SECTION */
   .header-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -222,7 +221,6 @@
     color: var(--accent);
   }
 
-  /* INPUT ROW */
   .input-row {
     display: flex;
     gap: 8px;
@@ -301,15 +299,8 @@
     transform: translateY(-2px);
     box-shadow: 0 12px 28px -6px rgba(251, 146, 60, 0.6);
   }
-  .btn-add:disabled {
-    background: #334155;
-    color: #94a3b8;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
   .btn-add svg { width: 16px; height: 16px; }
 
-  /* SEARCH SUGGESTION */
   .suggestions {
     margin-top: 8px;
     max-height: 240px;
@@ -350,7 +341,6 @@
     font-weight: 700;
   }
 
-  /* STATS ROW */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -388,7 +378,7 @@
     font-weight: 600;
   }
 
-  /* GALLERY GRID */
+  /* GALLERY */
   .gallery-header {
     display: flex;
     align-items: center;
@@ -472,7 +462,6 @@
   .slide-card.dragging {
     opacity: 0.4;
     cursor: grabbing;
-    transform: scale(0.98);
   }
 
   .slide-card.drag-over {
@@ -481,12 +470,21 @@
     box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
   }
 
-  .slide-card.selected {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent), 0 8px 24px -6px rgba(251, 146, 60, 0.4);
+  .slide-card.customized::after {
+    content: '✏️ Custom';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: #0a0e1a;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    z-index: 3;
   }
 
-  /* ORDER BADGE */
   .order-badge {
     position: absolute;
     top: -10px;
@@ -506,20 +504,6 @@
     border: 2px solid var(--bg-card);
   }
 
-  /* DRAG HANDLE */
-  .drag-handle {
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 30px;
-    height: 5px;
-    background: var(--border);
-    border-radius: 3px;
-    cursor: grab;
-  }
-
-  /* PREVIEW THUMBNAIL */
   .slide-preview {
     width: 100%;
     aspect-ratio: 16/9;
@@ -570,7 +554,6 @@
     opacity: 0.5;
   }
 
-  /* CARD INFO */
   .slide-info {
     padding: 0 4px;
   }
@@ -580,7 +563,6 @@
     font-weight: 700;
     color: var(--text);
     text-transform: uppercase;
-    letter-spacing: 0.02em;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -618,14 +600,12 @@
     font-size: 10.5px;
     color: var(--text-muted);
     font-weight: 600;
-    letter-spacing: 0.04em;
   }
 
   .slide-info .status.hadir {
     color: var(--green);
   }
 
-  /* CARD ACTIONS */
   .card-actions {
     display: flex;
     gap: 6px;
@@ -646,7 +626,6 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    font-size: 14px;
   }
 
   .arrow-btn:hover:not(:disabled) {
@@ -660,17 +639,14 @@
     cursor: not-allowed;
   }
 
-  .arrow-btn svg {
-    width: 14px;
-    height: 14px;
-  }
+  .arrow-btn svg { width: 14px; height: 14px; }
 
   .edit-btn {
     padding: 8px 12px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(56, 189, 248, 0.15));
+    border: 1px solid rgba(167, 139, 250, 0.4);
     border-radius: 8px;
-    color: var(--text-dim);
+    color: var(--purple);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -683,17 +659,13 @@
   }
 
   .edit-btn:hover {
-    background: rgba(56, 189, 248, 0.1);
-    border-color: var(--blue);
-    color: var(--blue);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(56, 189, 248, 0.25));
+    border-color: var(--purple);
+    transform: translateY(-1px);
   }
 
-  .edit-btn svg {
-    width: 12px;
-    height: 12px;
-  }
+  .edit-btn svg { width: 12px; height: 12px; }
 
-  /* EMPTY STATE */
   .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -751,9 +723,8 @@
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   }
-  .modal-overlay.active .modal {
-    transform: scale(1);
-  }
+  .modal.large { max-width: 1100px; }
+  .modal-overlay.active .modal { transform: scale(1); }
 
   .modal-header {
     padding: 20px 24px;
@@ -764,7 +735,7 @@
     position: sticky;
     top: 0;
     background: var(--bg-card);
-    z-index: 2;
+    z-index: 5;
   }
 
   .modal-header h3 {
@@ -774,6 +745,16 @@
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+
+  .modal-header h3 .badge-custom {
+    font-size: 10px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: #0a0e1a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    font-weight: 800;
   }
 
   .modal-close {
@@ -799,36 +780,279 @@
     padding: 24px;
   }
 
-  .modal-field {
-    margin-bottom: 16px;
+  .modal-body-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
   }
-  .modal-field label {
+
+  @media (max-width: 900px) {
+    .modal-body-grid { grid-template-columns: 1fr; }
+  }
+
+  /* MINI STAGE */
+  .mini-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .mini-stage img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .mini-stage .placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .mini-stage .placeholder .emoji { font-size: 40px; opacity: 0.4; }
+
+  .mini-drag-tag {
+    position: absolute;
+    padding: 3px 8px;
+    border-radius: 5px;
+    cursor: move;
+    user-select: none;
+    white-space: nowrap;
+    transform: translate(-50%, -50%);
+    border: 2px dashed transparent;
+    font-weight: 700;
+    line-height: 1.2;
+    z-index: 10;
+    transition: box-shadow 0.2s;
+  }
+
+  .mini-drag-tag:hover {
+    border-color: rgba(251, 146, 60, 0.8);
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+  }
+
+  .mini-drag-tag.dragging {
+    border-color: var(--accent);
+    border-style: solid;
+    z-index: 100;
+    box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.3);
+  }
+
+  .mini-drag-tag.name { background: rgba(56, 189, 248, 0.9); color: #0a0e1a; }
+  .mini-drag-tag.matrik { background: rgba(52, 211, 153, 0.9); color: #0a0e1a; }
+
+  .mini-drag-tag .lbl {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 3px;
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+
+  .mini-drag-tag:hover .lbl { opacity: 1; }
+  .mini-drag-tag.name .lbl { background: var(--blue); color: #0a0e1a; }
+  .mini-drag-tag.matrik .lbl { background: var(--green); color: #0a0e1a; }
+
+  /* EDIT PANELS */
+  .edit-section {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .edit-section:last-child { margin-bottom: 0; }
+
+  .edit-section h4 {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .edit-section h4 .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 8px var(--purple);
+  }
+
+  .edit-field {
+    margin-bottom: 12px;
+  }
+  .edit-field:last-child { margin-bottom: 0; }
+
+  .edit-field label {
     display: block;
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: 700;
     color: var(--text-dim);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
-  .modal-field input {
+
+  .edit-field input[type="text"],
+  .edit-field input[type="number"],
+  .edit-field select {
     width: 100%;
-    padding: 12px 14px;
-    background: var(--bg-input);
+    padding: 9px 12px;
+    background: var(--bg-card);
     border: 1.5px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--text);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     transition: all 0.2s;
+  }
+
+  .edit-field input[type="text"]:focus,
+  .edit-field input[type="number"]:focus,
+  .edit-field select:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(167, 139, 250, 0.04);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+  }
+
+  .edit-field input[type="text"].nama-input {
     text-transform: uppercase;
   }
-  .modal-field input:focus {
-    outline: none;
-    border-color: var(--border-focus);
-    background: rgba(251, 146, 60, 0.04);
-    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.12);
+
+  .edit-field input[type="color"] {
+    width: 100%;
+    height: 38px;
+    padding: 4px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .edit-field input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .edit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .toggle-row-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toggle-row-mini:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .toggle-row-mini .lbl-small {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .toggle-switch-mini {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch-mini input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider-mini {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .toggle-slider-mini::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: #94a3b8;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .toggle-switch-mini input:checked + .toggle-slider-mini {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+  }
+
+  .toggle-switch-mini input:checked + .toggle-slider-mini::before {
+    transform: translateX(16px);
+    background: #fff;
+  }
+
+  /* RESET OVERRIDE BANNER */
+  .override-banner {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(56, 189, 248, 0.15));
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: var(--purple);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .override-banner button {
+    padding: 6px 12px;
+    background: rgba(167, 139, 250, 0.25);
+    border: 1px solid rgba(167, 139, 250, 0.5);
+    border-radius: 7px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .override-banner button:hover {
+    background: rgba(167, 139, 250, 0.4);
   }
 
   .modal-footer {
@@ -840,6 +1064,7 @@
     position: sticky;
     bottom: 0;
     background: var(--bg-card);
+    z-index: 5;
   }
 
   .btn-secondary, .btn-danger-modal, .btn-primary-modal {
@@ -886,12 +1111,12 @@
     border-color: var(--red);
   }
 
-  .btn-danger-modal svg, .btn-primary-modal svg, .btn-secondary svg {
+  .btn-secondary svg, .btn-primary-modal svg, .btn-danger-modal svg {
     width: 14px;
     height: 14px;
   }
 
-  /* SCAN VIDEO */
+  /* SCAN */
   .video-wrapper {
     position: relative;
     width: 100%;
@@ -1014,7 +1239,6 @@
     to { transform: translateX(0); opacity: 1; }
   }
 
-  /* FADE UP */
   .fade-up {
     opacity: 0;
     transform: translateY(12px);
@@ -1031,7 +1255,6 @@
 
 <div class="grid-overlay"></div>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <a href="index.html" class="back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1052,27 +1275,19 @@
 
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header-section fade-up">
     <div>
       <h1 class="page-title">Urus <span>Urutan Slide</span></h1>
       <p class="page-desc">
-        Scan barcode atau pilih penerima untuk masukkan ke urutan. Drag card untuk susun semula, atau guna butang anak panah.
+        Scan atau pilih penerima untuk masukkan ke urutan. Drag untuk susun, atau klik <strong>Edit</strong> untuk ubah nama, posisi & style khas untuk penerima tu.
       </p>
     </div>
 
-    <!-- SCAN / INPUT CARD -->
     <div class="card">
       <h2><span class="icon">🎯</span> Scan / Cari Penerima</h2>
 
       <div class="input-row">
-        <input
-          type="text"
-          id="inpBarcode"
-          placeholder="Taip nombor barcode..."
-          maxlength="20"
-          autocomplete="off"
-        >
+        <input type="text" id="inpBarcode" placeholder="Taip nombor barcode..." maxlength="20" autocomplete="off">
         <button class="btn-icon" id="btnOpenScan" title="Scan dengan kamera">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
@@ -1097,7 +1312,6 @@
     </div>
   </div>
 
-  <!-- STATS -->
   <div class="stats-row fade-up delay-1">
     <div class="stat-mini">
       <div class="num" id="statTotal">0</div>
@@ -1113,7 +1327,6 @@
     </div>
   </div>
 
-  <!-- GALLERY -->
   <div class="gallery-header fade-up delay-2">
     <div class="gallery-title">
       🎬 Urutan Slide
@@ -1125,7 +1338,7 @@
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
-        Auto-susun ikut Barcode
+        Auto-susun
       </button>
       <button class="chip-btn" id="btnShuffle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1148,7 +1361,7 @@
   </div>
 
   <div id="galleryContainer" class="gallery-grid">
-    <div class="empty-state">
+    <div class="empty-state" style="grid-column:1/-1;">
       <div class="icon">🎬</div>
       <h3>Belum ada urutan</h3>
       <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
@@ -1186,11 +1399,14 @@
   </div>
 </div>
 
-<!-- EDIT MODAL -->
+<!-- ============ FULL EDIT MODAL ============ -->
 <div class="modal-overlay" id="editModal">
-  <div class="modal">
+  <div class="modal large">
     <div class="modal-header">
-      <h3>✏️ Edit Penerima</h3>
+      <h3>
+        ✏️ Edit Penerima
+        <span class="badge-custom" id="customBadge" style="display:none;">Custom</span>
+      </h3>
       <button class="modal-close" id="btnCloseEdit">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1198,27 +1414,161 @@
         </svg>
       </button>
     </div>
+
     <div class="modal-body">
-      <div class="modal-field">
-        <label>Nama Penuh</label>
-        <input type="text" id="editNama" maxlength="100">
+      <div class="override-banner" id="overrideBanner" style="display:none;">
+        <span>🎨 Penerima ini guna setting custom (bukan default)</span>
+        <button id="btnResetOverride">Reset ke Default</button>
       </div>
-      <div class="modal-field">
-        <label>Nombor Matriks</label>
-        <input type="text" id="editMatrik" maxlength="30">
-      </div>
-      <div class="modal-field">
-        <label>Nombor Barcode</label>
-        <input type="text" id="editBarcode" maxlength="20" disabled style="opacity:0.6;cursor:not-allowed;">
+
+      <div class="modal-body-grid">
+
+        <!-- LEFT: PREVIEW + DRAG -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">
+              🎨 Posisi Preview
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);" id="coordDisplayMini">Drag tag untuk ubah posisi</div>
+          </div>
+
+          <div class="mini-stage" id="miniStage">
+            <div class="placeholder">
+              <div class="emoji">🖼️</div>
+              <div>Tiada template</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="chip-btn" id="btnResetPosMini">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Reset Posisi
+            </button>
+            <button class="chip-btn" id="btnCopyGlobal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Salin dari Default
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: FORM -->
+        <div>
+
+          <!-- DATA PENERIMA -->
+          <div class="edit-section">
+            <h4><span class="dot"></span> Data Penerima</h4>
+
+            <div class="edit-field">
+              <label>Nama Penuh</label>
+              <input type="text" id="editNama" class="nama-input" maxlength="100">
+            </div>
+
+            <div class="edit-field">
+              <label>Nombor Matriks</label>
+              <input type="text" id="editMatrik" class="nama-input" maxlength="30">
+            </div>
+
+            <div class="edit-field">
+              <label>Barcode (tak boleh edit)</label>
+              <input type="text" id="editBarcode" disabled>
+            </div>
+          </div>
+
+          <!-- STYLE -->
+          <div class="edit-section">
+            <h4><span class="dot"></span> Saiz & Warna Text</h4>
+
+            <div class="edit-row">
+              <div class="edit-field">
+                <label>Saiz Nama</label>
+                <input type="number" id="editSizeNama" min="8" max="200" step="2">
+              </div>
+              <div class="edit-field">
+                <label>Saiz Matriks</label>
+                <input type="number" id="editSizeMatrik" min="8" max="200" step="2">
+              </div>
+            </div>
+
+            <div class="edit-field">
+              <label>Warna Text</label>
+              <input type="color" id="editColor">
+            </div>
+
+            <div class="edit-field">
+              <label>Font</label>
+              <select id="editFont">
+                <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="Impact, sans-serif">Impact</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+              </select>
+            </div>
+
+            <div class="edit-field">
+              <label>Weight</label>
+              <select id="editWeight">
+                <option value="400">Normal</option>
+                <option value="600">Semi Bold</option>
+                <option value="700">Bold</option>
+                <option value="900">Extra Bold</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- OVERRIDE VIDEO + OVERLAY -->
+          <div class="edit-section">
+            <h4><span class="dot"></span> Video & Overlay</h4>
+
+            <div class="toggle-row-mini">
+              <div class="lbl-small">Loop Video</div>
+              <label class="toggle-switch-mini">
+                <input type="checkbox" id="editLoop">
+                <span class="toggle-slider-mini"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row-mini">
+              <div class="lbl-small">Autoplay</div>
+              <label class="toggle-switch-mini">
+                <input type="checkbox" id="editAutoplay">
+                <span class="toggle-slider-mini"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row-mini">
+              <div class="lbl-small">Overlay Gelap</div>
+              <label class="toggle-switch-mini">
+                <input type="checkbox" id="editOverlay">
+                <span class="toggle-slider-mini"></span>
+              </label>
+            </div>
+
+            <div class="edit-field" id="editOpacityGroup" style="margin-top:10px;display:none;">
+              <label>Kepekatan Overlay (%)</label>
+              <input type="number" id="editOverlayOpacity" min="0" max="100" step="5">
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
+
     <div class="modal-footer">
-      <button class="btn-danger-modal" id="btnDeleteFromOrder">
+      <button class="btn-danger-modal" id="btnRemoveFromOrder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
         </svg>
-        Keluarkan
+        Keluar dari Urutan
       </button>
       <div style="flex:1"></div>
       <button class="btn-secondary" id="btnCancelEdit">Batal</button>
@@ -1234,9 +1584,7 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ============================================================
-     FIREBASE + LOGIC
-     ============================================================ -->
+<!-- ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
@@ -1245,9 +1593,6 @@ import {
   orderBy, setDoc, updateDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ============================================================
-   CONFIG
-   ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
   authDomain: "akjjtmk.firebaseapp.com",
@@ -1264,11 +1609,25 @@ const db = getFirestore(app);
 /* ============================================================
    STATE
    ============================================================ */
-let recipients = [];       // semua penerima dari Firestore
-let slideOrder = [];       // array of recipient IDs (urutan)
-let configState = {};      // config dari Firestore
-let selectedId = null;     // currently selected card
-let draggedId = null;      // card yang sedang di-drag
+let recipients = [];
+let slideOrder = [];
+let configState = {};       // config default (dari page template)
+let overrides = {};          // { recipientId: { positions, styles, video, overlay } }
+let editingId = null;
+let draggedId = null;
+
+/* Default setting (fallback kalau takde override & takde config) */
+const DEFAULT_SETTINGS = {
+  positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
+  styles: {
+    nameSize: 32, matrikSize: 22,
+    color: '#ffffff',
+    font: "'Segoe UI', system-ui, sans-serif",
+    weight: 700
+  },
+  video: { loop: true, autoplay: true, muted: true },
+  overlay: { enabled: false, opacity: 30 }
+};
 
 /* ============================================================
    HELPERS
@@ -1297,21 +1656,41 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* Ambil effective setting untuk satu penerima
+   Priority: override[id] > config default > DEFAULT_SETTINGS */
+function getEffectiveSettings(id) {
+  const base = {
+    positions: configState.positions || DEFAULT_SETTINGS.positions,
+    styles: configState.styles || DEFAULT_SETTINGS.styles,
+    video: configState.video || DEFAULT_SETTINGS.video,
+    overlay: configState.overlay || DEFAULT_SETTINGS.overlay
+  };
+
+  const ov = overrides[id];
+  if (!ov) return base;
+
+  return {
+    positions: ov.positions || base.positions,
+    styles: ov.styles || base.styles,
+    video: ov.video || base.video,
+    overlay: ov.overlay || base.overlay
+  };
+}
+
+function hasOverride(id) {
+  return !!overrides[id];
+}
+
 /* ============================================================
-   LOAD CONFIG (untuk preview template)
+   LISTENERS
    ============================================================ */
 const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
   renderGallery();
-}, (err) => {
-  console.error('config listener:', err);
-});
+}, (err) => console.error('config listener:', err));
 
-/* ============================================================
-   LOAD RECIPIENTS
-   ============================================================ */
 const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
 
 onSnapshot(recipientsQ, (snap) => {
@@ -1324,25 +1703,23 @@ onSnapshot(recipientsQ, (snap) => {
   setStatus('offline', 'Offline');
 });
 
-/* ============================================================
-   LOAD SLIDE ORDER
-   ============================================================ */
 const orderDoc = doc(db, 'config', 'slideOrder');
 
 onSnapshot(orderDoc, (snap) => {
-  if (snap.exists() && Array.isArray(snap.data().order)) {
-    slideOrder = snap.data().order;
+  if (snap.exists()) {
+    const data = snap.data();
+    slideOrder = Array.isArray(data.order) ? data.order : [];
+    overrides = data.overrides || {};
   } else {
     slideOrder = [];
+    overrides = {};
   }
   renderGallery();
   updateStats();
-}, (err) => {
-  console.error('order listener:', err);
-});
+}, (err) => console.error('order listener:', err));
 
 /* ============================================================
-   SAVE ORDER
+   SAVE ORDER + OVERRIDES
    ============================================================ */
 async function saveOrder() {
   try {
@@ -1353,6 +1730,18 @@ async function saveOrder() {
   } catch (e) {
     console.error('save order error:', e);
     toast('Gagal simpan urutan: ' + e.message, 'error');
+  }
+}
+
+async function saveOverrides() {
+  try {
+    await setDoc(orderDoc, {
+      overrides,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.error('save override error:', e);
+    toast('Gagal simpan: ' + e.message, 'error');
   }
 }
 
@@ -1381,52 +1770,30 @@ function renderGallery() {
     return;
   }
 
-  galleryContainer.innerHTML = orderedRecipients.map((r, idx) => {
-    return renderSlideCard(r, idx, orderedRecipients.length);
-  }).join('');
+  galleryContainer.innerHTML = orderedRecipients.map((r, idx) =>
+    renderSlideCard(r, idx, orderedRecipients.length)
+  ).join('');
 
-  // Attach events
-  galleryContainer.querySelectorAll('.slide-card').forEach(card => {
-    setupCardEvents(card);
-  });
+  galleryContainer.querySelectorAll('.slide-card').forEach(card => setupCardEvents(card));
 }
 
 function renderSlideCard(r, idx, total) {
   const isFirst = idx === 0;
   const isLast = idx === total - 1;
-  const isSelected = selectedId === r.id;
+  const isCustom = hasOverride(r.id);
+  const eff = getEffectiveSettings(r.id);
 
-  // Preview - guna template kalau ada
   let previewHTML = '';
   if (configState.template && configState.templateType === 'image') {
-    const positions = configState.positions || { name: {x:50,y:40}, matrik: {x:50,y:60} };
-    const styles = configState.styles || { nameSize: 32, matrikSize: 22, color: '#fff', font: "'Segoe UI', sans-serif", weight: 700 };
-
-    const nameStyle = `
-      left: ${positions.name.x}%;
-      top: ${positions.name.y}%;
-      color: ${styles.color};
-      font-family: ${styles.font};
-      font-weight: ${styles.weight};
-      font-size: 10px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    `;
-    const matrikStyle = `
-      left: ${positions.matrik.x}%;
-      top: ${positions.matrik.y}%;
-      color: ${styles.color};
-      font-family: ${styles.font};
-      font-weight: ${styles.weight};
-      font-size: 8px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    `;
+    const p = eff.positions;
+    const s = eff.styles;
 
     previewHTML = `
       <div class="slide-preview">
         <img src="${configState.template}" alt="" onerror="this.style.display='none'">
-        ${configState.overlay?.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${configState.overlay.opacity/100});"></div>` : ''}
-        <span class="mini-name" style="${nameStyle}">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="${matrikStyle}">${escapeHtml(r.matrik || '-')}</span>
+        ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});"></div>` : ''}
+        <span class="mini-name" style="left:${p.name.x}%;top:${p.name.y}%;color:${s.color};font-family:${s.font};font-weight:${s.weight};font-size:10px;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:${p.matrik.x}%;top:${p.matrik.y}%;color:${s.color};font-family:${s.font};font-weight:${s.weight};font-size:8px;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${escapeHtml(r.matrik || '-')}</span>
       </div>
     `;
   } else if (configState.template && configState.templateType === 'video') {
@@ -1436,8 +1803,8 @@ function renderSlideCard(r, idx, total) {
           <div class="emoji">🎬</div>
           <div>Video Template</div>
         </div>
-        <span class="mini-name" style="left:50%;top:40%;color:#38bdf8;font-size:10px;">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:50%;top:60%;color:#34d399;font-size:8px;">${escapeHtml(r.matrik || '-')}</span>
+        <span class="mini-name" style="left:${eff.positions.name.x}%;top:${eff.positions.name.y}%;color:${eff.styles.color};font-size:10px;">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:${eff.positions.matrik.x}%;top:${eff.positions.matrik.y}%;color:${eff.styles.color};font-size:8px;">${escapeHtml(r.matrik || '-')}</span>
       </div>
     `;
   } else {
@@ -1454,11 +1821,9 @@ function renderSlideCard(r, idx, total) {
   }
 
   return `
-    <div class="slide-card ${isSelected ? 'selected' : ''}" data-id="${r.id}" draggable="true">
+    <div class="slide-card ${isCustom ? 'customized' : ''}" data-id="${r.id}" draggable="true">
       <div class="order-badge">${idx + 1}</div>
-
       ${previewHTML}
-
       <div class="slide-info">
         <div class="name">${escapeHtml(r.nama || '-')}</div>
         <div class="matrik">${escapeHtml(r.matrik || '-')}</div>
@@ -1467,14 +1832,13 @@ function renderSlideCard(r, idx, total) {
           <span class="status ${r.hadir ? 'hadir' : ''}">${r.hadir ? '✅ Hadir' : '⏳ Belum'}</span>
         </div>
       </div>
-
       <div class="card-actions">
-        <button class="arrow-btn" data-action="left" ${isFirst ? 'disabled' : ''} title="Gerak ke kiri">
+        <button class="arrow-btn" data-action="left" ${isFirst ? 'disabled' : ''} title="Ke kiri">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <button class="arrow-btn" data-action="right" ${isLast ? 'disabled' : ''} title="Gerak ke kanan">
+        <button class="arrow-btn" data-action="right" ${isLast ? 'disabled' : ''} title="Ke kanan">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
@@ -1491,13 +1855,9 @@ function renderSlideCard(r, idx, total) {
   `;
 }
 
-/* ============================================================
-   CARD EVENTS
-   ============================================================ */
 function setupCardEvents(card) {
   const id = card.dataset.id;
 
-  // Arrow buttons
   card.querySelectorAll('.arrow-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1515,32 +1875,16 @@ function setupCardEvents(card) {
     });
   });
 
-  // Edit button
   const editBtn = card.querySelector('.edit-btn');
-  if (editBtn) {
-    editBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openEditModal(id);
-    });
-  }
-
-  // Click card to select
-  card.addEventListener('click', (e) => {
-    if (e.target.closest('button')) return;
-    if (selectedId === id) {
-      selectedId = null;
-    } else {
-      selectedId = id;
-    }
-    renderGallery();
+  editBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openEditModal(id);
   });
 
-  // Drag events
   card.addEventListener('dragstart', (e) => {
     draggedId = id;
     card.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', id);
   });
 
   card.addEventListener('dragend', () => {
@@ -1551,14 +1895,10 @@ function setupCardEvents(card) {
 
   card.addEventListener('dragover', (e) => {
     e.preventDefault();
-    if (draggedId && draggedId !== id) {
-      card.classList.add('drag-over');
-    }
+    if (draggedId && draggedId !== id) card.classList.add('drag-over');
   });
 
-  card.addEventListener('dragleave', () => {
-    card.classList.remove('drag-over');
-  });
+  card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
 
   card.addEventListener('drop', (e) => {
     e.preventDefault();
@@ -1567,13 +1907,10 @@ function setupCardEvents(card) {
 
     const fromIdx = slideOrder.indexOf(draggedId);
     const toIdx = slideOrder.indexOf(id);
-
     if (fromIdx === -1 || toIdx === -1) return;
 
-    // Remove and insert
     slideOrder.splice(fromIdx, 1);
     slideOrder.splice(toIdx, 0, draggedId);
-
     saveOrder();
     toast('Urutan dikemas kini', 'success', 1500);
   });
@@ -1596,10 +1933,7 @@ const suggestionsEl = document.getElementById('suggestions');
 
 inpBarcode.addEventListener('input', (e) => {
   const val = e.target.value.trim().toUpperCase();
-  if (!val) {
-    suggestionsEl.classList.remove('show');
-    return;
-  }
+  if (!val) { suggestionsEl.classList.remove('show'); return; }
 
   const matches = recipients.filter(r =>
     String(r.barcode || '').toUpperCase().includes(val) ||
@@ -1607,10 +1941,7 @@ inpBarcode.addEventListener('input', (e) => {
     String(r.matrik || '').toUpperCase().includes(val)
   ).slice(0, 8);
 
-  if (matches.length === 0) {
-    suggestionsEl.classList.remove('show');
-    return;
-  }
+  if (matches.length === 0) { suggestionsEl.classList.remove('show'); return; }
 
   suggestionsEl.innerHTML = matches.map(r => `
     <div class="suggestion-item" data-id="${r.id}">
@@ -1634,10 +1965,7 @@ inpBarcode.addEventListener('input', (e) => {
 });
 
 inpBarcode.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addToOrder();
-  }
+  if (e.key === 'Enter') { e.preventDefault(); addToOrder(); }
 });
 
 document.getElementById('btnAdd').addEventListener('click', addToOrder);
@@ -1646,19 +1974,13 @@ async function addToOrder() {
   const val = inpBarcode.value.trim().toUpperCase();
   if (!val) return toast('Masukkan barcode dulu', 'warn');
 
-  // Cari penerima ikut barcode atau nama
   const found = recipients.find(r =>
     String(r.barcode || '').toUpperCase() === val ||
     String(r.nama || '').toUpperCase() === val
   );
 
-  if (!found) {
-    return toast('Barcode ' + val + ' tidak dijumpai', 'error');
-  }
-
-  if (slideOrder.includes(found.id)) {
-    return toast(found.nama + ' sudah dalam urutan', 'warn');
-  }
+  if (!found) return toast('Barcode ' + val + ' tidak dijumpai', 'error');
+  if (slideOrder.includes(found.id)) return toast(found.nama + ' sudah dalam urutan', 'warn');
 
   slideOrder.push(found.id);
   await saveOrder();
@@ -1666,23 +1988,16 @@ async function addToOrder() {
   inpBarcode.value = '';
   suggestionsEl.classList.remove('show');
   inpBarcode.focus();
-
   toast('✅ ' + found.nama + ' ditambah ke urutan', 'success');
 }
 
 /* ============================================================
-   AUTO-SUSUN & SHUFFLE
+   BULK ACTIONS
    ============================================================ */
 document.getElementById('btnAutoOrder').addEventListener('click', async () => {
-  const orderedSet = new Set(slideOrder);
-  const inOrder = slideOrder.map(id => recipients.find(r => r.id === id)).filter(Boolean);
-  const notInOrder = recipients.filter(r => !orderedSet.has(r.id));
-
-  // Sort semua by barcode
   const allSorted = [...recipients].sort((a, b) =>
     String(a.barcode || '').localeCompare(String(b.barcode || ''), undefined, { numeric: true })
   );
-
   slideOrder = allSorted.map(r => r.id);
   await saveOrder();
   toast('✅ Urutan disusun ikut barcode', 'success');
@@ -1690,14 +2005,11 @@ document.getElementById('btnAutoOrder').addEventListener('click', async () => {
 
 document.getElementById('btnShuffle').addEventListener('click', async () => {
   if (slideOrder.length < 2) return toast('Perlu sekurang-kurangnya 2 penerima', 'warn');
-
-  // Fisher-Yates shuffle
   const arr = [...slideOrder];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-
   slideOrder = arr;
   await saveOrder();
   toast('🔀 Urutan dirawakkan', 'success');
@@ -1706,29 +2018,52 @@ document.getElementById('btnShuffle').addEventListener('click', async () => {
 document.getElementById('btnClearAll').addEventListener('click', async () => {
   if (slideOrder.length === 0) return;
   if (!confirm('Kosongkan semua urutan slide?')) return;
-
   slideOrder = [];
   await saveOrder();
   toast('Urutan dikosongkan', 'success');
 });
 
 /* ============================================================
-   EDIT MODAL
+   FULL EDIT MODAL
    ============================================================ */
 const editModal = document.getElementById('editModal');
-let editingId = null;
+const miniStage = document.getElementById('miniStage');
 
 function openEditModal(id) {
   const r = recipients.find(x => x.id === id);
   if (!r) return;
 
   editingId = id;
+  const eff = getEffectiveSettings(id);
+
+  // Data penerima
   document.getElementById('editNama').value = (r.nama || '').toUpperCase();
   document.getElementById('editMatrik').value = (r.matrik || '').toUpperCase();
   document.getElementById('editBarcode').value = (r.barcode || '').toUpperCase();
 
+  // Style
+  document.getElementById('editSizeNama').value = eff.styles.nameSize;
+  document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
+  document.getElementById('editColor').value = eff.styles.color;
+  document.getElementById('editFont').value = eff.styles.font;
+  document.getElementById('editWeight').value = String(eff.styles.weight);
+
+  // Video
+  document.getElementById('editLoop').checked = eff.video.loop;
+  document.getElementById('editAutoplay').checked = eff.video.autoplay;
+
+  // Overlay
+  document.getElementById('editOverlay').checked = eff.overlay.enabled;
+  document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
+  document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
+
+  // Banner override
+  const isCustom = hasOverride(id);
+  document.getElementById('overrideBanner').style.display = isCustom ? 'flex' : 'none';
+  document.getElementById('customBadge').style.display = isCustom ? 'inline-block' : 'none';
+
+  renderMiniStage();
   editModal.classList.add('active');
-  setTimeout(() => document.getElementById('editNama').focus(), 100);
 }
 
 function closeEditModal() {
@@ -1738,25 +2073,296 @@ function closeEditModal() {
 
 document.getElementById('btnCloseEdit').addEventListener('click', closeEditModal);
 document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
-editModal.addEventListener('click', (e) => {
-  if (e.target === editModal) closeEditModal();
-});
+/* ============================================================
+   RENDER MINI STAGE (in modal)
+   ============================================================ */
+function renderMiniStage() {
+  if (!editingId) return;
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && editModal.classList.contains('active')) closeEditModal();
-});
+  const r = recipients.find(x => x.id === editingId);
+  if (!r) return;
 
-// Auto uppercase in modal
+  const eff = getEffectiveSettings(editingId);
+
+  miniStage.innerHTML = '';
+
+  // Template
+  if (configState.template && configState.templateType === 'image') {
+    const img = document.createElement('img');
+    img.src = configState.template;
+    img.draggable = false;
+    miniStage.appendChild(img);
+  } else if (configState.template && configState.templateType === 'video') {
+    miniStage.innerHTML = `
+      <div class="placeholder">
+        <div class="emoji">🎬</div>
+        <div>Video Template</div>
+      </div>`;
+  } else {
+    miniStage.innerHTML = `
+      <div class="placeholder">
+        <div class="emoji">🖼️</div>
+        <div>Tiada template</div>
+      </div>`;
+  }
+
+  // Overlay
+  if (eff.overlay.enabled) {
+    const ov = document.createElement('div');
+    ov.style.cssText = `position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:5;`;
+    miniStage.appendChild(ov);
+  }
+
+  // Tags
+  addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name');
+  addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik');
+}
+
+function addMiniDragTag(type, text, xPct, yPct, styles, tagClass) {
+  const tag = document.createElement('div');
+  tag.className = `mini-drag-tag ${tagClass}`;
+  tag.dataset.type = type;
+  tag.style.left = xPct + '%';
+  tag.style.top = yPct + '%';
+  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.5 + 'px'; // scale down for mini
+  tag.style.color = styles.color;
+  tag.style.fontFamily = styles.font;
+  tag.style.fontWeight = styles.weight;
+  tag.style.textShadow = '0 2px 8px rgba(0,0,0,0.6)';
+
+  tag.innerHTML = `
+    <span class="lbl">${type === 'name' ? 'Nama' : 'Matriks'}</span>
+    <span>${escapeHtml(text)}</span>
+  `;
+
+  miniStage.appendChild(tag);
+  makeMiniDraggable(tag, type);
+}
+
+function makeMiniDraggable(el, type) {
+  let dragging = false;
+  let startX, startY, startXPct, startYPct;
+
+  el.addEventListener('mousedown', (e) => {
+    dragging = true;
+    el.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY;
+    startXPct = parseFloat(el.style.left);
+    startYPct = parseFloat(el.style.top);
+    e.preventDefault();
+  });
+
+  el.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dragging = true;
+    el.classList.add('dragging');
+    startX = t.clientX; startY = t.clientY;
+    startXPct = parseFloat(el.style.left);
+    startYPct = parseFloat(el.style.top);
+  }, { passive: true });
+
+  function move(cx, cy) {
+    if (!dragging) return;
+    const rect = miniStage.getBoundingClientRect();
+    const dx = ((cx - startX) / rect.width) * 100;
+    const dy = ((cy - startY) / rect.height) * 100;
+
+    const newX = Math.max(0, Math.min(100, startXPct + dx));
+    const newY = Math.max(0, Math.min(100, startYPct + dy));
+
+    el.style.left = newX + '%';
+    el.style.top = newY + '%';
+
+    document.getElementById('coordDisplayMini').textContent =
+      `${type === 'name' ? 'Nama' : 'Matriks'}: x ${newX.toFixed(1)}% · y ${newY.toFixed(1)}%`;
+
+    // Update current positions di editing state
+    if (editingId) {
+      const ov = overrides[editingId] || {};
+      const eff = getEffectiveSettings(editingId);
+      ov.positions = ov.positions || { ...eff.positions };
+      ov.positions[type] = { x: newX, y: newY };
+      // Auto-create override for other settings too
+      ov.styles = ov.styles || { ...eff.styles };
+      ov.video = ov.video || { ...eff.video };
+      ov.overlay = ov.overlay || { ...eff.overlay };
+      overrides[editingId] = ov;
+    }
+  }
+
+  function end() {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    // Refresh banner
+    if (editingId) {
+      document.getElementById('overrideBanner').style.display = 'flex';
+      document.getElementById('customBadge').style.display = 'inline-block';
+    }
+  }
+
+  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+  document.addEventListener('mouseup', end);
+  document.addEventListener('touchmove', e => {
+    if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); }
+  }, { passive: true });
+  document.addEventListener('touchend', end);
+}
+
+/* ============================================================
+   EDIT FORM CONTROLS — track changes as overrides
+   ============================================================ */
+function ensureOverride(id) {
+  if (!overrides[id]) {
+    const eff = getEffectiveSettings(id);
+    overrides[id] = {
+      positions: { ...eff.positions },
+      styles: { ...eff.styles },
+      video: { ...eff.video },
+      overlay: { ...eff.overlay }
+    };
+  }
+  return overrides[id];
+}
+
+function markCustomized() {
+  document.getElementById('overrideBanner').style.display = 'flex';
+  document.getElementById('customBadge').style.display = 'inline-block';
+}
+
+// Auto uppercase nama/matriks
 ['editNama', 'editMatrik'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
-    const start = e.target.selectionStart;
-    const end = e.target.selectionEnd;
+    const s = e.target.selectionStart, t = e.target.selectionEnd;
     e.target.value = e.target.value.toUpperCase();
-    e.target.setSelectionRange(start, end);
+    e.target.setSelectionRange(s, t);
   });
 });
 
+document.getElementById('editSizeNama').addEventListener('input', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.styles.nameSize = parseInt(e.target.value) || 32;
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editSizeMatrik').addEventListener('input', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.styles.matrikSize = parseInt(e.target.value) || 22;
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editColor').addEventListener('input', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.styles.color = e.target.value;
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editFont').addEventListener('change', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.styles.font = e.target.value;
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editWeight').addEventListener('change', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.styles.weight = parseInt(e.target.value);
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editLoop').addEventListener('change', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.video.loop = e.target.checked;
+  markCustomized();
+});
+
+document.getElementById('editAutoplay').addEventListener('change', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.video.autoplay = e.target.checked;
+  markCustomized();
+});
+
+document.getElementById('editOverlay').addEventListener('change', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.overlay.enabled = e.target.checked;
+  document.getElementById('editOpacityGroup').style.display = e.target.checked ? 'block' : 'none';
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('editOverlayOpacity').addEventListener('input', (e) => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.overlay.opacity = parseInt(e.target.value) || 0;
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('btnResetPosMini').addEventListener('click', () => {
+  if (!editingId) return;
+  const ov = ensureOverride(editingId);
+  ov.positions = { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } };
+  markCustomized();
+  renderMiniStage();
+});
+
+document.getElementById('btnCopyGlobal').addEventListener('click', () => {
+  if (!editingId) return;
+  const base = {
+    positions: configState.positions || DEFAULT_SETTINGS.positions,
+    styles: configState.styles || DEFAULT_SETTINGS.styles,
+    video: configState.video || DEFAULT_SETTINGS.video,
+    overlay: configState.overlay || DEFAULT_SETTINGS.overlay
+  };
+  overrides[editingId] = {
+    positions: { ...base.positions },
+    styles: { ...base.styles },
+    video: { ...base.video },
+    overlay: { ...base.overlay }
+  };
+  // Reload form
+  const eff = getEffectiveSettings(editingId);
+  document.getElementById('editSizeNama').value = eff.styles.nameSize;
+  document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
+  document.getElementById('editColor').value = eff.styles.color;
+  document.getElementById('editFont').value = eff.styles.font;
+  document.getElementById('editWeight').value = String(eff.styles.weight);
+  document.getElementById('editLoop').checked = eff.video.loop;
+  document.getElementById('editAutoplay').checked = eff.video.autoplay;
+  document.getElementById('editOverlay').checked = eff.overlay.enabled;
+  document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
+  document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
+  markCustomized();
+  renderMiniStage();
+  toast('Disalin dari setting default', 'success', 1500);
+});
+
+document.getElementById('btnResetOverride').addEventListener('click', () => {
+  if (!editingId) return;
+  if (!confirm('Reset ke setting default? Custom setting untuk penerima ini akan dipadam.')) return;
+  delete overrides[editingId];
+  closeEditModal();
+  saveOverrides();
+  toast('Reset ke default', 'success');
+});
+
+/* ============================================================
+   SAVE EDIT
+   ============================================================ */
 document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   if (!editingId) return;
 
@@ -1766,8 +2372,13 @@ document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   if (!nama || !matrik) return toast('Sila isi nama dan matriks', 'error');
 
   try {
+    // Update data penerima
     await updateDoc(doc(db, 'recipients', editingId), { nama, matrik });
-    toast('✅ Maklumat dikemas kini', 'success');
+
+    // Save overrides
+    await saveOverrides();
+
+    toast('✅ Perubahan disimpan', 'success');
     closeEditModal();
   } catch (e) {
     console.error(e);
@@ -1775,9 +2386,9 @@ document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('btnDeleteFromOrder').addEventListener('click', async () => {
+document.getElementById('btnRemoveFromOrder').addEventListener('click', async () => {
   if (!editingId) return;
-  if (!confirm('Keluarkan dari urutan? (Penerima masih kekal dalam sistem)')) return;
+  if (!confirm('Keluarkan dari urutan? (Data penerima masih kekal)')) return;
 
   slideOrder = slideOrder.filter(id => id !== editingId);
   await saveOrder();
@@ -1786,7 +2397,7 @@ document.getElementById('btnDeleteFromOrder').addEventListener('click', async ()
 });
 
 /* ============================================================
-   SCAN BARCODE
+   SCAN
    ============================================================ */
 let codeReader = null;
 let scanActive = false;
@@ -1797,14 +2408,7 @@ const scanStatusText = document.getElementById('scanStatusText');
 
 document.getElementById('btnOpenScan').addEventListener('click', openScanModal);
 document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
-
-scanModal.addEventListener('click', (e) => {
-  if (e.target === scanModal) closeScanModal();
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && scanModal.classList.contains('active')) closeScanModal();
-});
+scanModal.addEventListener('click', (e) => { if (e.target === scanModal) closeScanModal(); });
 
 async function openScanModal() {
   scanModal.classList.add('active');
@@ -1813,50 +2417,39 @@ async function openScanModal() {
 
   try {
     codeReader = new ZXing.BrowserMultiFormatReader();
-
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-      ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.UPC_A,
-      ZXing.BarcodeFormat.UPC_E,
-      ZXing.BarcodeFormat.QR_CODE,
-      ZXing.BarcodeFormat.ITF,
+      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.ITF,
       ZXing.BarcodeFormat.CODABAR
     ]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-
     codeReader.hints = hints;
     scanActive = true;
 
     await codeReader.decodeFromVideoDevice(null, 'scanVideo', (result, err) => {
       if (result && scanActive) {
-        const code = result.getText().trim().toUpperCase();
-        handleScanResult(code);
+        handleScanResult(result.getText().trim().toUpperCase());
       }
     });
 
-    scanStatusText.textContent = '✅ Kamera aktif — halakan ke barcode';
+    scanStatusText.textContent = '✅ Kamera aktif';
   } catch (e) {
-    console.error('Camera error:', e);
+    console.error(e);
     scanStatus.className = 'scan-status error';
-    scanStatusText.textContent = '❌ Gagal buka kamera: ' + e.message;
+    scanStatusText.textContent = '❌ ' + e.message;
   }
 }
 
 function closeScanModal() {
   scanActive = false;
-  if (codeReader) {
-    try { codeReader.reset(); } catch (e) {}
-    codeReader = null;
-  }
+  if (codeReader) { try { codeReader.reset(); } catch(e) {} codeReader = null; }
   scanModal.classList.remove('active');
 }
 
-let lastScanCode = '';
-let lastScanTime = 0;
+let lastScanCode = '', lastScanTime = 0;
 
 function handleScanResult(code) {
   const now = Date.now();
@@ -1865,12 +2458,10 @@ function handleScanResult(code) {
   lastScanTime = now;
 
   scanStatus.className = 'scan-status success';
-  scanStatusText.textContent = `✅ Barcode: ${code}`;
+  scanStatusText.textContent = `✅ ${code}`;
 
-  // Beep
   try { playBeep(); } catch(e) {}
 
-  // Auto-add to order
   setTimeout(() => {
     closeScanModal();
     inpBarcode.value = code;
@@ -1880,15 +2471,14 @@ function handleScanResult(code) {
 
 function playBeep() {
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.value = 1200;
     gain.gain.value = 0.08;
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.08);
+    osc.stop(ctx.currentTime + 0.08);
   } catch (e) {}
 }
 
@@ -1896,12 +2486,7 @@ function playBeep() {
    INIT
    ============================================================ */
 setStatus('connecting', 'Menyambung...');
-
-document.querySelectorAll('.field input').forEach(inp => {
-  inp.addEventListener('input', () => inp.classList.remove('error'));
-});
-
-console.log('%c🎬 Urus Urutan Slide', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide (Full Edit)', 'color: #fb923c; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
