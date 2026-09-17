@@ -495,13 +495,34 @@
     margin-top: 8px;
   }
 
-  .slide-preview img,
-  .slide-preview iframe {
+  .slide-preview img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border: none;
+    pointer-events: none;
+  }
+
+  /* Video element — full interactive tapi kita disable pointer events untuk drag */
+  .slide-preview video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    pointer-events: none;
+    background: #000;
+  }
+
+  /* Iframe fallback */
+  .slide-preview iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     pointer-events: none;
   }
@@ -516,6 +537,7 @@
     line-height: 1;
     z-index: 3;
     text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
+    pointer-events: none;
   }
 
   .slide-preview .no-template {
@@ -754,13 +776,32 @@
     user-select: none;
   }
 
-  .mini-stage img,
-  .mini-stage iframe {
+  .mini-stage img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border: none;
+    pointer-events: none;
+  }
+
+  .mini-stage video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    pointer-events: none;
+    background: #000;
+  }
+
+  .mini-stage iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     pointer-events: none;
   }
@@ -1566,10 +1607,46 @@ function hasOverride(id) {
 }
 
 /* ============================================================
-   GOOGLE DRIVE VIDEO URL — GUNA IFRAME
+   🎬 GOOGLE DRIVE VIDEO — GUNA <VIDEO> TAG DENGAN DIRECT URL
    ============================================================ */
 function getDriveVideoEmbedUrl(fileId) {
   return `https://drive.google.com/file/d/${fileId}/preview`;
+}
+
+/* Direct download URL — boleh main dalam <video> tag */
+function getDriveVideoDirectUrl(fileId) {
+  // Format ini Google Drive benarkan untuk stream video
+  return `https://drive.google.com/uc?export=download&id=${fileId}`;
+}
+
+/* lh3 format — alternatif yang lebih stabil untuk stream */
+function getDriveVideoLh3Url(fileId) {
+  return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
+
+/* Extract file ID dari pelbagai format URL */
+function extractDriveFileId(input) {
+  if (!input) return null;
+  const str = String(input).trim();
+  if (/^[a-zA-Z0-9_-]{20,50}$/.test(str)) return str;
+  let m = str.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  return null;
+}
+
+function getTemplateFileId() {
+  let fileId = extractDriveFileId(configState.templateFileId);
+  if (fileId) return fileId;
+  fileId = extractDriveFileId(configState.template);
+  if (fileId) {
+    console.log('🔧 Auto-extract fileId dari template URL:', fileId);
+    return fileId;
+  }
+  return null;
 }
 
 /* ============================================================
@@ -1579,6 +1656,7 @@ const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
+  console.log('📋 Config updated:', configState);
   renderGallery();
 }, (err) => console.error('config listener:', err));
 
@@ -1634,6 +1712,58 @@ async function saveOverrides() {
 }
 
 /* ============================================================
+   RENDER VIDEO HELPER — cuba <video>, fallback ke iframe
+   ============================================================ */
+function buildVideoPreviewHTML(fileId, eff, overlayHTML, nameOverlayStyle, matrikOverlayStyle, nama, matrik) {
+  const directUrl = getDriveVideoDirectUrl(fileId);
+  const embedUrl = getDriveVideoEmbedUrl(fileId);
+  const uniqueId = 'vid_' + Math.random().toString(36).slice(2, 9);
+
+  return `
+    <div class="slide-preview">
+      <video
+        id="${uniqueId}"
+        src="${directUrl}"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        crossorigin="anonymous"
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;background:#000;"
+        onerror="handleVideoError('${uniqueId}', '${embedUrl}')"
+      ></video>
+      <div id="${uniqueId}_fallback" style="display:none;position:absolute;inset:0;"></div>
+      ${overlayHTML}
+      <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(nama)}</span>
+      <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(matrik)}</span>
+    </div>
+  `;
+}
+
+/* Global error handler — switch ke iframe kalau <video> gagal */
+window.handleVideoError = function(videoId, embedUrl) {
+  const video = document.getElementById(videoId);
+  if (!video) return;
+
+  console.warn('⚠️ Video gagal load, tukar ke iframe:', embedUrl);
+
+  const parent = video.parentElement;
+  if (!parent) return;
+
+  // Buang video, ganti dengan iframe
+  video.remove();
+
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  iframe.frameBorder = '0';
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
+  parent.insertBefore(iframe, parent.firstChild);
+};
+
+/* ============================================================
    RENDER GALLERY
    ============================================================ */
 const galleryContainer = document.getElementById('galleryContainer');
@@ -1680,8 +1810,8 @@ function renderSlideCard(r, idx, total) {
     color:${s.color};
     font-family:${s.font};
     font-weight:${s.weight};
-    font-size:10px;
-    text-shadow:0 1px 3px rgba(0,0,0,0.7);
+    font-size:14px;
+    text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
   `;
   const matrikOverlayStyle = `
     left:${p.matrik.x}%;
@@ -1689,36 +1819,39 @@ function renderSlideCard(r, idx, total) {
     color:${s.color};
     font-family:${s.font};
     font-weight:${s.weight};
-    font-size:8px;
-    text-shadow:0 1px 3px rgba(0,0,0,0.7);
+    font-size:11px;
+    text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
   `;
 
   let previewHTML = '';
+  const overlayHTML = eff.overlay.enabled
+    ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>`
+    : '';
 
   if (configState.template) {
-    if (configState.templateType === 'video' && configState.templateFileId) {
-      // ===== VIDEO — GUNA IFRAME =====
-      const embedUrl = getDriveVideoEmbedUrl(configState.templateFileId);
-      previewHTML = `
-        <div class="slide-preview">
-          <iframe
-            src="${embedUrl}"
-            allow="autoplay; encrypted-media"
-            allowfullscreen
-            frameborder="0"
-            style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"
-          ></iframe>
-          ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>` : ''}
-          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
-          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
-        </div>
-      `;
+    if (configState.templateType === 'video') {
+      const fileId = getTemplateFileId();
+      if (fileId) {
+        previewHTML = buildVideoPreviewHTML(
+          fileId, eff, overlayHTML,
+          nameOverlayStyle, matrikOverlayStyle,
+          r.nama || '-', r.matrik || '-'
+        );
+      } else {
+        previewHTML = `
+          <div class="slide-preview">
+            <div class="no-template">
+              <div class="emoji">⚠️</div>
+              <div>File ID video tak dijumpai</div>
+            </div>
+          </div>
+        `;
+      }
     } else if (configState.templateType === 'image') {
-      // ===== IMAGE =====
       previewHTML = `
         <div class="slide-preview">
           <img src="${configState.template}" alt="" onerror="this.style.display='none'">
-          ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>` : ''}
+          ${overlayHTML}
           <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
           <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
         </div>
@@ -1742,8 +1875,8 @@ function renderSlideCard(r, idx, total) {
           <div class="emoji">🖼️</div>
           <div>Tiada template</div>
         </div>
-        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:11px;">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:9px;">${escapeHtml(r.matrik || '-')}</span>
+        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:14px;">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:11px;">${escapeHtml(r.matrik || '-')}</span>
       </div>
     `;
   }
@@ -1993,7 +2126,7 @@ document.getElementById('btnCancelEdit').addEventListener('click', closeEditModa
 editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
 /* ============================================================
-   RENDER MINI STAGE — GUNA IFRAME UNTUK VIDEO
+   RENDER MINI STAGE — VIDEO untuk edit
    ============================================================ */
 function renderMiniStage() {
   if (!editingId) return;
@@ -2010,17 +2143,42 @@ function renderMiniStage() {
     img.src = configState.template;
     img.draggable = false;
     miniStage.appendChild(img);
-  } else if (configState.template && configState.templateType === 'video' && configState.templateFileId) {
-    // ===== VIDEO — GUNA IFRAME =====
-    const embedUrl = getDriveVideoEmbedUrl(configState.templateFileId);
+  } else if (configState.template && configState.templateType === 'video') {
+    const fileId = getTemplateFileId();
+    if (fileId) {
+      // Cuba <video> dulu
+      const video = document.createElement('video');
+      video.src = getDriveVideoDirectUrl(fileId);
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.crossOrigin = 'anonymous';
+      video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;background:#000;z-index:1;';
 
-    const iframe = document.createElement('iframe');
-    iframe.src = embedUrl;
-    iframe.allow = 'autoplay; encrypted-media';
-    iframe.allowFullscreen = true;
-    iframe.frameBorder = '0';
-    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
-    miniStage.appendChild(iframe);
+      video.addEventListener('error', () => {
+        // Fallback ke iframe
+        console.warn('⚠️ Mini stage video gagal, tukar ke iframe');
+        video.remove();
+
+        const iframe = document.createElement('iframe');
+        iframe.src = getDriveVideoEmbedUrl(fileId);
+        iframe.allow = 'autoplay; encrypted-media';
+        iframe.allowFullscreen = true;
+        iframe.frameBorder = '0';
+        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;z-index:1;';
+        miniStage.insertBefore(iframe, miniStage.firstChild);
+      });
+
+      miniStage.appendChild(video);
+    } else {
+      miniStage.innerHTML = `
+        <div class="placeholder">
+          <div class="emoji">⚠️</div>
+          <div>File ID video tak dijumpai</div>
+        </div>`;
+    }
   } else {
     miniStage.innerHTML = `
       <div class="placeholder">
@@ -2045,7 +2203,7 @@ function addMiniDragTag(type, text, xPct, yPct, styles, tagClass) {
   tag.dataset.type = type;
   tag.style.left = xPct + '%';
   tag.style.top = yPct + '%';
-  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.5 + 'px';
+  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.6 + 'px';
   tag.style.color = styles.color;
   tag.style.fontFamily = styles.font;
   tag.style.fontWeight = styles.weight;
@@ -2201,6 +2359,7 @@ document.getElementById('editLoop').addEventListener('change', (e) => {
   const ov = ensureOverride(editingId);
   ov.video.loop = e.target.checked;
   markCustomized();
+  renderMiniStage();
 });
 
 document.getElementById('editAutoplay').addEventListener('change', (e) => {
@@ -2208,6 +2367,7 @@ document.getElementById('editAutoplay').addEventListener('change', (e) => {
   const ov = ensureOverride(editingId);
   ov.video.autoplay = e.target.checked;
   markCustomized();
+  renderMiniStage();
 });
 
 document.getElementById('editOverlay').addEventListener('change', (e) => {
@@ -2389,7 +2549,8 @@ function playBeep() {
 }
 
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide · Iframe Video', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide · Video Auto-Fallback', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c💡 Kalau video tak main, check Console untuk error', 'color: #94a3b8;');
 </script>
 
 </body>
