@@ -56,13 +56,11 @@
     to { transform: perspective(1200px) rotateY(0); opacity: 1; }
   }
 
-  /* MEDIA */
   .slide-media {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: contain; pointer-events: none;
   }
-
   .slide video.slide-media {
     object-fit: cover;
     background: #000;
@@ -826,6 +824,10 @@ let autoAdvanceTimer = null;
 let codeReader = null;
 let scanActive = false;
 
+/* Cache untuk smart diff */
+let lastRenderedIds = [];
+let lastRenderedTemplate = '';
+
 const settings = {
   transition: 'fade',
   autoAdvance: false,
@@ -934,11 +936,7 @@ const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
-  console.log('📋 Config:', {
-    type: configState.templateType,
-    source: configState.templateSource,
-    url: configState.template?.substring(0, 60) + '...'
-  });
+  console.log('📋 Config update');
   renderSlides();
 }, (err) => console.error('config:', err));
 
@@ -968,16 +966,87 @@ onSnapshot(orderDoc, (snap) => {
 }, (err) => console.error('order:', err));
 
 /* ============================================================
-   RENDER SLIDES
+   RENDER SLIDES — SMART (tak reload kalau tak perlu)
    ============================================================ */
 const stage = document.getElementById('stage');
 
 function renderSlides() {
-  const wasIndex = currentIndex;
   const orderedRecipients = slideOrder
     .map(id => recipients.find(r => r.id === id))
     .filter(Boolean);
 
+  const slides = stage.querySelectorAll('.slide');
+  const currentIds = Array.from(slides).map(s => s.dataset.id);
+  const newIds = orderedRecipients.map(r => r.id);
+
+  // Detect perubahan
+  const orderChanged = JSON.stringify(currentIds) !== JSON.stringify(newIds);
+  const templateSig = (configState.template || '') + '|' + (configState.templateType || '');
+  const templateChanged = lastRenderedTemplate !== templateSig;
+  const noSlides = slides.length === 0;
+
+  // ===== UPDATE IN-PLACE (tak reload video) =====
+  if (!noSlides && !orderChanged && !templateChanged) {
+    console.log('🔄 Update in-place (tak reload video)');
+
+    orderedRecipients.forEach((r, idx) => {
+      const slide = slides[idx];
+      if (!slide) return;
+
+      const eff = getEffectiveSettings(r.id);
+      const tags = slide.querySelectorAll('.slide-tag');
+
+      // Nama
+      if (tags[0]) {
+        tags[0].textContent = r.nama || '-';
+        tags[0].style.left = eff.positions.name.x + '%';
+        tags[0].style.top = eff.positions.name.y + '%';
+        tags[0].style.color = eff.styles.color;
+        tags[0].style.fontFamily = eff.styles.font;
+        tags[0].style.fontWeight = eff.styles.weight;
+        tags[0].style.fontSize = eff.styles.nameSize + 'px';
+      }
+
+      // Matrik
+      if (tags[1]) {
+        tags[1].textContent = r.matrik || '-';
+        tags[1].style.left = eff.positions.matrik.x + '%';
+        tags[1].style.top = eff.positions.matrik.y + '%';
+        tags[1].style.color = eff.styles.color;
+        tags[1].style.fontFamily = eff.styles.font;
+        tags[1].style.fontWeight = eff.styles.weight;
+        tags[1].style.fontSize = eff.styles.matrikSize + 'px';
+      }
+
+      // Overlay
+      let overlay = slide.querySelector('.slide-overlay');
+      if (eff.overlay.enabled) {
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'slide-overlay';
+          slide.insertBefore(overlay, slide.firstChild);
+        }
+        overlay.style.background = `rgba(0,0,0,${eff.overlay.opacity / 100})`;
+      } else if (overlay) {
+        overlay.remove();
+      }
+    });
+
+    // Update info & progress je
+    updateInfo();
+    updateProgress();
+    updateJumpList();
+    scheduleAutoAdvance();
+    return;
+  }
+
+  // ===== FULL RENDER (order atau template berubah) =====
+  console.log('🎬 Full render — order/template berubah');
+
+  lastRenderedIds = newIds;
+  lastRenderedTemplate = templateSig;
+
+  const wasIndex = currentIndex;
   stage.innerHTML = '';
 
   if (orderedRecipients.length === 0) {
@@ -1008,7 +1077,7 @@ function renderSlides() {
     slide.dataset.index = idx;
     slide.dataset.id = r.id;
 
-    // ===== MEDIA =====
+    // MEDIA
     if (configState.template) {
       if (configState.templateType === 'video') {
         const videoId = 'presvid_' + r.id;
@@ -1037,7 +1106,7 @@ function renderSlides() {
       `;
     }
 
-    // ===== OVERLAY =====
+    // OVERLAY
     if (eff.overlay.enabled) {
       const ov = document.createElement('div');
       ov.className = 'slide-overlay';
@@ -1045,7 +1114,7 @@ function renderSlides() {
       slide.appendChild(ov);
     }
 
-    // ===== NAMA =====
+    // NAMA
     const nameEl = document.createElement('div');
     nameEl.className = 'slide-tag';
     nameEl.textContent = r.nama || '-';
@@ -1057,7 +1126,7 @@ function renderSlides() {
     nameEl.style.fontSize = eff.styles.nameSize + 'px';
     slide.appendChild(nameEl);
 
-    // ===== MATRIK =====
+    // MATRIK
     const matrikEl = document.createElement('div');
     matrikEl.className = 'slide-tag';
     matrikEl.textContent = r.matrik || '-';
@@ -1092,7 +1161,6 @@ function applyActiveSlide(initial = false) {
     if (!video) return;
 
     if (i === currentIndex) {
-      // Reset ke awal + PASTI muted + play
       try { video.currentTime = 0; } catch(e) {}
 
       video.muted = true;
@@ -1291,6 +1359,8 @@ document.getElementById('btnCloseJump').addEventListener('click', closeJumpPanel
 
 document.getElementById('selTransition').addEventListener('change', (e) => {
   settings.transition = e.target.value;
+  // Force full re-render sebab transition class perlu update
+  lastRenderedTemplate = ''; // reset cache
   renderSlides();
   toast('Transition: ' + e.target.value, 'success', 1500);
 });
@@ -1450,26 +1520,18 @@ function playBeep() {
 const startOverlay = document.getElementById('startOverlay');
 
 document.getElementById('btnStart').addEventListener('click', async () => {
-  // Unlock autoplay
   unlockAutoplay();
-
-  // Hide overlay
   startOverlay.classList.add('hide');
 
-  // Auto fullscreen
   try {
     await document.documentElement.requestFullscreen();
-  } catch(e) {
-    console.log('Fullscreen denied:', e);
-  }
+  } catch(e) {}
 
-  // Trigger play semua video dalam current slide
   setTimeout(() => {
     applyActiveSlide(true);
     toast('✅ Presentation dimulakan', 'success', 2500);
   }, 300);
 
-  // Hide UI selepas 3 saat
   showUI();
 });
 
@@ -1478,11 +1540,8 @@ document.getElementById('btnStart').addEventListener('click', async () => {
    ============================================================ */
 setStatus('connecting', 'Menyambung...');
 
-console.log('%c📺 Slide Presentation · Cloudinary', 'color: #fb923c; font-size: 16px; font-weight: bold;');
-console.log('%cPintasan:', 'color: #94a3b8; font-weight: bold;');
-console.log('%c> atau → — Seterusnya', 'color: #94a3b8;');
-console.log('%c< atau ← — Sebelum', 'color: #94a3b8;');
-console.log('%cF — Fullscreen · S — Scan · J — Senarai · C — Tetapan · H — Hide UI', 'color: #94a3b8;');
+console.log('%c📺 Slide Presentation · Smart Render', 'color: #fb923c; font-size: 16px; font-weight: bold;');
+console.log('%c> atau → — Seterusnya · < atau ← — Sebelum · F — Fullscreen · S — Scan', 'color: #94a3b8;');
 </script>
 
 </body>
