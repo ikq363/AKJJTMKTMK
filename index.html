@@ -3,923 +3,486 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Anugerah - Firebase</title>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<title>Sistem Pengurusan Anugerah</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    min-height: 100vh;
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131a2e;
+    --bg-card-hover: #1a2340;
+    --border: #1f2b47;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --green: #34d399;
+    --orange: #fb923c;
+    --yellow: #fbbf24;
   }
-  header {
-    background: #1e293b;
-    padding: 16px 24px;
-    border-bottom: 2px solid #334155;
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ============ BACKGROUND DECORATION ============ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* ============ CONTAINER ============ */
+  .container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ============ HEADER ============ */
+  .header {
     display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: space-between;
+    margin-bottom: 60px;
     flex-wrap: wrap;
+    gap: 16px;
   }
-  header h1 { font-size: 20px; color: #38bdf8; }
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tab-btn {
-    background: #334155;
-    border: none;
-    color: #cbd5e1;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
-  .tab-btn:hover { background: #475569; }
-  .tab-btn.active { background: #38bdf8; color: #0f172a; font-weight: bold; }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3);
+  }
+
+  .brand-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    background: linear-gradient(135deg, #fff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .brand-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 600;
+  }
 
   .status-dot {
-    display: inline-block; width: 10px; height: 10px;
-    border-radius: 50%; margin-right: 6px;
-    background: #f59e0b;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
   }
-  .status-dot.online { background: #22c55e; }
-  .status-dot.offline { background: #ef4444; }
 
-  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
-  .panel { display: none; }
-  .panel.active { display: block; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
 
-  .card {
-    background: #1e293b;
-    border-radius: 12px;
-    padding: 20px;
+  /* ============ HERO ============ */
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .hero h2 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     margin-bottom: 16px;
-    border: 1px solid #334155;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .card h2 { font-size: 18px; margin-bottom: 16px; color: #38bdf8; }
 
-  input, select, button { font-family: inherit; font-size: 14px; }
-  input[type="text"], input[type="file"], select {
-    width: 100%;
-    padding: 10px 12px;
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    color: #e2e8f0;
-    margin-bottom: 12px;
+  .hero h2 span {
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  input:focus { outline: none; border-color: #38bdf8; }
 
-  button.primary {
-    background: #38bdf8;
-    color: #0f172a;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
+  .hero p {
+    font-size: clamp(14px, 1.6vw, 16px);
+    color: var(--text-dim);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
   }
-  button.primary:hover { background: #0ea5e9; }
-  button.primary:disabled { background: #475569; cursor: not-allowed; }
-  button.danger { background: #ef4444; color: white; }
-  button.danger:hover { background: #dc2626; }
 
-  .list-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: #0f172a;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #334155;
+  /* ============ MENU GRID ============ */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
   }
-  .list-item .info { flex: 1; }
-  .list-item .name { font-weight: bold; color: #f1f5f9; }
-  .list-item .meta { font-size: 12px; color: #94a3b8; }
 
-  .editor-wrap {
+  .menu-card {
     position: relative;
-    background: #0f172a;
-    border: 2px dashed #334155;
-    border-radius: 12px;
-    min-height: 400px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #editorCanvas {
-    position: relative;
-    max-width: 100%;
-    display: inline-block;
-  }
-  #editorCanvas img {
-    max-width: 100%;
-    max-height: 600px;
     display: block;
-    user-select: none;
-  }
-  .drag-tag {
-    position: absolute;
-    background: rgba(56, 189, 248, 0.85);
-    color: #0f172a;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: move;
-    font-weight: bold;
-    font-size: 14px;
-    user-select: none;
-    white-space: nowrap;
-    border: 2px solid #0ea5e9;
-    transform: translate(-50%, -50%);
-  }
-  .drag-tag:hover { background: #38bdf8; }
-
-  #slideStage {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 12px;
+    padding: 32px 26px;
+    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-decoration: none;
+    color: inherit;
     overflow: hidden;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
   }
-  #slideStage .slide {
+
+  .menu-card::before {
+    content: '';
     position: absolute;
     inset: 0;
-    display: none;
+    background: linear-gradient(135deg, var(--card-accent, var(--accent)) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.35s;
+    pointer-events: none;
+  }
+
+  .menu-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent)), transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+
+  .menu-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--card-accent, var(--accent));
+    box-shadow:
+      0 20px 40px -12px rgba(0, 0, 0, 0.5),
+      0 0 0 1px var(--card-accent, var(--accent)),
+      0 0 40px -10px var(--card-accent, var(--accent));
+  }
+
+  .menu-card:hover::before { opacity: 0.08; }
+  .menu-card:hover::after { opacity: 1; }
+
+  .menu-card:active { transform: translateY(-2px); }
+
+  /* Card color variants */
+  .menu-card[data-color="blue"]   { --card-accent: #38bdf8; }
+  .menu-card[data-color="purple"] { --card-accent: #a78bfa; }
+  .menu-card[data-color="orange"] { --card-accent: #fb923c; }
+  .menu-card[data-color="pink"]   { --card-accent: #f472b6; }
+
+  .menu-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
     align-items: center;
     justify-content: center;
-  }
-  #slideStage .slide.active {
-    display: flex;
-    animation: fadeIn 0.5s;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  #slideStage .slide img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-  #slideStage .slide .overlay-tag {
-    position: absolute;
-    background: rgba(56, 189, 248, 0.9);
-    color: #0f172a;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 24px;
-    transform: translate(-50%, -50%);
+    font-size: 28px;
+    margin-bottom: 20px;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--card-accent, var(--accent));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    transition: transform 0.35s;
   }
 
-  .scan-box {
-    background: #0f172a;
-    border-radius: 12px;
-    padding: 16px;
-    margin-top: 16px;
-  }
-  #scanVideo {
-    width: 100%;
-    max-width: 400px;
-    border-radius: 8px;
-    background: #000;
+  .menu-card[data-color="blue"]   .menu-icon { background: rgba(56, 189, 248, 0.12);  border-color: rgba(56, 189, 248, 0.3);  }
+  .menu-card[data-color="purple"] .menu-icon { background: rgba(167, 139, 250, 0.12); border-color: rgba(167, 139, 250, 0.3); }
+  .menu-card[data-color="orange"] .menu-icon { background: rgba(251, 146, 60, 0.12);  border-color: rgba(251, 146, 60, 0.3);  }
+  .menu-card[data-color="pink"]   .menu-icon { background: rgba(244, 114, 182, 0.12); border-color: rgba(244, 114, 182, 0.3); }
+
+  .menu-card:hover .menu-icon {
+    transform: scale(1.1) rotate(-5deg);
   }
 
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
+  .menu-card h3 {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
   }
-  .stat {
-    background: #0f172a;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #334155;
+
+  .menu-card p {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin-bottom: 20px;
+    min-height: 42px;
   }
-  .stat .num { font-size: 24px; font-weight: bold; color: #38bdf8; }
-  .stat .label { font-size: 12px; color: #94a3b8; }
 
-  .flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .hidden { display: none !important; }
+  .menu-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--card-accent, var(--accent));
+    transition: gap 0.3s;
+  }
 
-  .toast {
+  .menu-card:hover .menu-arrow { gap: 14px; }
+
+  .menu-arrow svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+  }
+
+  .menu-card:hover .menu-arrow svg { transform: translateX(4px); }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    margin-top: auto;
+    padding-top: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  .footer span {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ============ FLOATING DECORATION ============ */
+  .float-orb {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: #1e293b;
-    border-left: 4px solid #38bdf8;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    z-index: 9999;
-    animation: slideIn 0.3s;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+    animation: float 20s ease-in-out infinite;
   }
-  .toast.error { border-left-color: #ef4444; }
-  .toast.success { border-left-color: #22c55e; }
-  @keyframes slideIn {
-    from { transform: translateX(400px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+
+  .orb-1 {
+    width: 300px; height: 300px;
+    background: rgba(56, 189, 248, 0.4);
+    top: 10%; left: -100px;
   }
+  .orb-2 {
+    width: 400px; height: 400px;
+    background: rgba(167, 139, 250, 0.3);
+    bottom: 5%; right: -150px;
+    animation-delay: -7s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(30px, -30px) scale(1.05); }
+    66%      { transform: translate(-20px, 20px) scale(0.95); }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 640px) {
+    .container { padding: 24px 16px; }
+    .header { margin-bottom: 40px; }
+    .hero { margin-bottom: 40px; }
+    .menu-grid { grid-template-columns: 1fr; gap: 16px; }
+    .menu-card { padding: 26px 22px; }
+    .brand-text h1 { font-size: 16px; }
+  }
+
+  /* ============ ANIMATION ON LOAD ============ */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.15s; }
+  .delay-3 { animation-delay: 0.25s; }
+  .delay-4 { animation-delay: 0.35s; }
+  .delay-5 { animation-delay: 0.45s; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🎓 Sistem Anugerah</h1>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="daftar">📝 Pendaftaran</button>
-    <button class="tab-btn" data-tab="editor">🎨 Editor Template</button>
-    <button class="tab-btn" data-tab="slide">📺 Slide Show</button>
-  </div>
-  <div style="margin-left:auto;font-size:13px;">
-    <span class="status-dot" id="statusDot"></span>
-    <span id="statusText">Menyambung...</span>
-  </div>
-</header>
+<div class="grid-overlay"></div>
+<div class="float-orb orb-1"></div>
+<div class="float-orb orb-2"></div>
 
-<main>
+<div class="container">
 
-  <!-- ================= DAFTAR ================= -->
-  <section id="panel-daftar" class="panel active">
-    <div class="stats">
-      <div class="stat"><div class="num" id="statTotal">0</div><div class="label">Jumlah Penerima</div></div>
-      <div class="stat"><div class="num" id="statHadir">0</div><div class="label">Sudah Hadir</div></div>
-      <div class="stat"><div class="num" id="statNext">-</div><div class="label">Barcode Seterusnya</div></div>
+  <!-- HEADER -->
+  <header class="header fade-up">
+    <div class="brand">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-text">
+        <h1>SISTEM ANUGERAH</h1>
+        <p>AKJ JTMK · Pengurusan Majlis</p>
+      </div>
     </div>
-
-    <div class="card">
-      <h2>Daftar Penerima Baru</h2>
-      <input type="text" id="inpNama" placeholder="Nama penuh penerima">
-      <input type="text" id="inpMatrik" placeholder="Nombor matriks">
-      <button class="primary" id="btnDaftar">+ Daftar & Jana Barcode</button>
-      <p style="font-size:12px;color:#94a3b8;margin-top:8px;">
-        Data disimpan ke Firebase Firestore (sync real-time).
-      </p>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>Sistem Aktif</span>
     </div>
+  </header>
 
-    <div class="card">
-      <h2>Senarai Penerima</h2>
-      <div id="senaraiPenerima"></div>
-    </div>
-
-    <div class="card">
-      <h2>Cetak Barcode</h2>
-      <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">
-        Tekan butang untuk cetak semua barcode (untuk ditampal pada kad/meja).
-      </p>
-      <button class="primary" id="btnCetak">🖨️ Cetak Semua Barcode</button>
-      <div id="barcodePrintArea" style="margin-top:16px;"></div>
-    </div>
+  <!-- HERO -->
+  <section class="hero fade-up delay-1">
+    <h2>Selamat Datang ke <span>Sistem Pengurusan Anugerah</span></h2>
+    <p>Pilih modul di bawah untuk mula menguruskan majlis anugerah anda.</p>
   </section>
 
-  <!-- ================= EDITOR ================= -->
-  <section id="panel-editor" class="panel">
-    <div class="card">
-      <h2>1. Upload Template</h2>
-      <input type="file" id="inpTemplate" accept="image/*">
-      <p style="font-size:12px;color:#94a3b8;">
-        Gambar akan di-upload ke Firebase Storage. Semua device boleh akses.
-      </p>
-      <div id="templatePreview" style="margin-top:12px;"></div>
-      <button class="primary" id="btnHapusTemplate" style="margin-top:8px;">🗑️ Hapus Template</button>
-    </div>
+  <!-- MENU GRID -->
+  <section class="menu-grid">
 
-    <div class="card">
-      <h2>2. Pilih Penerima & Letak Posisi</h2>
-      <select id="selPenerima">
-        <option value="">-- Pilih penerima untuk edit --</option>
-      </select>
+    <!-- 1. DAFTAR PENERIMA -->
+    <a href="daftar.html" class="menu-card fade-up delay-2" data-color="blue">
+      <div class="menu-icon">📝</div>
+      <h3>Daftar Penerima Anugerah</h3>
+      <p>Daftar maklumat penerima, jana barcode automatik, dan cetak untuk kegunaan majlis.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
 
-      <div class="editor-wrap" id="editorWrap">
-        <div id="editorCanvas">
-          <p style="color:#64748b;padding:40px;text-align:center;" id="editorPlaceholder">
-            Upload template dulu ☝️
-          </p>
-        </div>
-      </div>
+    <!-- 2. EDIT TEMPLATE -->
+    <a href="template.html" class="menu-card fade-up delay-3" data-color="purple">
+      <div class="menu-icon">🎨</div>
+      <h3>Edit Template Anugerah</h3>
+      <p>Muat naik gambar template dan susun posisi nama serta nombor matriks penerima.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
 
-      <div class="flex-row" style="margin-top:12px;">
-        <button class="primary" id="btnTambahNama">+ Tag Nama</button>
-        <button class="primary" id="btnTambahMatrik">+ Tag Nombor Matriks</button>
-        <button class="danger" id="btnResetPosisi">Reset Posisi</button>
-      </div>
-      <p style="font-size:12px;color:#94a3b8;margin-top:8px;">
-        Drag tag untuk letak posisi. Posisi disimpan ke Firestore automatik.
-      </p>
-    </div>
+    <!-- 3. URUS URUTAN -->
+    <a href="urutan.html" class="menu-card fade-up delay-4" data-color="orange">
+      <div class="menu-icon">🔀</div>
+      <h3>Urus Urutan Slide</h3>
+      <p>Susun dan atur urutan slaid penerima mengikut keperluan majlis anugerah.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 4. SLIDE PRESENTATION -->
+    <a href="slide.html" class="menu-card fade-up delay-5" data-color="pink">
+      <div class="menu-icon">📺</div>
+      <h3>Slide Presentation</h3>
+      <p>Papar slaid anugerah secara langsung dengan kawalan scan barcode dan transisi.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
+
   </section>
 
-  <!-- ================= SLIDE ================= -->
-  <section id="panel-slide" class="panel">
-    <div class="card">
-      <h2>Kawalan Slide</h2>
-      <div class="flex-row">
-        <button class="primary" id="btnPrev">◀ Sebelum</button>
-        <button class="primary" id="btnNext">Seterusnya ▶</button>
-        <select id="selJump" style="width:auto;">
-          <option value="">-- Jump ke penerima --</option>
-        </select>
-        <span id="slideIndicator" style="color:#94a3b8;font-size:14px;"></span>
-      </div>
-    </div>
+  <!-- FOOTER -->
+  <footer class="footer fade-up delay-5">
+    <p>© 2025 <span>Sistem Pengurusan Anugerah</span> · Dibina untuk AKJ JTMK</p>
+  </footer>
 
-    <div id="slideStage">
-      <p style="color:#64748b;" id="slidePlaceholder">Belum ada penerima</p>
-    </div>
+</div>
 
-    <div class="scan-box">
-      <h2 style="color:#38bdf8;margin-bottom:12px;">📷 Scan Barcode (Auto Jump)</h2>
-      <video id="scanVideo" autoplay muted playsinline></video>
-      <div class="flex-row" style="margin-top:12px;">
-        <button class="primary" id="btnStartScan">Mula Scan</button>
-        <button class="danger" id="btnStopScan">Stop</button>
-        <span id="scanResult" style="font-size:13px;"></span>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<!-- ============================================================
-     FIREBASE MODULES (via CDN ESM)
-     ============================================================ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore, collection, doc, addDoc, setDoc, deleteDoc, updateDoc,
-  onSnapshot, query, orderBy, serverTimestamp, getDocs, writeBatch
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL, deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-/* ============================================================
-   FIREBASE CONFIG
-   ============================================================ */
-const firebaseConfig = {
-  apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
-  authDomain: "akjjtmk.firebaseapp.com",
-  projectId: "akjjtmk",
-  storageBucket: "akjjtmk.firebasestorage.app",
-  messagingSenderId: "28020787148",
-  appId: "1:28020787148:web:47c3c3c62e11f71c59ff69"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-/* ============================================================
-   STATE (in-memory, sync dari Firestore)
-   ============================================================ */
-let state = {
-  recipients: [],
-  nextBarcode: 1,
-  template: null,       // URL download dari Storage
-  templatePath: null,   // path dalam Storage
-  positions: {},        // { recipientId: { name:{x,y}, matrik:{x,y} } }
-  meta: {}              // doc metadata (nextBarcode, dll)
-};
-
-/* ============================================================
-   UI HELPERS
-   ============================================================ */
-function toast(msg, type = 'info') {
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
-
-function setStatus(online, text) {
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot ' + (online ? 'online' : 'offline');
-  document.getElementById('statusText').textContent = text;
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-
-/* ============================================================
-   FIRESTORE LISTENERS (real-time sync)
-   ============================================================ */
-
-// 1. Recipients
-const recipientsCol = collection(db, 'recipients');
-const recipientsQuery = query(recipientsCol, orderBy('barcode', 'asc'));
-
-onSnapshot(recipientsQuery,
-  (snap) => {
-    state.recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    setStatus(true, 'Online — ' + state.recipients.length + ' penerima');
-    renderSenarai();
-    renderBarcodePrint();
-    renderPenerimaDropdown();
-    if (document.getElementById('panel-slide').classList.contains('active')) {
-      renderSlides();
-    }
-  },
-  (err) => {
-    console.error(err);
-    setStatus(false, 'Offline / Ralat');
-    toast('Firestore error: ' + err.message, 'error');
-  }
-);
-
-// 2. Config doc (template + nextBarcode + positions)
-const configDoc = doc(db, 'config', 'main');
-
-onSnapshot(configDoc,
-  (snap) => {
-    if (!snap.exists()) return;
-    const data = snap.data();
-    state.template = data.template || null;
-    state.templatePath = data.templatePath || null;
-    state.nextBarcode = data.nextBarcode || 1;
-    state.positions = data.positions || {};
-
-    document.getElementById('statNext').textContent = String(state.nextBarcode).padStart(4, '0');
-    renderTemplatePreview();
-    renderEditor();
-  },
-  (err) => console.error('config listener', err)
-);
-
-/* ============================================================
-   TAB NAVIGATION
-   ============================================================ */
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-
-    if (btn.dataset.tab === 'editor') renderEditor();
-    if (btn.dataset.tab === 'slide') renderSlides();
-  });
-});
-
-/* ============================================================
-   MODUL 1: PENDAFTARAN
-   ============================================================ */
-const inpNama = document.getElementById('inpNama');
-const inpMatrik = document.getElementById('inpMatrik');
-
-document.getElementById('btnDaftar').addEventListener('click', async () => {
-  const nama = inpNama.value.trim();
-  const matrik = inpMatrik.value.trim();
-  if (!nama || !matrik) return toast('Isi nama & nombor matriks', 'error');
-
-  const btn = document.getElementById('btnDaftar');
-  btn.disabled = true;
-  btn.textContent = 'Menyimpan...';
-
-  try {
-    // ambil nextBarcode terkini dari Firestore untuk elak race condition
-    const configSnap = await getDocs(collection(db, 'recipients'));
-    const maxBarcode = configSnap.docs.reduce((max, d) => {
-      const bc = parseInt(d.data().barcode, 10);
-      return isNaN(bc) ? max : Math.max(max, bc);
-    }, 0);
-    const barcode = String(maxBarcode + 1).padStart(4, '0');
-
-    await addDoc(recipientsCol, {
-      barcode,
-      nama,
-      matrik,
-      hadir: false,
-      createdAt: serverTimestamp()
+<script>
+  // Hover glow effect — ikut mouse position
+  document.querySelectorAll('.menu-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mouse-x', x + '%');
+      card.style.setProperty('--mouse-y', y + '%');
     });
-
-    // update nextBarcode dalam config
-    await setDoc(configDoc, { nextBarcode: maxBarcode + 2 }, { merge: true });
-
-    inpNama.value = '';
-    inpMatrik.value = '';
-    inpNama.focus();
-    toast('✅ ' + nama + ' didaftarkan (# ' + barcode + ')', 'success');
-  } catch (e) {
-    console.error(e);
-    toast('Gagal simpan: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '+ Daftar & Jana Barcode';
-  }
-});
-
-function renderSenarai() {
-  const wrap = document.getElementById('senaraiPenerima');
-  if (state.recipients.length === 0) {
-    wrap.innerHTML = '<p style="color:#64748b;">Belum ada penerima.</p>';
-  } else {
-    wrap.innerHTML = state.recipients.map(r => `
-      <div class="list-item">
-        <svg class="barcode-svg" data-code="${r.barcode}" style="background:#fff;border-radius:4px;padding:2px;"></svg>
-        <div class="info">
-          <div class="name">${escapeHtml(r.nama)}</div>
-          <div class="meta">Matrik: ${escapeHtml(r.matrik)} · Barcode: #${r.barcode} · ${r.hadir ? '✅ Hadir' : '⏳ Belum'}</div>
-        </div>
-        <button class="danger" onclick="padamPenerima('${r.id}')">🗑️</button>
-      </div>
-    `).join('');
-    wrap.querySelectorAll('.barcode-svg').forEach(svg => {
-      try {
-        JsBarcode(svg, svg.dataset.code, { format: 'CODE128', width: 1.2, height: 40, displayValue: true, fontSize: 10 });
-      } catch(e) { console.warn(e); }
-    });
-  }
-
-  document.getElementById('statTotal').textContent = state.recipients.length;
-  document.getElementById('statHadir').textContent = state.recipients.filter(r => r.hadir).length;
-  document.getElementById('statNext').textContent = String(state.nextBarcode).padStart(4, '0');
-}
-
-window.padamPenerima = async function(id) {
-  if (!confirm('Padam penerima ni?')) return;
-  try {
-    await deleteDoc(doc(db, 'recipients', id));
-    // padam posisi juga
-    const newPositions = { ...state.positions };
-    delete newPositions[id];
-    await setDoc(configDoc, { positions: newPositions }, { merge: true });
-    toast('Dipadam', 'success');
-  } catch(e) {
-    toast('Gagal padam: ' + e.message, 'error');
-  }
-};
-
-function renderBarcodePrint() {
-  const area = document.getElementById('barcodePrintArea');
-  area.innerHTML = state.recipients.map(r => `
-    <div style="display:inline-block;text-align:center;margin:8px;padding:8px;background:#fff;color:#000;border-radius:8px;">
-      <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">${escapeHtml(r.nama)}</div>
-      <svg class="print-barcode" data-code="${r.barcode}"></svg>
-      <div style="font-size:11px;">${escapeHtml(r.matrik)}</div>
-    </div>
-  `).join('');
-  area.querySelectorAll('.print-barcode').forEach(svg => {
-    try {
-      JsBarcode(svg, svg.dataset.code, { format: 'CODE128', width: 1.5, height: 50, displayValue: true, fontSize: 12 });
-    } catch(e) {}
-  });
-}
-
-document.getElementById('btnCetak').addEventListener('click', () => {
-  const area = document.getElementById('barcodePrintArea');
-  const w = window.open('', '_blank');
-  w.document.write(`
-    <html><head><title>Cetak Barcode</title>
-    <style>body{font-family:sans-serif;padding:20px;}
-    div{display:inline-block;text-align:center;margin:8px;padding:8px;border:1px solid #ccc;border-radius:8px;}
-    </style></head><body>${area.innerHTML}</body></html>
-  `);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-});
-
-/* ============================================================
-   MODUL 2: EDITOR TEMPLATE
-   ============================================================ */
-const editorCanvas = document.getElementById('editorCanvas');
-const selPenerima = document.getElementById('selPenerima');
-
-document.getElementById('inpTemplate').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) return toast('Max 5MB', 'error');
-
-  toast('Uploading template...', 'info');
-  try {
-    // padam template lama kalau ada
-    if (state.templatePath) {
-      try { await deleteObject(ref(storage, state.templatePath)); } catch(e) {}
-    }
-
-    const path = `templates/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-
-    await setDoc(configDoc, {
-      template: url,
-      templatePath: path
-    }, { merge: true });
-
-    toast('✅ Template berjaya di-upload', 'success');
-  } catch (err) {
-    console.error(err);
-    toast('Gagal upload: ' + err.message, 'error');
-  }
-  e.target.value = '';
-});
-
-document.getElementById('btnHapusTemplate').addEventListener('click', async () => {
-  if (!state.templatePath) return;
-  if (!confirm('Hapus template?')) return;
-  try {
-    await deleteObject(ref(storage, state.templatePath));
-    await setDoc(configDoc, { template: null, templatePath: null }, { merge: true });
-    toast('Template dihapus', 'success');
-  } catch(e) {
-    toast('Gagal: ' + e.message, 'error');
-  }
-});
-
-function renderTemplatePreview() {
-  const wrap = document.getElementById('templatePreview');
-  if (!state.template) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = `<img src="${state.template}" style="max-width:200px;border-radius:8px;border:1px solid #334155;">`;
-}
-
-function renderPenerimaDropdown() {
-  const opts = state.recipients.map(r =>
-    `<option value="${r.id}">#${r.barcode} - ${escapeHtml(r.nama)}</option>`
-  ).join('');
-  const cur = selPenerima.value;
-  selPenerima.innerHTML = '<option value="">-- Pilih penerima untuk edit --</option>' + opts;
-  selPenerima.value = cur;
-
-  const cur2 = document.getElementById('selJump').value;
-  document.getElementById('selJump').innerHTML = '<option value="">-- Jump ke penerima --</option>' + opts;
-  document.getElementById('selJump').value = cur2;
-}
-
-selPenerima.addEventListener('change', renderEditor);
-
-function renderEditor() {
-  editorCanvas.innerHTML = '';
-  if (!state.template) {
-    editorCanvas.innerHTML = '<p style="color:#64748b;padding:40px;text-align:center;">Upload template dulu ☝️</p>';
-    return;
-  }
-
-  const img = document.createElement('img');
-  img.src = state.template;
-  img.draggable = false;
-  editorCanvas.appendChild(img);
-
-  const rid = selPenerima.value;
-  if (!rid) return;
-
-  const recipient = state.recipients.find(r => r.id === rid);
-  if (!recipient) return;
-
-  const pos = state.positions[rid] || {};
-
-  if (pos.name) addDragTag('name', recipient.nama, pos.name.x, pos.name.y, rid);
-  if (pos.matrik) addDragTag('matrik', recipient.matrik, pos.matrik.x, pos.matrik.y, rid);
-}
-
-function addDragTag(type, text, xPct, yPct, rid) {
-  const tag = document.createElement('div');
-  tag.className = 'drag-tag';
-  tag.textContent = text;
-  tag.dataset.type = type;
-  tag.style.left = xPct + '%';
-  tag.style.top = yPct + '%';
-  editorCanvas.appendChild(tag);
-  makeDraggable(tag, rid);
-}
-
-function makeDraggable(el, rid) {
-  let dragging = false;
-  let startX, startY, startLeft, startTop;
-
-  el.addEventListener('mousedown', e => {
-    dragging = true;
-    el.style.cursor = 'grabbing';
-    startX = e.clientX;
-    startY = e.clientY;
-    const rect = el.getBoundingClientRect();
-    const parentRect = editorCanvas.getBoundingClientRect();
-    startLeft = rect.left - parentRect.left;
-    startTop = rect.top - parentRect.top;
-    e.preventDefault();
   });
 
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
-
-  function onMove(e) {
-    if (!dragging) return;
-    const parentRect = editorCanvas.getBoundingClientRect();
-    let newLeft = startLeft + (e.clientX - startX);
-    let newTop = startTop + (e.clientY - startY);
-    newLeft = Math.max(0, Math.min(newLeft, parentRect.width));
-    newTop = Math.max(0, Math.min(newTop, parentRect.height));
-    el.style.left = newLeft + 'px';
-    el.style.top = newTop + 'px';
-  }
-
-  async function onUp() {
-    if (!dragging) return;
-    dragging = false;
-    el.style.cursor = 'move';
-
-    const parentRect = editorCanvas.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    const xPct = ((elRect.left + elRect.width/2 - parentRect.left) / parentRect.width) * 100;
-    const yPct = ((elRect.top + elRect.height/2 - parentRect.top) / parentRect.height) * 100;
-
-    const newPositions = { ...state.positions };
-    if (!newPositions[rid]) newPositions[rid] = {};
-    newPositions[rid][el.dataset.type] = { x: xPct, y: yPct };
-    state.positions = newPositions;
-
-    try {
-      await setDoc(configDoc, { positions: newPositions }, { merge: true });
-    } catch(e) { console.error(e); }
-  }
-}
-
-document.getElementById('btnTambahNama').addEventListener('click', async () => {
-  const rid = selPenerima.value;
-  if (!rid) return toast('Pilih penerima dulu', 'error');
-  const newPositions = { ...state.positions };
-  if (!newPositions[rid]) newPositions[rid] = {};
-  newPositions[rid].name = { x: 50, y: 40 };
-  await setDoc(configDoc, { positions: newPositions }, { merge: true });
-});
-
-document.getElementById('btnTambahMatrik').addEventListener('click', async () => {
-  const rid = selPenerima.value;
-  if (!rid) return toast('Pilih penerima dulu', 'error');
-  const newPositions = { ...state.positions };
-  if (!newPositions[rid]) newPositions[rid] = {};
-  newPositions[rid].matrik = { x: 50, y: 60 };
-  await setDoc(configDoc, { positions: newPositions }, { merge: true });
-});
-
-document.getElementById('btnResetPosisi').addEventListener('click', async () => {
-  const rid = selPenerima.value;
-  if (!rid) return;
-  const newPositions = { ...state.positions };
-  delete newPositions[rid];
-  await setDoc(configDoc, { positions: newPositions }, { merge: true });
-  renderEditor();
-});
-
-/* ============================================================
-   MODUL 3: SLIDE SHOW + SCAN
-   ============================================================ */
-let currentSlide = 0;
-
-function renderSlides() {
-  const stage = document.getElementById('slideStage');
-  stage.innerHTML = '';
-
-  if (state.recipients.length === 0) {
-    stage.innerHTML = '<p style="color:#64748b;">Belum ada penerima</p>';
-    return;
-  }
-
-  state.recipients.forEach((r, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'slide' + (i === currentSlide ? ' active' : '');
-    slide.dataset.index = i;
-
-    if (state.template) {
-      const img = document.createElement('img');
-      img.src = state.template;
-      slide.appendChild(img);
-
-      const pos = state.positions[r.id] || {};
-      if (pos.name) {
-        const tag = document.createElement('div');
-        tag.className = 'overlay-tag';
-        tag.textContent = r.nama;
-        tag.style.left = pos.name.x + '%';
-        tag.style.top = pos.name.y + '%';
-        slide.appendChild(tag);
-      }
-      if (pos.matrik) {
-        const tag = document.createElement('div');
-        tag.className = 'overlay-tag';
-        tag.textContent = r.matrik;
-        tag.style.left = pos.matrik.x + '%';
-        tag.style.top = pos.matrik.y + '%';
-        slide.appendChild(tag);
-      }
-    } else {
-      const wrap = document.createElement('div');
-      wrap.style.textAlign = 'center';
-      wrap.innerHTML = `
-        <div style="font-size:48px;font-weight:bold;color:#38bdf8;">${escapeHtml(r.nama)}</div>
-        <div style="font-size:24px;color:#94a3b8;margin-top:12px;">${escapeHtml(r.matrik)}</div>
-        <div style="font-size:14px;color:#64748b;margin-top:24px;">Barcode #${r.barcode}</div>
-      `;
-      slide.appendChild(wrap);
-    }
-
-    stage.appendChild(slide);
-  });
-
-  updateSlideIndicator();
-}
-
-function goToSlide(index) {
-  const slides = document.querySelectorAll('#slideStage .slide');
-  if (slides.length === 0) return;
-  index = Math.max(0, Math.min(index, slides.length - 1));
-  slides.forEach(s => s.classList.remove('active'));
-  slides[index].classList.add('active');
-  currentSlide = index;
-  updateSlideIndicator();
-}
-
-function updateSlideIndicator() {
-  const total = state.recipients.length;
-  document.getElementById('slideIndicator').textContent =
-    total > 0 ? `Slide ${currentSlide + 1} / ${total}` : '';
-}
-
-document.getElementById('btnNext').addEventListener('click', () => goToSlide(currentSlide + 1));
-document.getElementById('btnPrev').addEventListener('click', () => goToSlide(currentSlide - 1));
-
-document.getElementById('selJump').addEventListener('change', e => {
-  const rid = e.target.value;
-  if (!rid) return;
-  const idx = state.recipients.findIndex(r => r.id === rid);
-  if (idx >= 0) goToSlide(idx);
-});
-
-document.addEventListener('keydown', e => {
-  if (document.getElementById('panel-slide').classList.contains('active')) {
-    if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
-    if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
-  }
-});
-
-/* ============================================================
-   SCAN BARCODE
-   ============================================================ */
-let codeReader = null;
-
-document.getElementById('btnStartScan').addEventListener('click', startScan);
-document.getElementById('btnStopScan').addEventListener('click', stopScan);
-
-async function startScan() {
-  try {
-    codeReader = new ZXing.BrowserMultiFormatReader();
-    document.getElementById('scanResult').textContent = 'Mencari kamera...';
-
-    codeReader.decodeFromVideoDevice(null, 'scanVideo', (result, err) => {
-      if (result) handleScan(result.getText());
-    });
-    document.getElementById('scanResult').textContent = '✅ Scan aktif';
-  } catch (e) {
-    document.getElementById('scanResult').textContent = '❌ ' + e.message;
-  }
-}
-
-function stopScan() {
-  if (codeReader) { codeReader.reset(); codeReader = null; }
-  document.getElementById('scanResult').textContent = '⏹️ Stop';
-}
-
-let lastScanTime = 0;
-async function handleScan(code) {
-  const now = Date.now();
-  if (now - lastScanTime < 2000) return;
-  lastScanTime = now;
-
-  const idx = state.recipients.findIndex(r => r.barcode === code);
-  if (idx >= 0) {
-    const r = state.recipients[idx];
-
-    // update hadir ke Firestore
-    try {
-      await updateDoc(doc(db, 'recipients', r.id), { hadir: true });
-    } catch(e) { console.error(e); }
-
-    goToSlide(idx);
-    document.getElementById('scanResult').textContent =
-      `✅ Jump: ${r.nama} (#${r.barcode})`;
-  } else {
-    document.getElementById('scanResult').textContent =
-      `❌ Barcode tak jumpa: ${code}`;
-  }
-}
-
-/* ============================================================
-   INIT
-   ============================================================ */
-setStatus(false, 'Menyambung...');
-console.log('🔥 Firebase initialized:', firebaseConfig.projectId);
+  // Console welcome
+  console.log('%c🎓 Sistem Pengurusan Anugerah', 'color: #38bdf8; font-size: 16px; font-weight: bold;');
+  console.log('%cPilih modul untuk mula', 'color: #94a3b8;');
 </script>
 
 </body>
