@@ -147,7 +147,6 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* CONTAINER */
   .container {
     position: relative;
     z-index: 1;
@@ -221,10 +220,7 @@
     color: var(--accent);
   }
 
-  .input-row {
-    display: flex;
-    gap: 8px;
-  }
+  .input-row { display: flex; gap: 8px; }
 
   .input-row input {
     flex: 1;
@@ -295,7 +291,7 @@
     transition: all 0.2s;
     box-shadow: 0 6px 20px -6px rgba(251, 146, 60, 0.5);
   }
-  .btn-add:hover:not(:disabled) {
+  .btn-add:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 28px -6px rgba(251, 146, 60, 0.6);
   }
@@ -323,14 +319,8 @@
     transition: all 0.15s;
   }
   .suggestion-item:last-child { border-bottom: none; }
-  .suggestion-item:hover {
-    background: rgba(251, 146, 60, 0.08);
-  }
-  .suggestion-item .name {
-    font-weight: 600;
-    color: var(--text);
-    text-transform: uppercase;
-  }
+  .suggestion-item:hover { background: rgba(251, 146, 60, 0.08); }
+  .suggestion-item .name { font-weight: 600; color: var(--text); text-transform: uppercase; }
   .suggestion-item .bc {
     font-family: 'Courier New', monospace;
     font-size: 11px;
@@ -378,7 +368,6 @@
     font-weight: 600;
   }
 
-  /* GALLERY */
   .gallery-header {
     display: flex;
     align-items: center;
@@ -397,11 +386,7 @@
     gap: 10px;
   }
 
-  .gallery-controls {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  .gallery-controls { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .chip-btn {
     padding: 7px 14px;
@@ -459,10 +444,7 @@
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
   }
 
-  .slide-card.dragging {
-    opacity: 0.4;
-    cursor: grabbing;
-  }
+  .slide-card.dragging { opacity: 0.4; cursor: grabbing; }
 
   .slide-card.drag-over {
     border-color: var(--accent);
@@ -515,13 +497,39 @@
     margin-top: 8px;
   }
 
-  .slide-preview img {
+  .slide-preview img,
+  .slide-preview video,
+  .slide-preview iframe {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border: none;
     pointer-events: none;
+  }
+
+  /* Overlay for video - tunjuk live preview (iframe tak boleh pointer events) */
+  .slide-preview .video-cover {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(20, 15, 40, 0.85), rgba(10, 15, 30, 0.85));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    gap: 6px;
+    z-index: 1;
+  }
+
+  .slide-preview .video-cover .emoji { font-size: 32px; opacity: 0.7; }
+  .slide-preview .video-cover .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Actually play video — pakai video tag terus, bukan iframe */
+  .slide-preview video.actual-video {
+    pointer-events: auto;
+    object-fit: cover;
   }
 
   .slide-preview .mini-name,
@@ -532,8 +540,8 @@
     transform: translate(-50%, -50%);
     white-space: nowrap;
     line-height: 1;
-    z-index: 2;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    z-index: 3;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
   }
 
   .slide-preview .no-template {
@@ -549,14 +557,9 @@
     gap: 4px;
   }
 
-  .slide-preview .no-template .emoji {
-    font-size: 28px;
-    opacity: 0.5;
-  }
+  .slide-preview .no-template .emoji { font-size: 28px; opacity: 0.5; }
 
-  .slide-info {
-    padding: 0 4px;
-  }
+  .slide-info { padding: 0 4px; }
 
   .slide-info .name {
     font-size: 13.5px;
@@ -602,9 +605,7 @@
     font-weight: 600;
   }
 
-  .slide-info .status.hadir {
-    color: var(--green);
-  }
+  .slide-info .status.hadir { color: var(--green); }
 
   .card-actions {
     display: flex;
@@ -634,11 +635,7 @@
     color: var(--accent);
   }
 
-  .arrow-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
+  .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
   .arrow-btn svg { width: 14px; height: 14px; }
 
   .edit-btn {
@@ -674,21 +671,9 @@
     border: 1px dashed var(--border);
     border-radius: 16px;
   }
-  .empty-state .icon {
-    font-size: 56px;
-    margin-bottom: 12px;
-    opacity: 0.4;
-  }
-  .empty-state h3 {
-    font-size: 15px;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-  .empty-state p {
-    font-size: 13px;
-    line-height: 1.6;
-  }
+  .empty-state .icon { font-size: 56px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state h3 { font-size: 15px; color: var(--text-dim); margin-bottom: 8px; font-weight: 700; }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
 
   /* MODAL */
   .modal-overlay {
@@ -706,10 +691,7 @@
     pointer-events: none;
     transition: opacity 0.3s;
   }
-  .modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
   .modal {
     background: var(--bg-card);
@@ -776,9 +758,7 @@
   }
   .modal-close svg { width: 16px; height: 16px; }
 
-  .modal-body {
-    padding: 24px;
-  }
+  .modal-body { padding: 24px; }
 
   .modal-body-grid {
     display: grid;
@@ -790,7 +770,6 @@
     .modal-body-grid { grid-template-columns: 1fr; }
   }
 
-  /* MINI STAGE */
   .mini-stage {
     position: relative;
     width: 100%;
@@ -802,12 +781,15 @@
     user-select: none;
   }
 
-  .mini-stage img {
+  .mini-stage img,
+  .mini-stage video,
+  .mini-stage iframe {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border: none;
     pointer-events: none;
   }
 
@@ -873,7 +855,6 @@
   .mini-drag-tag.name .lbl { background: var(--blue); color: #0a0e1a; }
   .mini-drag-tag.matrik .lbl { background: var(--green); color: #0a0e1a; }
 
-  /* EDIT PANELS */
   .edit-section {
     background: var(--bg-input);
     border: 1px solid var(--border);
@@ -904,9 +885,7 @@
     box-shadow: 0 0 8px var(--purple);
   }
 
-  .edit-field {
-    margin-bottom: 12px;
-  }
+  .edit-field { margin-bottom: 12px; }
   .edit-field:last-child { margin-bottom: 0; }
 
   .edit-field label {
@@ -943,9 +922,7 @@
     box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
   }
 
-  .edit-field input[type="text"].nama-input {
-    text-transform: uppercase;
-  }
+  .edit-field input[type="text"].nama-input { text-transform: uppercase; }
 
   .edit-field input[type="color"] {
     width: 100%;
@@ -957,10 +934,7 @@
     cursor: pointer;
   }
 
-  .edit-field input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  .edit-field input:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .edit-row {
     display: grid;
@@ -1021,7 +995,6 @@
     background: #fff;
   }
 
-  /* RESET OVERRIDE BANNER */
   .override-banner {
     padding: 10px 14px;
     background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(56, 189, 248, 0.15));
@@ -1051,9 +1024,7 @@
     white-space: nowrap;
   }
 
-  .override-banner button:hover {
-    background: rgba(167, 139, 250, 0.4);
-  }
+  .override-banner button:hover { background: rgba(167, 139, 250, 0.4); }
 
   .modal-footer {
     padding: 16px 24px;
@@ -1086,10 +1057,7 @@
     color: var(--text-dim);
     border: 1px solid var(--border);
   }
-  .btn-secondary:hover {
-    background: var(--border);
-    color: var(--text);
-  }
+  .btn-secondary:hover { background: var(--border); color: var(--text); }
 
   .btn-primary-modal {
     background: linear-gradient(135deg, var(--accent), var(--accent-hover));
@@ -1111,10 +1079,7 @@
     border-color: var(--red);
   }
 
-  .btn-secondary svg, .btn-primary-modal svg, .btn-danger-modal svg {
-    width: 14px;
-    height: 14px;
-  }
+  .btn-secondary svg, .btn-primary-modal svg, .btn-danger-modal svg { width: 14px; height: 14px; }
 
   /* SCAN */
   .video-wrapper {
@@ -1180,16 +1145,8 @@
     gap: 10px;
     transition: all 0.3s;
   }
-  .scan-status.success {
-    border-color: var(--green);
-    background: rgba(52, 211, 153, 0.08);
-    color: var(--green);
-  }
-  .scan-status.error {
-    border-color: var(--red);
-    background: rgba(239, 68, 68, 0.08);
-    color: var(--red);
-  }
+  .scan-status.success { border-color: var(--green); background: rgba(52, 211, 153, 0.08); color: var(--green); }
+  .scan-status.error { border-color: var(--red); background: rgba(239, 68, 68, 0.08); color: var(--red); }
 
   .scan-status .pulse-icon {
     width: 8px; height: 8px;
@@ -1285,7 +1242,6 @@
 
     <div class="card">
       <h2><span class="icon">🎯</span> Scan / Cari Penerima</h2>
-
       <div class="input-row">
         <input type="text" id="inpBarcode" placeholder="Taip nombor barcode..." maxlength="20" autocomplete="off">
         <button class="btn-icon" id="btnOpenScan" title="Scan dengan kamera">
@@ -1299,9 +1255,7 @@
           Scan
         </button>
       </div>
-
       <div class="suggestions" id="suggestions"></div>
-
       <button class="btn-add" id="btnAdd">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1313,18 +1267,9 @@
   </div>
 
   <div class="stats-row fade-up delay-1">
-    <div class="stat-mini">
-      <div class="num" id="statTotal">0</div>
-      <div class="label">Dalam Urutan</div>
-    </div>
-    <div class="stat-mini">
-      <div class="num" id="statAvailable">0</div>
-      <div class="label">Belum Masuk</div>
-    </div>
-    <div class="stat-mini">
-      <div class="num" id="statHadir">0</div>
-      <div class="label">Sudah Hadir</div>
-    </div>
+    <div class="stat-mini"><div class="num" id="statTotal">0</div><div class="label">Dalam Urutan</div></div>
+    <div class="stat-mini"><div class="num" id="statAvailable">0</div><div class="label">Belum Masuk</div></div>
+    <div class="stat-mini"><div class="num" id="statHadir">0</div><div class="label">Sudah Hadir</div></div>
   </div>
 
   <div class="gallery-header fade-up delay-2">
@@ -1386,9 +1331,7 @@
       <div class="video-wrapper">
         <video id="scanVideo" autoplay muted playsinline></video>
         <div class="scan-overlay">
-          <div class="scan-frame">
-            <div class="scan-line"></div>
-          </div>
+          <div class="scan-frame"><div class="scan-line"></div></div>
         </div>
       </div>
       <div class="scan-status" id="scanStatus">
@@ -1399,7 +1342,7 @@
   </div>
 </div>
 
-<!-- ============ FULL EDIT MODAL ============ -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal large">
     <div class="modal-header">
@@ -1422,8 +1365,6 @@
       </div>
 
       <div class="modal-body-grid">
-
-        <!-- LEFT: PREVIEW + DRAG -->
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
             <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">
@@ -1457,33 +1398,25 @@
           </div>
         </div>
 
-        <!-- RIGHT: FORM -->
         <div>
-
-          <!-- DATA PENERIMA -->
           <div class="edit-section">
             <h4><span class="dot"></span> Data Penerima</h4>
-
             <div class="edit-field">
               <label>Nama Penuh</label>
               <input type="text" id="editNama" class="nama-input" maxlength="100">
             </div>
-
             <div class="edit-field">
               <label>Nombor Matriks</label>
               <input type="text" id="editMatrik" class="nama-input" maxlength="30">
             </div>
-
             <div class="edit-field">
               <label>Barcode (tak boleh edit)</label>
               <input type="text" id="editBarcode" disabled>
             </div>
           </div>
 
-          <!-- STYLE -->
           <div class="edit-section">
             <h4><span class="dot"></span> Saiz & Warna Text</h4>
-
             <div class="edit-row">
               <div class="edit-field">
                 <label>Saiz Nama</label>
@@ -1494,12 +1427,10 @@
                 <input type="number" id="editSizeMatrik" min="8" max="200" step="2">
               </div>
             </div>
-
             <div class="edit-field">
               <label>Warna Text</label>
               <input type="color" id="editColor">
             </div>
-
             <div class="edit-field">
               <label>Font</label>
               <select id="editFont">
@@ -1512,7 +1443,6 @@
                 <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
               </select>
             </div>
-
             <div class="edit-field">
               <label>Weight</label>
               <select id="editWeight">
@@ -1524,10 +1454,8 @@
             </div>
           </div>
 
-          <!-- OVERRIDE VIDEO + OVERLAY -->
           <div class="edit-section">
             <h4><span class="dot"></span> Video & Overlay</h4>
-
             <div class="toggle-row-mini">
               <div class="lbl-small">Loop Video</div>
               <label class="toggle-switch-mini">
@@ -1535,7 +1463,6 @@
                 <span class="toggle-slider-mini"></span>
               </label>
             </div>
-
             <div class="toggle-row-mini">
               <div class="lbl-small">Autoplay</div>
               <label class="toggle-switch-mini">
@@ -1543,7 +1470,6 @@
                 <span class="toggle-slider-mini"></span>
               </label>
             </div>
-
             <div class="toggle-row-mini">
               <div class="lbl-small">Overlay Gelap</div>
               <label class="toggle-switch-mini">
@@ -1551,13 +1477,11 @@
                 <span class="toggle-slider-mini"></span>
               </label>
             </div>
-
             <div class="edit-field" id="editOpacityGroup" style="margin-top:10px;display:none;">
               <label>Kepekatan Overlay (%)</label>
               <input type="number" id="editOverlayOpacity" min="0" max="100" step="5">
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -1584,7 +1508,6 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
@@ -1606,17 +1529,14 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-/* ============================================================
-   STATE
-   ============================================================ */
 let recipients = [];
 let slideOrder = [];
-let configState = {};       // config default (dari page template)
-let overrides = {};          // { recipientId: { positions, styles, video, overlay } }
+let configState = {};
+let overrides = {};
 let editingId = null;
 let draggedId = null;
+let currentPage = 'order'; // untuk reset video playback kalau perlu
 
-/* Default setting (fallback kalau takde override & takde config) */
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
   styles: {
@@ -1629,9 +1549,6 @@ const DEFAULT_SETTINGS = {
   overlay: { enabled: false, opacity: 30 }
 };
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
 function toast(msg, type = 'info', duration = 3500) {
   const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
   const el = document.createElement('div');
@@ -1656,8 +1573,6 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* Ambil effective setting untuk satu penerima
-   Priority: override[id] > config default > DEFAULT_SETTINGS */
 function getEffectiveSettings(id) {
   const base = {
     positions: configState.positions || DEFAULT_SETTINGS.positions,
@@ -1679,6 +1594,26 @@ function getEffectiveSettings(id) {
 
 function hasOverride(id) {
   return !!overrides[id];
+}
+
+/* ============================================================
+   GOOGLE DRIVE VIDEO URL HELPERS
+   ============================================================ */
+function getDriveVideoDirectUrl(fileId) {
+  // Direct MP4 stream dari Google Drive — boleh main dalam <video>
+  return `https://drive.google.com/uc?export=download&id=${fileId}`;
+}
+
+function getDriveVideoPreviewUrl(fileId) {
+  return `https://drive.google.com/file/d/${fileId}/preview`;
+}
+
+/* Cuba dapatkan direct URL untuk main dalam video tag */
+function getVideoPlayableUrl(fileId) {
+  // Priority:
+  // 1. lh3.googleusercontent.com (untuk video kecil, kadang boleh direct)
+  // 2. drive.google.com/uc?export=download
+  return `https://drive.google.com/uc?export=download&id=${fileId}`;
 }
 
 /* ============================================================
@@ -1718,9 +1653,6 @@ onSnapshot(orderDoc, (snap) => {
   updateStats();
 }, (err) => console.error('order listener:', err));
 
-/* ============================================================
-   SAVE ORDER + OVERRIDES
-   ============================================================ */
 async function saveOrder() {
   try {
     await setDoc(orderDoc, {
@@ -1783,31 +1715,80 @@ function renderSlideCard(r, idx, total) {
   const isCustom = hasOverride(r.id);
   const eff = getEffectiveSettings(r.id);
 
-  let previewHTML = '';
-  if (configState.template && configState.templateType === 'image') {
-    const p = eff.positions;
-    const s = eff.styles;
+  const p = eff.positions;
+  const s = eff.styles;
 
-    previewHTML = `
-      <div class="slide-preview">
-        <img src="${configState.template}" alt="" onerror="this.style.display='none'">
-        ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});"></div>` : ''}
-        <span class="mini-name" style="left:${p.name.x}%;top:${p.name.y}%;color:${s.color};font-family:${s.font};font-weight:${s.weight};font-size:10px;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:${p.matrik.x}%;top:${p.matrik.y}%;color:${s.color};font-family:${s.font};font-weight:${s.weight};font-size:8px;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${escapeHtml(r.matrik || '-')}</span>
-      </div>
-    `;
-  } else if (configState.template && configState.templateType === 'video') {
-    previewHTML = `
-      <div class="slide-preview">
-        <div class="no-template">
-          <div class="emoji">🎬</div>
-          <div>Video Template</div>
+  // Nama & matriks overlay style
+  const nameOverlayStyle = `
+    left:${p.name.x}%;
+    top:${p.name.y}%;
+    color:${s.color};
+    font-family:${s.font};
+    font-weight:${s.weight};
+    font-size:10px;
+    text-shadow:0 1px 3px rgba(0,0,0,0.7);
+  `;
+  const matrikOverlayStyle = `
+    left:${p.matrik.x}%;
+    top:${p.matrik.y}%;
+    color:${s.color};
+    font-family:${s.font};
+    font-weight:${s.weight};
+    font-size:8px;
+    text-shadow:0 1px 3px rgba(0,0,0,0.7);
+  `;
+
+  let previewHTML = '';
+
+  if (configState.template) {
+    if (configState.templateType === 'video' && configState.templateFileId) {
+      // ===== VIDEO PREVIEW — guna <video> tag dengan Google Drive direct URL =====
+      const videoUrl = getVideoPlayableUrl(configState.templateFileId);
+      previewHTML = `
+        <div class="slide-preview">
+          <video
+            src="${videoUrl}"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            onerror="this.style.display='none'; this.parentElement.querySelector('.video-fallback').style.display='flex';"
+          ></video>
+          <div class="video-fallback video-cover" style="display:none;">
+            <div class="emoji">🎬</div>
+            <div class="lbl">Video Template</div>
+          </div>
+          ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>` : ''}
+          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
+          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
         </div>
-        <span class="mini-name" style="left:${eff.positions.name.x}%;top:${eff.positions.name.y}%;color:${eff.styles.color};font-size:10px;">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:${eff.positions.matrik.x}%;top:${eff.positions.matrik.y}%;color:${eff.styles.color};font-size:8px;">${escapeHtml(r.matrik || '-')}</span>
-      </div>
-    `;
+      `;
+    } else if (configState.templateType === 'image') {
+      // ===== IMAGE PREVIEW =====
+      previewHTML = `
+        <div class="slide-preview">
+          <img src="${configState.template}" alt="" onerror="this.style.display='none'">
+          ${eff.overlay.enabled ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,${eff.overlay.opacity/100});pointer-events:none;z-index:2;"></div>` : ''}
+          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
+          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
+        </div>
+      `;
+    } else {
+      // Template ada tapi tak pasti jenis
+      previewHTML = `
+        <div class="slide-preview">
+          <div class="no-template">
+            <div class="emoji">🎬</div>
+            <div>Template</div>
+          </div>
+          <span class="mini-name" style="${nameOverlayStyle}">${escapeHtml(r.nama || '-')}</span>
+          <span class="mini-matrik" style="${matrikOverlayStyle}">${escapeHtml(r.matrik || '-')}</span>
+        </div>
+      `;
+    }
   } else {
+    // ===== TAKDE TEMPLATE =====
     previewHTML = `
       <div class="slide-preview">
         <div class="no-template">
@@ -1916,9 +1897,6 @@ function setupCardEvents(card) {
   });
 }
 
-/* ============================================================
-   STATS
-   ============================================================ */
 function updateStats() {
   document.getElementById('statTotal').textContent = slideOrder.length;
   document.getElementById('statAvailable').textContent = recipients.length - slideOrder.length;
@@ -1991,9 +1969,6 @@ async function addToOrder() {
   toast('✅ ' + found.nama + ' ditambah ke urutan', 'success');
 }
 
-/* ============================================================
-   BULK ACTIONS
-   ============================================================ */
 document.getElementById('btnAutoOrder').addEventListener('click', async () => {
   const allSorted = [...recipients].sort((a, b) =>
     String(a.barcode || '').localeCompare(String(b.barcode || ''), undefined, { numeric: true })
@@ -2024,7 +1999,7 @@ document.getElementById('btnClearAll').addEventListener('click', async () => {
 });
 
 /* ============================================================
-   FULL EDIT MODAL
+   EDIT MODAL
    ============================================================ */
 const editModal = document.getElementById('editModal');
 const miniStage = document.getElementById('miniStage');
@@ -2036,28 +2011,23 @@ function openEditModal(id) {
   editingId = id;
   const eff = getEffectiveSettings(id);
 
-  // Data penerima
   document.getElementById('editNama').value = (r.nama || '').toUpperCase();
   document.getElementById('editMatrik').value = (r.matrik || '').toUpperCase();
   document.getElementById('editBarcode').value = (r.barcode || '').toUpperCase();
 
-  // Style
   document.getElementById('editSizeNama').value = eff.styles.nameSize;
   document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
   document.getElementById('editColor').value = eff.styles.color;
   document.getElementById('editFont').value = eff.styles.font;
   document.getElementById('editWeight').value = String(eff.styles.weight);
 
-  // Video
   document.getElementById('editLoop').checked = eff.video.loop;
   document.getElementById('editAutoplay').checked = eff.video.autoplay;
 
-  // Overlay
   document.getElementById('editOverlay').checked = eff.overlay.enabled;
   document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
   document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
 
-  // Banner override
   const isCustom = hasOverride(id);
   document.getElementById('overrideBanner').style.display = isCustom ? 'flex' : 'none';
   document.getElementById('customBadge').style.display = isCustom ? 'inline-block' : 'none';
@@ -2076,7 +2046,7 @@ document.getElementById('btnCancelEdit').addEventListener('click', closeEditModa
 editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
 /* ============================================================
-   RENDER MINI STAGE (in modal)
+   RENDER MINI STAGE — support IMAGE + VIDEO
    ============================================================ */
 function renderMiniStage() {
   if (!editingId) return;
@@ -2088,18 +2058,41 @@ function renderMiniStage() {
 
   miniStage.innerHTML = '';
 
-  // Template
+  // ===== TEMPLATE =====
   if (configState.template && configState.templateType === 'image') {
     const img = document.createElement('img');
     img.src = configState.template;
     img.draggable = false;
     miniStage.appendChild(img);
-  } else if (configState.template && configState.templateType === 'video') {
-    miniStage.innerHTML = `
-      <div class="placeholder">
-        <div class="emoji">🎬</div>
-        <div>Video Template</div>
-      </div>`;
+  } else if (configState.template && configState.templateType === 'video' && configState.templateFileId) {
+    // ===== VIDEO — main guna <video> tag =====
+    const videoUrl = getVideoPlayableUrl(configState.templateFileId);
+
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    video.autoplay = eff.video.autoplay !== false;
+    video.muted = true; // force muted untuk preview
+    video.loop = eff.video.loop !== false;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;';
+
+    video.addEventListener('error', () => {
+      // Fallback UI kalau video tak boleh main
+      video.style.display = 'none';
+      if (!miniStage.querySelector('.video-fallback')) {
+        const fb = document.createElement('div');
+        fb.className = 'placeholder video-fallback';
+        fb.innerHTML = `
+          <div class="emoji">🎬</div>
+          <div>Video Template</div>
+          <div style="font-size:9px;opacity:0.6;margin-top:4px;">(Preview tak available)</div>
+        `;
+        miniStage.insertBefore(fb, miniStage.firstChild);
+      }
+    });
+
+    miniStage.appendChild(video);
   } else {
     miniStage.innerHTML = `
       <div class="placeholder">
@@ -2115,7 +2108,7 @@ function renderMiniStage() {
     miniStage.appendChild(ov);
   }
 
-  // Tags
+  // Drag tags
   addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name');
   addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik');
 }
@@ -2126,7 +2119,7 @@ function addMiniDragTag(type, text, xPct, yPct, styles, tagClass) {
   tag.dataset.type = type;
   tag.style.left = xPct + '%';
   tag.style.top = yPct + '%';
-  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.5 + 'px'; // scale down for mini
+  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.5 + 'px';
   tag.style.color = styles.color;
   tag.style.fontFamily = styles.font;
   tag.style.fontWeight = styles.weight;
@@ -2178,13 +2171,11 @@ function makeMiniDraggable(el, type) {
     document.getElementById('coordDisplayMini').textContent =
       `${type === 'name' ? 'Nama' : 'Matriks'}: x ${newX.toFixed(1)}% · y ${newY.toFixed(1)}%`;
 
-    // Update current positions di editing state
     if (editingId) {
       const ov = overrides[editingId] || {};
       const eff = getEffectiveSettings(editingId);
       ov.positions = ov.positions || { ...eff.positions };
       ov.positions[type] = { x: newX, y: newY };
-      // Auto-create override for other settings too
       ov.styles = ov.styles || { ...eff.styles };
       ov.video = ov.video || { ...eff.video };
       ov.overlay = ov.overlay || { ...eff.overlay };
@@ -2196,7 +2187,6 @@ function makeMiniDraggable(el, type) {
     if (!dragging) return;
     dragging = false;
     el.classList.remove('dragging');
-    // Refresh banner
     if (editingId) {
       document.getElementById('overrideBanner').style.display = 'flex';
       document.getElementById('customBadge').style.display = 'inline-block';
@@ -2212,7 +2202,7 @@ function makeMiniDraggable(el, type) {
 }
 
 /* ============================================================
-   EDIT FORM CONTROLS — track changes as overrides
+   OVERRIDE HELPERS
    ============================================================ */
 function ensureOverride(id) {
   if (!overrides[id]) {
@@ -2232,7 +2222,6 @@ function markCustomized() {
   document.getElementById('customBadge').style.display = 'inline-block';
 }
 
-// Auto uppercase nama/matriks
 ['editNama', 'editMatrik'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
     const s = e.target.selectionStart, t = e.target.selectionEnd;
@@ -2334,7 +2323,6 @@ document.getElementById('btnCopyGlobal').addEventListener('click', () => {
     video: { ...base.video },
     overlay: { ...base.overlay }
   };
-  // Reload form
   const eff = getEffectiveSettings(editingId);
   document.getElementById('editSizeNama').value = eff.styles.nameSize;
   document.getElementById('editSizeMatrik').value = eff.styles.matrikSize;
@@ -2353,16 +2341,13 @@ document.getElementById('btnCopyGlobal').addEventListener('click', () => {
 
 document.getElementById('btnResetOverride').addEventListener('click', () => {
   if (!editingId) return;
-  if (!confirm('Reset ke setting default? Custom setting untuk penerima ini akan dipadam.')) return;
+  if (!confirm('Reset ke setting default?')) return;
   delete overrides[editingId];
   closeEditModal();
   saveOverrides();
   toast('Reset ke default', 'success');
 });
 
-/* ============================================================
-   SAVE EDIT
-   ============================================================ */
 document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   if (!editingId) return;
 
@@ -2372,12 +2357,8 @@ document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   if (!nama || !matrik) return toast('Sila isi nama dan matriks', 'error');
 
   try {
-    // Update data penerima
     await updateDoc(doc(db, 'recipients', editingId), { nama, matrik });
-
-    // Save overrides
     await saveOverrides();
-
     toast('✅ Perubahan disimpan', 'success');
     closeEditModal();
   } catch (e) {
@@ -2389,7 +2370,6 @@ document.getElementById('btnSaveEdit').addEventListener('click', async () => {
 document.getElementById('btnRemoveFromOrder').addEventListener('click', async () => {
   if (!editingId) return;
   if (!confirm('Keluarkan dari urutan? (Data penerima masih kekal)')) return;
-
   slideOrder = slideOrder.filter(id => id !== editingId);
   await saveOrder();
   toast('Dikeluarkan dari urutan', 'success');
@@ -2482,11 +2462,8 @@ function playBeep() {
   } catch (e) {}
 }
 
-/* ============================================================
-   INIT
-   ============================================================ */
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide (Full Edit)', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide · Video Support', 'color: #fb923c; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
