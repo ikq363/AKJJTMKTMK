@@ -129,6 +129,11 @@
     border: 1px solid rgba(251, 191, 36, 0.3);
     color: var(--yellow);
   }
+  .status-badge.offline {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+  }
   .status-dot {
     width: 7px; height: 7px;
     border-radius: 50%;
@@ -219,6 +224,31 @@
     border-radius: 50%;
     background: currentColor;
     box-shadow: 0 0 8px currentColor;
+  }
+
+  /* HELP BOX */
+  .help-box {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 10px;
+    font-size: 11.5px;
+    color: var(--yellow);
+    line-height: 1.55;
+    display: none;
+  }
+  .help-box.show { display: block; }
+  .help-box strong { color: #fde68a; }
+  .help-box ol { margin: 8px 0 0 16px; padding: 0; }
+  .help-box li { margin-bottom: 4px; }
+  .help-box code {
+    background: rgba(0,0,0,0.3);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 10.5px;
+    color: #fde68a;
   }
 
   /* BUTTON GOOGLE */
@@ -709,15 +739,16 @@
     font-weight: 600;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 340px;
+    max-width: 380px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
+    line-height: 1.4;
   }
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
   .toast.warn { border-left-color: var(--yellow); }
-  .toast .icon { font-size: 18px; }
+  .toast .icon { font-size: 18px; flex-shrink: 0; }
   @keyframes toastIn {
     from { transform: translateX(400px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -820,6 +851,17 @@
         </svg>
         Sambung Google Drive
       </button>
+
+      <div class="help-box" id="helpBox">
+        <strong>⚠️ Setup diperlukan:</strong>
+        <ol>
+          <li>Buka <code>console.cloud.google.com/apis/credentials</code></li>
+          <li>Edit OAuth Client ID anda</li>
+          <li>Tambah dalam <strong>Authorized JavaScript origins</strong>:<br><code>https://ikq363.github.io</code></li>
+          <li>Tambah juga dalam <strong>Authorized redirect URIs</strong></li>
+          <li>Klik <strong>Save</strong> dan tunggu 5-10 minit</li>
+        </ol>
+      </div>
     </div>
 
     <!-- UPLOAD -->
@@ -1071,7 +1113,7 @@ let tokenExpiry = 0;
 /* ============================================================
    HELPERS
    ============================================================ */
-function toast(msg, type = 'info') {
+function toast(msg, type = 'info', duration = 4000) {
   const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -1082,7 +1124,7 @@ function toast(msg, type = 'info') {
     el.style.opacity = '0';
     el.style.transform = 'translateX(400px)';
     setTimeout(() => el.remove(), 300);
-  }, 3000);
+  }, duration);
 }
 
 function setStatus(state, text) {
@@ -1103,6 +1145,12 @@ function showSaveStatus(text) {
   el._t = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
+function showHelpBox(show = true) {
+  const el = document.getElementById('helpBox');
+  if (show) el.classList.add('show');
+  else el.classList.remove('show');
+}
+
 /* ============================================================
    GOOGLE DRIVE AUTH
    ============================================================ */
@@ -1112,36 +1160,82 @@ function initGoogleAuth() {
     return;
   }
 
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/drive.file',
-    callback: (resp) => {
-      if (resp.error) {
-        toast('Gagal sambung Drive: ' + resp.error, 'error');
-        updateDriveUI(false);
-        return;
+  try {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: (resp) => {
+        if (resp.error) {
+          console.error('OAuth error:', resp);
+          handleOAuthError(resp.error);
+          return;
+        }
+        accessToken = resp.access_token;
+        tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
+        updateDriveUI(true);
+        showHelpBox(false);
+        toast('✅ Google Drive disambung', 'success');
+      },
+      error_callback: (err) => {
+        console.error('OAuth error_callback:', err);
+        if (err.type === 'popup_closed') {
+          toast('Popup ditutup. Cuba lagi.', 'warn');
+        } else if (err.type === 'popup_failed_to_open') {
+          toast('Popup block! Benarkan popup untuk site ni dalam browser settings.', 'error', 6000);
+        } else {
+          toast('Ralat: ' + (err.message || err.type), 'error');
+        }
       }
-      accessToken = resp.access_token;
-      tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
-      updateDriveUI(true);
-      toast('✅ Google Drive disambung', 'success');
-    }
-  });
+    });
+    console.log('✅ Google Auth ready');
+  } catch (e) {
+    console.error('initTokenClient error:', e);
+    toast('Gagal init Google: ' + e.message, 'error');
+  }
+}
 
-  console.log('✅ Google Auth ready');
+function handleOAuthError(error) {
+  console.error('OAuth error:', error);
+
+  if (error === 'origin_mismatch' || error === 'invalid_request' ||
+      (typeof error === 'string' && error.includes('origin'))) {
+    toast('❌ Origin mismatch! Domain anda belum didaftarkan dalam Google Cloud Console. Setup diperlukan.', 'error', 8000);
+    showHelpBox(true);
+    updateDriveUI(false);
+    return;
+  }
+
+  if (error === 'access_denied') {
+    toast('Akses ditolak. Anda perlu allow permission untuk Google Drive.', 'warn', 5000);
+    updateDriveUI(false);
+    return;
+  }
+
+  if (error === 'popup_closed_by_user') {
+    toast('Popup ditutup', 'warn');
+    updateDriveUI(false);
+    return;
+  }
+
+  toast('Ralat Google: ' + error, 'error', 6000);
+  updateDriveUI(false);
 }
 
 function requestToken() {
   return new Promise((resolve, reject) => {
     if (accessToken && Date.now() < tokenExpiry) return resolve(accessToken);
-    if (!tokenClient) return reject(new Error('Google Auth belum sedia'));
+    if (!tokenClient) return reject(new Error('Google Auth belum sedia. Tunggu sebentar...'));
 
     const origCallback = tokenClient.callback;
     tokenClient.callback = (resp) => {
-      if (resp.error) return reject(new Error(resp.error));
+      if (resp.error) {
+        handleOAuthError(resp.error);
+        return reject(new Error(resp.error));
+      }
       accessToken = resp.access_token;
       tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
       updateDriveUI(true);
+      showHelpBox(false);
       origCallback(resp);
       resolve(accessToken);
     };
@@ -1176,7 +1270,7 @@ document.getElementById('btnConnectDrive').addEventListener('click', async () =>
   try {
     await requestToken();
   } catch (e) {
-    toast('Ralat: ' + e.message, 'error');
+    console.error('Connect error:', e);
   }
 });
 
@@ -1191,7 +1285,6 @@ async function uploadToDrive(file, onProgress) {
     parents: [DRIVE_FOLDER_ID]
   };
 
-  // Baca file jadi base64
   const fileData = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -1237,17 +1330,21 @@ async function uploadToDrive(file, onProgress) {
   const result = await res.json();
 
   // Set permission supaya sesiapa boleh view
-  await fetch(
-    `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ role: 'reader', type: 'anyone' })
-    }
-  );
+  try {
+    await fetch(
+      `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role: 'reader', type: 'anyone' })
+      }
+    );
+  } catch (e) {
+    console.warn('Permission error:', e);
+  }
 
   if (onProgress) onProgress(100);
   return result;
@@ -1270,12 +1367,10 @@ async function deleteFromDrive(fileId) {
    DRIVE URL HELPERS
    ============================================================ */
 function getDriveImageUrl(fileId) {
-  // Format yang work untuk <img> tag
   return `https://lh3.googleusercontent.com/d/${fileId}=w1920`;
 }
 
 function getDriveVideoPreviewUrl(fileId) {
-  // Format iframe preview untuk video
   return `https://drive.google.com/file/d/${fileId}/preview`;
 }
 
@@ -1302,8 +1397,8 @@ onSnapshot(configDoc, (snap) => {
   renderPreview();
   setStatus('online', 'Online');
 }, (err) => {
-  console.error(err);
-  setStatus('connecting', 'Offline');
+  console.error('Firestore error:', err);
+  setStatus('offline', 'Offline');
 });
 
 const q = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
@@ -1395,7 +1490,7 @@ async function handleFileUpload(file) {
 
   const isImage = file.type.startsWith('image/');
   const isVideo = file.type.startsWith('video/');
-  if (!isImage && !isVideo) return toast('Format tak disokong', 'error');
+  if (!isImage && !isVideo) return toast('Format tak disokong. Guna PNG, JPG, atau MP4.', 'error');
 
   const progressEl = document.getElementById('uploadProgress');
   const progressFill = document.getElementById('progressFill');
@@ -1416,7 +1511,6 @@ async function handleFileUpload(file) {
       uploadPct.textContent = pct + '%';
     });
 
-    // URL untuk papar
     const viewUrl = isVideo
       ? getDriveVideoPreviewUrl(result.id)
       : getDriveImageUrl(result.id);
@@ -1432,7 +1526,7 @@ async function handleFileUpload(file) {
     progressEl.classList.remove('show');
   } catch (err) {
     console.error('Upload error:', err);
-    toast('Gagal upload: ' + err.message, 'error');
+    toast('Gagal upload: ' + err.message, 'error', 6000);
     progressEl.classList.remove('show');
   }
 }
