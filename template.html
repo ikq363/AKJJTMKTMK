@@ -1199,7 +1199,7 @@ function handleOAuthError(error) {
 
   if (error === 'origin_mismatch' || error === 'invalid_request' ||
       (typeof error === 'string' && error.includes('origin'))) {
-    toast('❌ Origin mismatch! Domain anda belum didaftarkan dalam Google Cloud Console. Setup diperlukan.', 'error', 8000);
+    toast('❌ Origin mismatch! Domain anda belum didaftarkan dalam Google Cloud Console.', 'error', 8000);
     showHelpBox(true);
     updateDriveUI(false);
     return;
@@ -1320,7 +1320,7 @@ async function uploadToDrive(file, onProgress) {
     }
   );
 
-  if (onProgress) onProgress(80);
+  if (onProgress) onProgress(70);
 
   if (!res.ok) {
     const txt = await res.text();
@@ -1328,24 +1328,32 @@ async function uploadToDrive(file, onProgress) {
   }
 
   const result = await res.json();
+  console.log('📤 Uploaded file:', result);
 
-  // Set permission supaya sesiapa boleh view
-  try {
-    await fetch(
-      `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role: 'reader', type: 'anyone' })
-      }
-    );
-  } catch (e) {
-    console.warn('Permission error:', e);
+  // Set permission — CRITICAL untuk embed
+  const permRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        role: 'reader',
+        type: 'anyone',
+        allowFileDiscovery: false
+      })
+    }
+  );
+
+  if (!permRes.ok) {
+    const permErr = await permRes.text();
+    console.error('❌ Permission error:', permErr);
+    throw new Error('Set permission gagal. Pastikan folder boleh public.');
   }
 
+  console.log('✅ Permission set: anyone with link can view');
   if (onProgress) onProgress(100);
   return result;
 }
@@ -1368,6 +1376,10 @@ async function deleteFromDrive(fileId) {
    ============================================================ */
 function getDriveImageUrl(fileId) {
   return `https://lh3.googleusercontent.com/d/${fileId}=w1920`;
+}
+
+function getDriveImageFallback(fileId) {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1920`;
 }
 
 function getDriveVideoPreviewUrl(fileId) {
@@ -1501,7 +1513,6 @@ async function handleFileUpload(file) {
   progressFill.style.width = '0%';
 
   try {
-    // Padam template lama
     if (state.templateFileId) {
       await deleteFromDrive(state.templateFileId);
     }
@@ -1511,9 +1522,34 @@ async function handleFileUpload(file) {
       uploadPct.textContent = pct + '%';
     });
 
+    console.log('✅ Upload result:', result);
+
+    // Verify permission
+    const token = await requestToken();
+    const permCheck = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role: 'reader', type: 'anyone' })
+      }
+    );
+
+    if (!permCheck.ok) {
+      const errText = await permCheck.text();
+      console.warn('⚠️ Permission set failed:', errText);
+    } else {
+      console.log('✅ Permission confirmed');
+    }
+
     const viewUrl = isVideo
       ? getDriveVideoPreviewUrl(result.id)
       : getDriveImageUrl(result.id);
+
+    console.log('📷 Template URL:', viewUrl);
 
     await setDoc(configDoc, {
       template: viewUrl,
@@ -1525,7 +1561,7 @@ async function handleFileUpload(file) {
     toast('✅ Template berjaya di-upload', 'success');
     progressEl.classList.remove('show');
   } catch (err) {
-    console.error('Upload error:', err);
+    console.error('❌ Upload error:', err);
     toast('Gagal upload: ' + err.message, 'error', 6000);
     progressEl.classList.remove('show');
   }
@@ -1576,15 +1612,50 @@ function renderStage() {
   } else {
     const img = document.createElement('img');
     img.id = 'stageMedia';
-    img.src = state.template;
     img.draggable = false;
+
+    const fileId = state.templateFileId;
+
+    const urls = fileId ? [
+      `https://lh3.googleusercontent.com/d/${fileId}=w1920`,
+      `https://drive.google.com/thumbnail?id=${fileId}&sz=w1920`,
+      `https://drive.google.com/uc?export=view&id=${fileId}`
+    ] : [state.template];
+
+    let urlIndex = 0;
+
     img.addEventListener('load', () => {
+      console.log('✅ Image loaded:', urls[urlIndex]);
       document.getElementById('stageMeta').textContent =
         `🖼️ Gambar · ${img.naturalWidth}×${img.naturalHeight}`;
+      img.style.opacity = '1';
     });
+
     img.addEventListener('error', () => {
-      document.getElementById('stageMeta').textContent = '❌ Gagal load gambar';
+      console.warn('❌ Failed to load:', urls[urlIndex]);
+      urlIndex++;
+      if (urlIndex < urls.length) {
+        console.log('🔄 Trying fallback:', urls[urlIndex]);
+        img.src = urls[urlIndex];
+      } else {
+        document.getElementById('stageMeta').textContent = '❌ Gagal load gambar';
+        stage.innerHTML = `
+          <div class="placeholder">
+            <div class="icon">⚠️</div>
+            <p style="color: #fbbf24;">Gambar tak dapat dimuatkan</p>
+            <p style="font-size: 11px; margin-top: 8px; color: #64748b;">
+              Kemungkinan permission Google Drive tak set betul.<br>
+              Cuba upload semula atau check console (F12).
+            </p>
+          </div>
+        `;
+      }
     });
+
+    img.style.opacity = '0';
+    img.style.transition = 'opacity 0.3s';
+    img.src = urls[0];
+
     stage.appendChild(img);
   }
 
