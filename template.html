@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Template · Sistem Anugerah</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -27,7 +26,7 @@
 
   html, body {
     min-height: 100%;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
   }
@@ -56,7 +55,6 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
-  /* TOPBAR */
   .topbar {
     position: relative;
     z-index: 2;
@@ -117,36 +115,22 @@
     border-radius: 100px;
     font-size: 11.5px;
     font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-  .status-badge.online {
     background: rgba(52, 211, 153, 0.1);
     border: 1px solid rgba(52, 211, 153, 0.3);
     color: var(--green);
-  }
-  .status-badge.connecting {
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    color: var(--yellow);
-  }
-  .status-badge.offline {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: var(--red);
   }
   .status-dot {
     width: 7px; height: 7px;
     border-radius: 50%;
     background: currentColor;
     box-shadow: 0 0 10px currentColor;
+    animation: pulse 2s infinite;
   }
-  .status-badge.online .status-dot { animation: pulse 2s infinite; }
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* CONTAINER */
   .container {
     position: relative;
     z-index: 1;
@@ -163,7 +147,6 @@
     .container { grid-template-columns: 1fr; padding: 20px 16px; }
   }
 
-  /* CARDS */
   .card {
     background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
     border: 1px solid var(--border);
@@ -197,87 +180,6 @@
     color: var(--accent);
   }
 
-  /* DRIVE STATUS */
-  .drive-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    transition: all 0.3s;
-  }
-  .drive-status.connected {
-    background: rgba(52, 211, 153, 0.1);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    color: var(--green);
-  }
-  .drive-status.disconnected {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: var(--red);
-  }
-  .drive-status .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 8px currentColor;
-  }
-
-  /* HELP BOX */
-  .help-box {
-    margin-top: 12px;
-    padding: 12px;
-    background: rgba(251, 191, 36, 0.08);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    border-radius: 10px;
-    font-size: 11.5px;
-    color: var(--yellow);
-    line-height: 1.55;
-    display: none;
-  }
-  .help-box.show { display: block; }
-  .help-box strong { color: #fde68a; }
-  .help-box ol { margin: 8px 0 0 16px; padding: 0; }
-  .help-box li { margin-bottom: 4px; }
-  .help-box code {
-    background: rgba(0,0,0,0.3);
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-    font-size: 10.5px;
-    color: #fde68a;
-  }
-
-  /* BUTTON GOOGLE */
-  .btn-google {
-    width: 100%;
-    padding: 12px 20px;
-    background: #fff;
-    color: #333;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s;
-    margin-bottom: 12px;
-  }
-  .btn-google:hover {
-    background: #f1f3f4;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-  }
-  .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-  /* UPLOAD */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -291,9 +193,9 @@
     border-color: var(--accent);
     background: rgba(167, 139, 250, 0.06);
   }
-  .upload-zone.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .upload-zone.uploading {
+    opacity: 0.6;
+    pointer-events: none;
   }
   .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
   .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -374,7 +276,6 @@
   }
   .file-remove svg { width: 14px; height: 14px; }
 
-  /* CONTROLS */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
   .control-group label {
@@ -457,7 +358,6 @@
     background: #fff;
   }
 
-  /* EDITOR */
   .editor-panel { grid-column: 2; position: sticky; top: 20px; }
   @media (max-width: 1200px) {
     .editor-panel { grid-column: 1; position: relative; }
@@ -612,7 +512,6 @@
     color: var(--text-dim);
   }
 
-  /* PREVIEW */
   .preview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -684,7 +583,6 @@
     font-size: 12px;
   }
 
-  /* BUTTONS */
   .btn-primary {
     width: 100%;
     padding: 12px 20px;
@@ -717,7 +615,6 @@
   }
   .btn-primary svg { width: 16px; height: 16px; }
 
-  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -739,16 +636,15 @@
     font-weight: 600;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 380px;
+    max-width: 340px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
-    line-height: 1.4;
   }
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
   .toast.warn { border-left-color: var(--yellow); }
-  .toast .icon { font-size: 18px; flex-shrink: 0; }
+  .toast .icon { font-size: 18px; }
   @keyframes toastIn {
     from { transform: translateX(400px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -810,7 +706,6 @@
 
 <div class="grid-overlay"></div>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <a href="index.html" class="back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -821,58 +716,27 @@
   </a>
   <div class="topbar-title">
     <span class="dot"></span>
-    EDIT TEMPLATE ANUGERAH
+    EDIT TEMPLATE · CLOUDINARY
   </div>
-  <div id="statusBadge" class="status-badge connecting">
+  <div class="status-badge">
     <span class="status-dot"></span>
-    <span id="statusText">Menyambung...</span>
+    <span>Online</span>
   </div>
 </div>
 
-<!-- CONTAINER -->
 <div class="container">
 
   <!-- LEFT -->
   <div class="left-panel fade-up">
 
-    <!-- GOOGLE DRIVE CONNECT -->
-    <div class="card">
-      <h2><span class="num">✓</span> Google Drive</h2>
-      <div class="drive-status disconnected" id="driveStatus">
-        <span class="dot"></span>
-        Google Drive: Belum Sambung
-      </div>
-      <button class="btn-google" id="btnConnectDrive">
-        <svg viewBox="0 0 48 48">
-          <path fill="#FFC107" d="M43.611,20.083H42V20H24c0,0,0,0,0,0v8c0,0,0,0,0,0h10.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-          <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-          <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
-          <path fill="#1976D2" d="M43.611,20.083H42V20H24c0,0,0,0,0,0v8c0,0,0,0,0,0h10.303c-0.792,2.237-2.231,4.166-4.087,5.574l0.001-0.001l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
-        </svg>
-        Sambung Google Drive
-      </button>
-
-      <div class="help-box" id="helpBox">
-        <strong>⚠️ Setup diperlukan:</strong>
-        <ol>
-          <li>Buka <code>console.cloud.google.com/apis/credentials</code></li>
-          <li>Edit OAuth Client ID anda</li>
-          <li>Tambah dalam <strong>Authorized JavaScript origins</strong>:<br><code>https://ikq363.github.io</code></li>
-          <li>Tambah juga dalam <strong>Authorized redirect URIs</strong></li>
-          <li>Klik <strong>Save</strong> dan tunggu 5-10 minit</li>
-        </ol>
-      </div>
-    </div>
-
-    <!-- UPLOAD -->
     <div class="card">
       <h2><span class="num">1</span> Upload Template</h2>
 
-      <div class="upload-zone disabled" id="uploadZone">
+      <div class="upload-zone" id="uploadZone">
         <div class="icon">📁</div>
-        <div class="title" id="uploadTitle">Sambung Google Drive dahulu</div>
+        <div class="title">Klik atau drag fail</div>
         <div class="sub">PNG · JPG · MP4 · WebM (max 100MB)</div>
-        <input type="file" id="inpFile" accept="image/*,video/mp4,video/webm" disabled>
+        <input type="file" id="inpFile" accept="image/*,video/mp4,video/webm">
       </div>
 
       <div class="upload-progress" id="uploadProgress">
@@ -888,7 +752,6 @@
       <div id="fileInfoContainer"></div>
     </div>
 
-    <!-- POSISI -->
     <div class="card">
       <h2><span class="num">2</span> Posisi Text</h2>
 
@@ -931,7 +794,6 @@
       </div>
     </div>
 
-    <!-- VIDEO SETTINGS -->
     <div class="card">
       <h2><span class="num">3</span> Setting Video</h2>
 
@@ -1051,9 +913,6 @@
   <span id="saveText">Setting disimpan</span>
 </div>
 
-<!-- ============================================================
-     FIREBASE + GOOGLE DRIVE SCRIPT
-     ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
@@ -1074,12 +933,9 @@ const firebaseConfig = {
   appId: "1:28020787148:web:47c3c3c62e11f71c59ff69"
 };
 
-const GOOGLE_CLIENT_ID = "28020787148-qe4fbkr8ke7pf1m9n8tiiu0itvr2d7h1.apps.googleusercontent.com";
-const DRIVE_FOLDER_ID = "1Z1V9eMoNlB5SXD4mMQ-aabIWDRn1YAbo";
+const CLOUDINARY_CLOUD_NAME = 'q9xbizqj';
+const CLOUDINARY_UPLOAD_PRESET = 'anugerah_unsigned';
 
-/* ============================================================
-   FIREBASE
-   ============================================================ */
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
@@ -1089,8 +945,9 @@ const db = getFirestore(app);
    ============================================================ */
 let state = {
   template: null,
-  templateFileId: null,
   templateType: null,
+  templateSource: null,
+  templatePublicId: null,
   positions: {
     name:   { x: 50, y: 40 },
     matrik: { x: 50, y: 60 }
@@ -1106,9 +963,6 @@ let state = {
 };
 
 let recipients = [];
-let accessToken = null;
-let tokenClient = null;
-let tokenExpiry = 0;
 
 /* ============================================================
    HELPERS
@@ -1127,12 +981,6 @@ function toast(msg, type = 'info', duration = 4000) {
   }, duration);
 }
 
-function setStatus(state, text) {
-  const b = document.getElementById('statusBadge');
-  b.className = 'status-badge ' + state;
-  document.getElementById('statusText').textContent = text;
-}
-
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -1145,259 +993,19 @@ function showSaveStatus(text) {
   el._t = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-function showHelpBox(show = true) {
-  const el = document.getElementById('helpBox');
-  if (show) el.classList.add('show');
-  else el.classList.remove('show');
-}
-
-/* ============================================================
-   GOOGLE DRIVE AUTH
-   ============================================================ */
-function initGoogleAuth() {
-  if (typeof google === 'undefined' || !google.accounts) {
-    setTimeout(initGoogleAuth, 300);
-    return;
-  }
-
-  try {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/drive.file',
-      callback: (resp) => {
-        if (resp.error) {
-          console.error('OAuth error:', resp);
-          handleOAuthError(resp.error);
-          return;
-        }
-        accessToken = resp.access_token;
-        tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
-        updateDriveUI(true);
-        showHelpBox(false);
-        toast('✅ Google Drive disambung', 'success');
-      },
-      error_callback: (err) => {
-        console.error('OAuth error_callback:', err);
-        if (err.type === 'popup_closed') {
-          toast('Popup ditutup. Cuba lagi.', 'warn');
-        } else if (err.type === 'popup_failed_to_open') {
-          toast('Popup block! Benarkan popup untuk site ni dalam browser settings.', 'error', 6000);
-        } else {
-          toast('Ralat: ' + (err.message || err.type), 'error');
-        }
-      }
-    });
-    console.log('✅ Google Auth ready');
-  } catch (e) {
-    console.error('initTokenClient error:', e);
-    toast('Gagal init Google: ' + e.message, 'error');
-  }
-}
-
-function handleOAuthError(error) {
-  console.error('OAuth error:', error);
-
-  if (error === 'origin_mismatch' || error === 'invalid_request' ||
-      (typeof error === 'string' && error.includes('origin'))) {
-    toast('❌ Origin mismatch! Domain anda belum didaftarkan dalam Google Cloud Console.', 'error', 8000);
-    showHelpBox(true);
-    updateDriveUI(false);
-    return;
-  }
-
-  if (error === 'access_denied') {
-    toast('Akses ditolak. Anda perlu allow permission untuk Google Drive.', 'warn', 5000);
-    updateDriveUI(false);
-    return;
-  }
-
-  if (error === 'popup_closed_by_user') {
-    toast('Popup ditutup', 'warn');
-    updateDriveUI(false);
-    return;
-  }
-
-  toast('Ralat Google: ' + error, 'error', 6000);
-  updateDriveUI(false);
-}
-
-function requestToken() {
-  return new Promise((resolve, reject) => {
-    if (accessToken && Date.now() < tokenExpiry) return resolve(accessToken);
-    if (!tokenClient) return reject(new Error('Google Auth belum sedia. Tunggu sebentar...'));
-
-    const origCallback = tokenClient.callback;
-    tokenClient.callback = (resp) => {
-      if (resp.error) {
-        handleOAuthError(resp.error);
-        return reject(new Error(resp.error));
-      }
-      accessToken = resp.access_token;
-      tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
-      updateDriveUI(true);
-      showHelpBox(false);
-      origCallback(resp);
-      resolve(accessToken);
-    };
-    tokenClient.requestAccessToken({ prompt: '' });
-  });
-}
-
-function updateDriveUI(connected) {
-  const statusEl = document.getElementById('driveStatus');
-  const zoneEl = document.getElementById('uploadZone');
-  const fileEl = document.getElementById('inpFile');
-  const btn = document.getElementById('btnConnectDrive');
-
-  if (connected) {
-    statusEl.className = 'drive-status connected';
-    statusEl.innerHTML = '<span class="dot"></span> Google Drive: Bersambung';
-    zoneEl.classList.remove('disabled');
-    fileEl.disabled = false;
-    document.getElementById('uploadTitle').textContent = 'Klik atau drag fail';
-    btn.style.display = 'none';
-  } else {
-    statusEl.className = 'drive-status disconnected';
-    statusEl.innerHTML = '<span class="dot"></span> Google Drive: Belum Sambung';
-    zoneEl.classList.add('disabled');
-    fileEl.disabled = true;
-    document.getElementById('uploadTitle').textContent = 'Sambung Google Drive dahulu';
-    btn.style.display = 'flex';
-  }
-}
-
-document.getElementById('btnConnectDrive').addEventListener('click', async () => {
-  try {
-    await requestToken();
-  } catch (e) {
-    console.error('Connect error:', e);
-  }
-});
-
-/* ============================================================
-   UPLOAD TO GOOGLE DRIVE
-   ============================================================ */
-async function uploadToDrive(file, onProgress) {
-  const token = await requestToken();
-
-  const metadata = {
-    name: `template_${Date.now()}_${file.name.replace(/[^\w.-]/g, '_')}`,
-    parents: [DRIVE_FOLDER_ID]
-  };
-
-  const fileData = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-  const boundary = '-------314159265358979323846';
-  const delimiter = "\r\n--" + boundary + "\r\n";
-  const closeDelim = "\r\n--" + boundary + "--";
-
-  const body =
-    delimiter +
-    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-    JSON.stringify(metadata) +
-    delimiter +
-    `Content-Type: ${file.type}\r\n` +
-    'Content-Transfer-Encoding: base64\r\n\r\n' +
-    fileData +
-    closeDelim;
-
-  if (onProgress) onProgress(30);
-
-  const res = await fetch(
-    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': `multipart/related; boundary="${boundary}"`
-      },
-      body
-    }
-  );
-
-  if (onProgress) onProgress(70);
-
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error('Upload gagal: ' + txt);
-  }
-
-  const result = await res.json();
-  console.log('📤 Uploaded file:', result);
-
-  // Set permission — CRITICAL untuk embed
-  const permRes = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        role: 'reader',
-        type: 'anyone',
-        allowFileDiscovery: false
-      })
-    }
-  );
-
-  if (!permRes.ok) {
-    const permErr = await permRes.text();
-    console.error('❌ Permission error:', permErr);
-    throw new Error('Set permission gagal. Pastikan folder boleh public.');
-  }
-
-  console.log('✅ Permission set: anyone with link can view');
-  if (onProgress) onProgress(100);
-  return result;
-}
-
-async function deleteFromDrive(fileId) {
-  if (!fileId) return;
-  try {
-    const token = await requestToken();
-    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-  } catch (e) {
-    console.warn('Delete error:', e);
-  }
-}
-
-/* ============================================================
-   DRIVE URL HELPERS
-   ============================================================ */
-function getDriveImageUrl(fileId) {
-  return `https://lh3.googleusercontent.com/d/${fileId}=w1920`;
-}
-
-function getDriveImageFallback(fileId) {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1920`;
-}
-
-function getDriveVideoPreviewUrl(fileId) {
-  return `https://drive.google.com/file/d/${fileId}/preview`;
-}
-
 /* ============================================================
    FIREBASE LISTENERS
    ============================================================ */
 const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
-  if (!snap.exists()) { setStatus('online', 'Online'); return; }
-
+  if (!snap.exists()) return;
   const data = snap.data();
+
   state.template = data.template || null;
-  state.templateFileId = data.templateFileId || null;
   state.templateType = data.templateType || null;
+  state.templateSource = data.templateSource || null;
+  state.templatePublicId = data.templatePublicId || null;
 
   if (data.positions) state.positions = { ...state.positions, ...data.positions };
   if (data.styles) state.styles = { ...state.styles, ...data.styles };
@@ -1407,15 +1015,11 @@ onSnapshot(configDoc, (snap) => {
   applyUIFromState();
   renderStage();
   renderPreview();
-  setStatus('online', 'Online');
-}, (err) => {
-  console.error('Firestore error:', err);
-  setStatus('offline', 'Offline');
-});
+}, (err) => console.error('config:', err));
 
-const q = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
+const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
 
-onSnapshot(q, (snap) => {
+onSnapshot(recipientsQ, (snap) => {
   recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderPreview();
 }, (err) => console.error('recipients:', err));
@@ -1446,13 +1050,14 @@ function renderFileInfo() {
   if (!state.template) { wrap.innerHTML = ''; return; }
 
   const isVideo = state.templateType === 'video';
+  const isCloudinary = state.templateSource === 'cloudinary';
 
   wrap.innerHTML = `
     <div class="file-info">
       <div class="file-icon">${isVideo ? '🎬' : '🖼️'}</div>
       <div class="file-meta">
         <div class="file-name">${isVideo ? 'Video Template' : 'Gambar Template'}</div>
-        <div class="file-size">${isVideo ? 'MP4 · Google Drive' : 'Image · Google Drive'}</div>
+        <div class="file-size">${isCloudinary ? '☁️ Cloudinary' : '📁 Legacy'} · ${isVideo ? 'MP4' : 'Image'}</div>
       </div>
       <button class="file-remove" id="btnRemoveFile" title="Padam">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1467,18 +1072,16 @@ function renderFileInfo() {
 }
 
 /* ============================================================
-   UPLOAD HANDLER
+   UPLOAD
    ============================================================ */
 const uploadZone = document.getElementById('uploadZone');
 const inpFile = document.getElementById('inpFile');
 
-uploadZone.addEventListener('click', () => {
-  if (!inpFile.disabled) inpFile.click();
-});
+uploadZone.addEventListener('click', () => inpFile.click());
 
 uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
-  if (!inpFile.disabled) uploadZone.classList.add('dragover');
+  uploadZone.classList.add('dragover');
 });
 
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
@@ -1486,7 +1089,6 @@ uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag
 uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
-  if (inpFile.disabled) return toast('Sambung Google Drive dulu', 'warn');
   const file = e.dataTransfer.files[0];
   if (file) handleFileUpload(file);
 });
@@ -1498,87 +1100,109 @@ inpFile.addEventListener('change', (e) => {
 });
 
 async function handleFileUpload(file) {
-  if (file.size > 100 * 1024 * 1024) return toast('Fail terlalu besar (max 100MB)', 'error');
+  if (file.size > 100 * 1024 * 1024) {
+    return toast('Fail terlalu besar (max 100MB)', 'error');
+  }
 
   const isImage = file.type.startsWith('image/');
   const isVideo = file.type.startsWith('video/');
-  if (!isImage && !isVideo) return toast('Format tak disokong. Guna PNG, JPG, atau MP4.', 'error');
+  if (!isImage && !isVideo) {
+    return toast('Format tak disokong', 'error');
+  }
 
+  console.log('📤 Uploading:', file.name, file.type, (file.size / 1024 / 1024).toFixed(2) + 'MB');
+
+  uploadZone.classList.add('uploading');
   const progressEl = document.getElementById('uploadProgress');
   const progressFill = document.getElementById('progressFill');
   const uploadText = document.getElementById('uploadText');
   const uploadPct = document.getElementById('uploadPct');
   progressEl.classList.add('show');
-  uploadText.textContent = 'Uploading ke Google Drive...';
   progressFill.style.width = '0%';
+  uploadText.textContent = 'Uploading ke Cloudinary...';
 
-  try {
-    if (state.templateFileId) {
-      await deleteFromDrive(state.templateFileId);
-    }
+  const resourceType = isVideo ? 'video' : 'image';
 
-    const result = await uploadToDrive(file, (pct) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('folder', 'anugerah_templates');
+
+  const xhr = new XMLHttpRequest();
+
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
       progressFill.style.width = pct + '%';
       uploadPct.textContent = pct + '%';
-    });
-
-    console.log('✅ Upload result:', result);
-
-    // Verify permission
-    const token = await requestToken();
-    const permCheck = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${result.id}/permissions`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role: 'reader', type: 'anyone' })
-      }
-    );
-
-    if (!permCheck.ok) {
-      const errText = await permCheck.text();
-      console.warn('⚠️ Permission set failed:', errText);
-    } else {
-      console.log('✅ Permission confirmed');
     }
+  });
 
-    const viewUrl = isVideo
-      ? getDriveVideoPreviewUrl(result.id)
-      : getDriveImageUrl(result.id);
-
-    console.log('📷 Template URL:', viewUrl);
-
-    await setDoc(configDoc, {
-      template: viewUrl,
-      templateFileId: result.id,
-      templateType: isVideo ? 'video' : 'image',
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-
-    toast('✅ Template berjaya di-upload', 'success');
+  xhr.addEventListener('load', async () => {
+    uploadZone.classList.remove('uploading');
     progressEl.classList.remove('show');
-  } catch (err) {
-    console.error('❌ Upload error:', err);
-    toast('Gagal upload: ' + err.message, 'error', 6000);
+
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        const result = JSON.parse(xhr.responseText);
+        console.log('✅ Upload result:', result);
+
+        const secureUrl = result.secure_url;
+        const publicId = result.public_id;
+
+        if (!secureUrl) throw new Error('Tiada secure_url');
+
+        await setDoc(configDoc, {
+          template: secureUrl,
+          templateType: isVideo ? 'video' : 'image',
+          templateSource: 'cloudinary',
+          templatePublicId: publicId,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        toast('✅ Template berjaya di-upload!', 'success');
+      } catch (e) {
+        console.error('Parse error:', e);
+        toast('Ralat parse: ' + e.message, 'error');
+      }
+    } else {
+      let errMsg = 'Status ' + xhr.status;
+      try {
+        const errData = JSON.parse(xhr.responseText);
+        if (errData.error && errData.error.message) errMsg = errData.error.message;
+      } catch(e) {}
+      console.error('Upload error:', errMsg);
+      toast('❌ Upload gagal: ' + errMsg, 'error', 6000);
+    }
+  });
+
+  xhr.addEventListener('error', () => {
+    uploadZone.classList.remove('uploading');
     progressEl.classList.remove('show');
-  }
+    toast('❌ Ralat sambungan', 'error');
+  });
+
+  const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
+  xhr.open('POST', url, true);
+  xhr.send(formData);
 }
 
 async function removeFile() {
   if (!confirm('Padam template ni?')) return;
+
   try {
-    if (state.templateFileId) await deleteFromDrive(state.templateFileId);
     await setDoc(configDoc, {
       template: null,
-      templateFileId: null,
-      templateType: null
+      templateType: null,
+      templateSource: null,
+      templatePublicId: null,
+      updatedAt: serverTimestamp()
     }, { merge: true });
+
     toast('Template dipadam', 'success');
   } catch (e) {
-    toast('Gagal: ' + e.message, 'error');
+    console.error(e);
+    toast('Gagal padam: ' + e.message, 'error');
   }
 }
 
@@ -1602,60 +1226,30 @@ function renderStage() {
   }
 
   if (state.templateType === 'video') {
-    const iframe = document.createElement('iframe');
-    iframe.id = 'stageMedia';
-    iframe.src = state.template;
-    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
-    iframe.allow = 'autoplay; fullscreen';
-    stage.appendChild(iframe);
-    document.getElementById('stageMeta').textContent = '🎬 Video · Google Drive';
+    const video = document.createElement('video');
+    video.id = 'stageMedia';
+    video.src = state.template;
+    video.loop = state.video.loop;
+    video.autoplay = state.video.autoplay;
+    video.muted = state.video.muted;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
+    video.addEventListener('loadedmetadata', () => {
+      document.getElementById('stageMeta').textContent =
+        `🎬 Video · ${video.videoWidth}×${video.videoHeight}`;
+    });
+    video.play().catch(() => {});
+    stage.appendChild(video);
   } else {
     const img = document.createElement('img');
     img.id = 'stageMedia';
+    img.src = state.template;
     img.draggable = false;
-
-    const fileId = state.templateFileId;
-
-    const urls = fileId ? [
-      `https://lh3.googleusercontent.com/d/${fileId}=w1920`,
-      `https://drive.google.com/thumbnail?id=${fileId}&sz=w1920`,
-      `https://drive.google.com/uc?export=view&id=${fileId}`
-    ] : [state.template];
-
-    let urlIndex = 0;
-
     img.addEventListener('load', () => {
-      console.log('✅ Image loaded:', urls[urlIndex]);
       document.getElementById('stageMeta').textContent =
         `🖼️ Gambar · ${img.naturalWidth}×${img.naturalHeight}`;
-      img.style.opacity = '1';
     });
-
-    img.addEventListener('error', () => {
-      console.warn('❌ Failed to load:', urls[urlIndex]);
-      urlIndex++;
-      if (urlIndex < urls.length) {
-        console.log('🔄 Trying fallback:', urls[urlIndex]);
-        img.src = urls[urlIndex];
-      } else {
-        document.getElementById('stageMeta').textContent = '❌ Gagal load gambar';
-        stage.innerHTML = `
-          <div class="placeholder">
-            <div class="icon">⚠️</div>
-            <p style="color: #fbbf24;">Gambar tak dapat dimuatkan</p>
-            <p style="font-size: 11px; margin-top: 8px; color: #64748b;">
-              Kemungkinan permission Google Drive tak set betul.<br>
-              Cuba upload semula atau check console (F12).
-            </p>
-          </div>
-        `;
-      }
-    });
-
-    img.style.opacity = '0';
-    img.style.transition = 'opacity 0.3s';
-    img.src = urls[0];
-
     stage.appendChild(img);
   }
 
@@ -1955,18 +1549,9 @@ function renderPreview() {
 /* ============================================================
    INIT
    ============================================================ */
-setStatus('connecting', 'Menyambung...');
-
-function waitForGoogle() {
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
-    initGoogleAuth();
-  } else {
-    setTimeout(waitForGoogle, 300);
-  }
-}
-waitForGoogle();
-
-console.log('%c🎨 Edit Template · Google Drive', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
+console.log('%c☁️ Edit Template · Cloudinary', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
+console.log('Cloud:', CLOUDINARY_CLOUD_NAME);
+console.log('Preset:', CLOUDINARY_UPLOAD_PRESET);
 </script>
 
 </body>
