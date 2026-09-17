@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Penerima · Sistem Anugerah</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131a2e;
+    --bg-input: #0d1424;
+    --border: #1f2b47;
+    --border-focus: #38bdf8;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --green: #34d399;
+    --red: #ef4444;
+    --yellow: #fbbf24;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* Background decoration */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    position: relative;
+    z-index: 2;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+
+  .back-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.08);
+    transform: translateX(-3px);
+  }
+
+  .back-btn svg { width: 14px; height: 14px; }
+
+  .topbar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .topbar-title .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  /* ============ CONTAINER ============ */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (max-width: 960px) {
+    .container {
+      grid-template-columns: 1fr;
+      padding: 24px 16px;
+      gap: 24px;
+    }
+  }
+
+  /* ============ HEADINGS ============ */
+  .page-header { margin-bottom: 28px; }
+
+  .page-header h1 {
+    font-size: clamp(24px, 3.2vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header h1 span {
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  /* ============ FORM CARD ============ */
+  .form-card {
+    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.6;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field label .req {
+    color: var(--red);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .field input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: rgba(56, 189, 248, 0.04);
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+  }
+
+  .field input.error {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.06);
+  }
+
+  .field-hint {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-hint.warn { color: var(--yellow); }
+
+  /* ============ SUBMIT BUTTON ============ */
+  .btn-daftar {
+    width: 100%;
+    padding: 15px 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px -8px rgba(56, 189, 248, 0.5);
+  }
+
+  .btn-daftar:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px -8px rgba(56, 189, 248, 0.6);
+  }
+
+  .btn-daftar:active:not(:disabled) { transform: translateY(0); }
+
+  .btn-daftar:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-daftar svg { width: 18px; height: 18px; }
+
+  /* ============ LIST CARD ============ */
+  .list-card {
+    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    max-height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .list-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .list-header .count-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .list-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 4px;
+  }
+
+  .list-scroll::-webkit-scrollbar { width: 6px; }
+  .list-scroll::-webkit-scrollbar-track { background: transparent; }
+  .list-scroll::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  .list-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+  /* ============ RECIPIENT ITEM ============ */
+  .recipient-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    animation: itemIn 0.4s ease-out;
+  }
+
+  @keyframes itemIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .recipient-item:hover {
+    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.04);
+  }
+
+  .recipient-num {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(167, 139, 250, 0.2));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: 'Courier New', monospace;
+  }
+
+  .recipient-info { flex: 1; min-width: 0; }
+
+  .recipient-info .name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #f1f5f9;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .recipient-info .meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .recipient-info .meta .matrik {
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+  }
+
+  .btn-hapus {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-hapus:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .btn-hapus svg { width: 15px; height: 15px; }
+
+  /* ============ EMPTY STATE ============ */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .empty-state p { font-size: 13.5px; }
+
+  /* ============ TOAST ============ */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.warn { border-left-color: var(--yellow); }
+
+  .toast .icon { font-size: 18px; }
+
+  @keyframes toastIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ============ STATUS BADGE ============ */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: all 0.3s;
+  }
+
+  .status-badge.online {
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: var(--green);
+  }
+
+  .status-badge.connecting {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: var(--yellow);
+  }
+
+  .status-badge.offline {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+  }
+
+  .status-badge.online .status-dot { animation: pulse 2s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* ============ LOADING SPINNER ============ */
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(10, 14, 26, 0.3);
+    border-top-color: #0a0e1a;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ FADE UP ============ */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.15s; }
+  .delay-3 { animation-delay: 0.25s; }
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Kembali ke Menu
+  </a>
+  <div class="topbar-title">
+    <span class="dot"></span>
+    DAFTAR PENERIMA ANUGERAH
+  </div>
+  <div id="statusBadge" class="status-badge connecting">
+    <span class="status-dot"></span>
+    <span id="statusText">Menyambung...</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- LEFT: FORM -->
+  <div>
+    <div class="page-header fade-up">
+      <h1>Daftar <span>Penerima</span> Anugerah</h1>
+      <p>Isi maklumat penerima dengan lengkap. Sistem akan simpan data secara automatik ke pangkalan data Firestore.</p>
+    </div>
+
+    <div class="form-card fade-up delay-1">
+      <form id="formDaftar" autocomplete="off">
+
+        <div class="field">
+          <label for="inpNama">
+            Nama Penuh <span class="req">*</span>
+          </label>
+          <input
+            type="text"
+            id="inpNama"
+            name="nama"
+            placeholder="Contoh: Ahmad bin Ali"
+            maxlength="100"
+            required
+            autofocus
+          >
+          <div class="field-hint">Nama akan dipaparkan dalam slaid anugerah</div>
+        </div>
+
+        <div class="field">
+          <label for="inpMatrik">
+            Nombor Matriks <span class="req">*</span>
+          </label>
+          <input
+            type="text"
+            id="inpMatrik"
+            name="matrik"
+            placeholder="Contoh: 18DIT21F1001"
+            maxlength="30"
+            required
+          >
+          <div class="field-hint">Contoh format: 18DIT21F1001</div>
+        </div>
+
+        <div class="field">
+          <label for="inpBarcode">
+            Nombor Barcode <span class="req">*</span>
+          </label>
+          <input
+            type="text"
+            id="inpBarcode"
+            name="barcode"
+            placeholder="Contoh: 0001"
+            maxlength="20"
+            required
+          >
+          <div class="field-hint" id="barcodeHint">
+            Nombor unik untuk scan semasa majlis
+          </div>
+        </div>
+
+        <button type="submit" class="btn-daftar" id="btnDaftar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span id="btnText">Daftarkan Penerima</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- RIGHT: LIST -->
+  <div class="list-card fade-up delay-2">
+    <div class="list-header">
+      <h2>
+        Senarai Penerima
+        <span class="count-badge" id="countBadge">0</span>
+      </h2>
+    </div>
+    <div class="list-scroll" id="listContainer">
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>Belum ada penerima didaftarkan</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     FIREBASE SDK (MODULE)
+     ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ============================================================
+   FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
+  authDomain: "akjjtmk.firebaseapp.com",
+  projectId: "akjjtmk",
+  storageBucket: "akjjtmk.firebasestorage.app",
+  messagingSenderId: "28020787148",
+  appId: "1:28020787148:web:47c3c3c62e11f71c59ff69",
+  measurementId: "G-GVG1JFPHPN"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function toast(message, type = 'info') {
+  const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="icon">${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'all 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(400px)';
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
+}
+
+function setStatus(state, text) {
+  const badge = document.getElementById('statusBadge');
+  badge.className = 'status-badge ' + state;
+  document.getElementById('statusText').textContent = text;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+/* ============================================================
+   AUTO-UPPERCASE INPUT
+   ============================================================ */
+['inpNama', 'inpMatrik', 'inpBarcode'].forEach(id => {
+  const input = document.getElementById(id);
+  input.addEventListener('input', () => {
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    input.value = input.value.toUpperCase();
+    input.setSelectionRange(start, end);
+  });
+});
+
+/* ============================================================
+   AUTO-SUGGEST BARCODE (nombor seterusnya)
+   ============================================================ */
+async function suggestNextBarcode() {
+  const inpBarcode = document.getElementById('inpBarcode');
+  if (inpBarcode.value.trim()) return; // jangan override kalau user dah isi
+
+  try {
+    const snap = await getDocs(collection(db, 'recipients'));
+    const maxNum = snap.docs.reduce((max, d) => {
+      const bc = String(d.data().barcode || '').replace(/\D/g, '');
+      const n = parseInt(bc, 10);
+      return isNaN(n) ? max : Math.max(max, n);
+    }, 0);
+    inpBarcode.value = String(maxNum + 1).padStart(4, '0');
+  } catch (e) {
+    console.error('suggest barcode error:', e);
+  }
+}
+
+/* ============================================================
+   FORM SUBMIT
+   ============================================================ */
+const form = document.getElementById('formDaftar');
+const btnDaftar = document.getElementById('btnDaftar');
+const btnText = document.getElementById('btnText');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nama = document.getElementById('inpNama').value.trim().toUpperCase();
+  const matrik = document.getElementById('inpMatrik').value.trim().toUpperCase();
+  const barcode = document.getElementById('inpBarcode').value.trim().toUpperCase();
+
+  // Validasi
+  if (!nama || !matrik || !barcode) {
+    toast('Sila isi semua medan yang bertanda *', 'error');
+    return;
+  }
+
+  if (nama.length < 3) {
+    toast('Nama terlalu pendek', 'error');
+    document.getElementById('inpNama').focus();
+    return;
+  }
+
+  // Disable button
+  btnDaftar.disabled = true;
+  btnText.textContent = 'Menyimpan...';
+  btnDaftar.querySelector('svg').style.display = 'none';
+
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner';
+  btnDaftar.insertBefore(spinner, btnText);
+
+  try {
+    // Semak barcode duplicate
+    const allSnap = await getDocs(collection(db, 'recipients'));
+    const duplicate = allSnap.docs.find(d =>
+      String(d.data().barcode).toUpperCase() === barcode
+    );
+
+    if (duplicate) {
+      toast('Barcode ' + barcode + ' sudah wujud!', 'error');
+      document.getElementById('inpBarcode').classList.add('error');
+      document.getElementById('inpBarcode').focus();
+      return;
+    }
+
+    // Simpan ke Firestore
+    await addDoc(collection(db, 'recipients'), {
+      nama,
+      matrik,
+      barcode,
+      hadir: false,
+      createdAt: serverTimestamp()
+    });
+
+    toast('✅ ' + nama + ' berjaya didaftarkan', 'success');
+
+    // Reset form
+    form.reset();
+    document.getElementById('inpNama').focus();
+    document.getElementById('inpBarcode').classList.remove('error');
+
+    // Auto-suggest next barcode
+    setTimeout(suggestNextBarcode, 500);
+
+  } catch (err) {
+    console.error('Firestore error:', err);
+    toast('Gagal simpan: ' + err.message, 'error');
+  } finally {
+    btnDaftar.disabled = false;
+    btnText.textContent = 'Daftarkan Penerima';
+    btnDaftar.querySelector('svg').style.display = 'block';
+    if (spinner.parentNode) spinner.remove();
+  }
+});
+
+/* ============================================================
+   REAL-TIME LISTENER
+   ============================================================ */
+const listContainer = document.getElementById('listContainer');
+const countBadge = document.getElementById('countBadge');
+
+const q = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
+
+onSnapshot(q,
+  (snapshot) => {
+    setStatus('online', 'Online');
+    countBadge.textContent = snapshot.size;
+
+    if (snapshot.empty) {
+      listContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <p>Belum ada penerima didaftarkan</p>
+        </div>`;
+      return;
+    }
+
+    listContainer.innerHTML = snapshot.docs.map(d => {
+      const data = d.data();
+      return `
+        <div class="recipient-item" data-id="${d.id}">
+          <div class="recipient-num">${escapeHtml(data.barcode || '----')}</div>
+          <div class="recipient-info">
+            <div class="name">${escapeHtml(data.nama || '-')}</div>
+            <div class="meta">
+              <span class="matrik">${escapeHtml(data.matrik || '-')}</span>
+            </div>
+          </div>
+          <button class="btn-hapus" data-id="${d.id}" title="Padam">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6M14 11v6"></path>
+              <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    // Attach delete handlers
+    listContainer.querySelectorAll('.btn-hapus').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const item = listContainer.querySelector(`[data-id="${id}"]`);
+        const nama = item?.querySelector('.name')?.textContent || 'penerima ini';
+
+        if (!confirm(`Padam "${nama}"?`)) return;
+
+        try {
+          await deleteDoc(doc(db, 'recipients', id));
+          toast('Penerima dipadam', 'success');
+        } catch (e) {
+          toast('Gagal padam: ' + e.message, 'error');
+        }
+      });
+    });
+  },
+  (err) => {
+    console.error('Listener error:', err);
+    setStatus('offline', 'Offline');
+    toast('Ralat sambungan Firestore', 'error');
+  }
+);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+setStatus('connecting', 'Menyambung...');
+setTimeout(suggestNextBarcode, 800);
+
+// Track focus style cleanup
+document.querySelectorAll('.field input').forEach(inp => {
+  inp.addEventListener('input', () => inp.classList.remove('error'));
+});
+
+console.log('%c📝 Daftar Penerima · Sistem Anugerah', 'color: #38bdf8; font-size: 14px; font-weight: bold;');
+</script>
+
+</body>
+</html>
