@@ -656,7 +656,6 @@
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    /* Aspect ratio akan di-set dynamically ikut template */
     display: flex;
     flex-direction: column;
   }
@@ -669,7 +668,8 @@
   }
 
   .qr-preview-item .preview-bg {
-    display: block;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: fill;
@@ -1341,16 +1341,6 @@ async function renderQRPreviewOnStage() {
   qrWrap.style.width = qrSizePercent + '%';
 
   const canvas = document.createElement('canvas');
-  try {
-    await QRCode.toCanvas(canvas, sampleQr, {
-      width: 400,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    });
-  } catch(e) {
-    console.error('QR error:', e);
-  }
-
   qrWrap.appendChild(canvas);
 
   if (showLabel) {
@@ -1363,6 +1353,19 @@ async function renderQRPreviewOnStage() {
   makeDraggable(qrWrap);
   stage.appendChild(qrWrap);
   updateCoordDisplay();
+
+  // Lukis QR Code menggunakan Callback supaya stabil dengan qrcode.min.js v1.5.3
+  try {
+    QRCode.toCanvas(canvas, sampleQr, {
+      width: 400,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    }, function (error) {
+      if (error) console.error('QR error:', error);
+    });
+  } catch(e) {
+    console.error('QR error:', e);
+  }
 }
 
 function makeDraggable(el) {
@@ -1553,7 +1556,7 @@ document.getElementById('inpDigitCount').addEventListener('input', updateQrCount
 document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
 
 /* ============================================================
-   GENERATE PREVIEW — guna HTML/CSS (QR atas template)
+   GENERATE PREVIEW
    ============================================================ */
 document.getElementById('btnGenerate').addEventListener('click', async () => {
   const numbers = generateNumberList();
@@ -1578,18 +1581,15 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
   const wCm = state.widthCm;
   const hCm = state.heightCm;
-  const aspectRatio = wCm / hCm;
 
   for (const num of numbers) {
     const item = document.createElement('div');
     item.className = 'qr-preview-item';
 
-    // Set aspect ratio ikut template
     const canvasWrap = document.createElement('div');
     canvasWrap.className = 'preview-canvas-wrap';
     canvasWrap.style.aspectRatio = `${wCm} / ${hCm}`;
 
-    // Background template (kalau ada)
     if (state.template) {
       const bg = document.createElement('img');
       bg.className = 'preview-bg';
@@ -1597,11 +1597,9 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
       bg.crossOrigin = 'anonymous';
       canvasWrap.appendChild(bg);
     } else {
-      // Placeholder kalau takde template
       canvasWrap.style.background = 'linear-gradient(135deg, #e2e8f0, #cbd5e1)';
     }
 
-    // QR overlay
     const qrOverlay = document.createElement('div');
     qrOverlay.className = 'preview-qr-overlay';
     qrOverlay.style.left = qrPos.x + '%';
@@ -1609,19 +1607,9 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     qrOverlay.style.width = qrSizePercent + '%';
 
     const canvas = document.createElement('canvas');
-    try {
-      await QRCode.toCanvas(canvas, num, {
-        width: 300,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      });
-    } catch(e) {
-      console.error(e);
-    }
     qrOverlay.appendChild(canvas);
     canvasWrap.appendChild(qrOverlay);
 
-    // Label overlay
     if (showLabel) {
       const labelOverlay = document.createElement('div');
       labelOverlay.className = 'preview-label-overlay';
@@ -1633,6 +1621,19 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
     item.appendChild(canvasWrap);
     grid.appendChild(item);
+
+    // Render QR menggunakan callback
+    try {
+      QRCode.toCanvas(canvas, num, {
+        width: 300,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      }, function (error) {
+        if (error) console.error(error);
+      });
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   document.getElementById('btnPrint').disabled = false;
@@ -1673,8 +1674,6 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
     const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
     const perPage = cols * rows;
-
-    console.log(`Auto layout: ${cols} × ${rows} = ${perPage} per page`);
 
     let currentPage = null;
     let countInPage = 0;
@@ -1728,14 +1727,12 @@ async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
   card.style.width = (wCm * 10) + 'mm';
   card.style.height = (hCm * 10) + 'mm';
 
-  // Background
   const bg = document.createElement('img');
   bg.className = 'print-bg';
   bg.src = state.template;
   bg.crossOrigin = 'anonymous';
   card.appendChild(bg);
 
-  // QR
   const qrDiv = document.createElement('div');
   qrDiv.className = 'print-qr';
   qrDiv.style.left = qrPos.x + '%';
@@ -1747,20 +1744,9 @@ async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
   canvas.style.height = 'auto';
   canvas.style.display = 'block';
 
-  try {
-    await QRCode.toCanvas(canvas, num, {
-      width: 800,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    });
-  } catch(e) {
-    console.error(e);
-  }
-
   qrDiv.appendChild(canvas);
   card.appendChild(qrDiv);
 
-  // Label
   if (showLabel) {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'print-label';
@@ -1772,6 +1758,18 @@ async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
 
     labelDiv.textContent = num;
     card.appendChild(labelDiv);
+  }
+
+  try {
+    QRCode.toCanvas(canvas, num, {
+      width: 800,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    }, function (error) {
+      if (error) console.error(error);
+    });
+  } catch(e) {
+    console.error(e);
   }
 
   return card;
