@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Penerima · Sistem Anugerah</title>
+
+<!-- QR Code Generator Library (auto-generate QR) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131a2e;
+    --bg-input: #0d1424;
+    --border: #1f2b47;
+    --border-focus: #2dd4bf;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #2dd4bf;
+    --accent-hover: #14b8a6;
+    --blue: #38bdf8;
+    --purple: #a78bfa;
+    --green: #34d399;
+    --red: #ef4444;
+    --yellow: #fbbf24;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(45, 212, 191, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(56, 189, 248, 0.1) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45, 212, 191, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 212, 191, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    position: relative;
+    z-index: 2;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.7);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+
+  .back-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(45, 212, 191, 0.08);
+    transform: translateX(-3px);
+  }
+
+  .back-btn svg { width: 14px; height: 14px; }
+
+  .topbar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .topbar-title .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: var(--green);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* ============ TABS ============ */
+  .tabs {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.5);
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 12px 24px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+  }
+
+  .tab-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(56, 189, 248, 0.15));
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 16px -4px rgba(45, 212, 191, 0.5);
+  }
+
+  .tab-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ============ PANELS ============ */
+  .panel {
+    display: none;
+    position: relative;
+    z-index: 1;
+  }
+  .panel.active { display: block; }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  @media (max-width: 960px) {
+    .container { padding: 20px 16px; }
+    .tabs { padding: 16px; }
+  }
+
+  /* ============================================================
+     BAHAGIAN A — EDIT TEMPLATE
+     ============================================================ */
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 1100px) {
+    .editor-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card:last-child { margin-bottom: 0; }
+
+  .card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .num {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(56, 189, 248, 0.2));
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* UPLOAD */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: var(--bg-input);
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(45, 212, 191, 0.06);
+  }
+  .upload-zone.uploading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
+  .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .upload-zone .sub { font-size: 11.5px; color: var(--text-muted); }
+  .upload-zone input[type="file"] { display: none; }
+
+  .upload-progress {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    display: none;
+  }
+  .upload-progress.show { display: block; }
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--blue));
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+  .file-info .file-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(45, 212, 191, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .file-info .file-meta { flex: 1; min-width: 0; }
+  .file-info .file-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-info .file-size { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .file-remove {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .file-remove:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .file-remove svg { width: 14px; height: 14px; }
+
+  /* CONTROLS */
+  .control-group { margin-bottom: 14px; }
+  .control-group:last-child { margin-bottom: 0; }
+  .control-group label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .control-group input[type="text"],
+  .control-group input[type="number"],
+  .control-group select,
+  .control-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .control-group textarea {
+    resize: vertical;
+    line-height: 1.6;
+  }
+  .control-group input:focus, .control-group select:focus, .control-group textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: rgba(45, 212, 191, 0.04);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  }
+
+  /* STAGE EDITOR */
+  .canvas-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+
+  .canvas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .canvas-header .title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  #stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5/7;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    max-height: 75vh;
+    margin: 0 auto;
+  }
+
+  #stage img.stage-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  #stage .placeholder {
+    text-align: center;
+    color: #94a3b8;
+    padding: 40px;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #stage .placeholder .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+  #stage .placeholder p { font-size: 13px; color: #475569; font-weight: 600; }
+
+  .drag-qr {
+    position: absolute;
+    cursor: move;
+    border: 2px dashed transparent;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    transition: box-shadow 0.2s;
+    background: #fff;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .drag-qr:hover {
+    border-color: rgba(45, 212, 191, 0.8);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
+  }
+  .drag-qr.dragging {
+    border-color: var(--accent);
+    border-style: solid;
+    z-index: 100;
+    box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4);
+  }
+  .drag-qr canvas {
+    display: block;
+    pointer-events: none;
+    width: 100%;
+    height: auto;
+  }
+  .drag-qr .qr-label {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    color: #000;
+    background: #fff;
+    padding: 2px 6px;
+    margin-top: 4px;
+    border-radius: 4px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .stage-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .stage-info .coord {
+    font-family: 'Courier New', monospace;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: var(--text-dim);
+  }
+
+  /* BUTTON */
+  .btn-primary {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px -6px rgba(45, 212, 191, 0.5);
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(45, 212, 191, 0.6);
+  }
+  .btn-primary:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn-primary svg { width: 16px; height: 16px; }
+
+  .chip-btn {
+    padding: 8px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(45, 212, 191, 0.08);
+  }
+  .chip-btn svg { width: 14px; height: 14px; }
+
+  /* ============================================================
+     BAHAGIAN B — PRINT QR
+     ============================================================ */
+  .print-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 1100px) {
+    .print-grid { grid-template-columns: 1fr; }
+  }
+
+  /* MODE SELECTOR */
+  .mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .mode-btn {
+    padding: 14px 12px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .mode-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .mode-btn.active {
+    background: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(56, 189, 248, 0.15));
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .mode-btn .icon { font-size: 20px; }
+  .mode-btn .txt { font-size: 11px; letter-spacing: 0.03em; }
+
+  .mode-section { display: none; }
+  .mode-section.active { display: block; }
+
+  /* PREVIEW GRID */
+  .qr-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 4px;
+  }
+
+  .qr-preview-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .qr-preview-item canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 120px;
+  }
+
+  .qr-preview-item .label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #0a0e1a;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .preview-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    background: var(--bg-input);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+  .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
+  .preview-empty p { font-size: 13px; }
+
+  /* ============ PRINT AREA (A4) ============ */
+  .print-sheet {
+    display: none;
+  }
+
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    html, body {
+      background: #fff !important;
+      color: #000;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    body::before,
+    .grid-overlay,
+    .topbar,
+    .tabs,
+    .container,
+    .toast-container {
+      display: none !important;
+    }
+
+    .print-sheet {
+      display: block !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    .print-card {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      page-break-after: always;
+      page-break-inside: avoid;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .print-card:last-child {
+      page-break-after: auto;
+    }
+
+    .print-card img.print-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+    }
+
+    .print-card .print-qr {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 2mm;
+      border-radius: 2mm;
+    }
+
+    .print-card .print-qr canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .print-card .print-label {
+      position: absolute;
+      transform: translate(-50%, 0);
+      font-family: 'Courier New', monospace;
+      font-weight: 900;
+      color: #000;
+      text-align: center;
+      background: #fff;
+      padding: 1mm 2mm;
+      border-radius: 1mm;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+  }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.warn { border-left-color: var(--yellow); }
+  .toast .icon { font-size: 18px; }
+  @keyframes toastIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @media (max-width: 640px) {
+    .mode-selector { grid-template-columns: 1fr; }
+    .qr-preview-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Kembali ke Menu
+  </a>
+  <div class="topbar-title">
+    <span class="dot"></span>
+    QR CODE PENERIMA
+  </div>
+  <div class="status-badge">
+    <span class="status-dot"></span>
+    <span>Sistem Aktif</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="editor">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+    </svg>
+    Edit Template QR
+  </button>
+  <button class="tab-btn" data-tab="print">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+      <rect x="6" y="14" width="12" height="8"></rect>
+    </svg>
+    Print QR Code
+  </button>
+</div>
+
+<!-- ============================================================
+     PANEL A — EDIT TEMPLATE
+     ============================================================ -->
+<div class="panel active" id="panel-editor">
+  <div class="container">
+    <div class="editor-grid">
+
+      <!-- LEFT: CONTROLS -->
+      <div>
+        <div class="card">
+          <h2><span class="num">1</span> Upload Background</h2>
+          <div class="upload-zone" id="uploadZone">
+            <div class="icon">🖼️</div>
+            <div class="title">Klik atau drag fail</div>
+            <div class="sub">PNG · JPG (disyorkan 5:7 nisbah)</div>
+            <input type="file" id="inpFile" accept="image/*">
+          </div>
+
+          <div class="upload-progress" id="uploadProgress">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span id="uploadText">Uploading...</span>
+              <span id="uploadPct">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div id="fileInfoContainer"></div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">2</span> Saiz & Posisi QR</h2>
+
+          <div class="control-group">
+            <label>Saiz QR (% dari lebar)</label>
+            <input type="number" id="inpQrSize" min="5" max="100" value="30" step="1">
+          </div>
+
+          <div class="control-group">
+            <label>Contoh Nombor QR</label>
+            <input type="text" id="inpSampleQr" value="0001" maxlength="20">
+          </div>
+
+          <div class="control-group">
+            <label>Tunjuk Nombor Bawah QR</label>
+            <select id="selShowLabel">
+              <option value="yes">Ya — tunjuk nombor di bawah QR</option>
+              <option value="no">Tidak</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="chip-btn" id="btnResetPos" style="flex:1;justify-content:center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Reset Tengah
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btnSaveTemplate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          Simpan Template QR
+        </button>
+      </div>
+
+      <!-- RIGHT: STAGE -->
+      <div class="canvas-wrapper">
+        <div class="canvas-header">
+          <div class="title">🎨 Posisi QR pada Template</div>
+          <div style="font-size:11px;color:var(--text-muted);" id="coordDisplay">Drag QR untuk ubah posisi</div>
+        </div>
+
+        <div id="stage">
+          <div class="placeholder">
+            <div class="icon">🖼️</div>
+            <p>Upload background template untuk mula</p>
+          </div>
+        </div>
+
+        <div class="stage-info">
+          <div><span class="coord" id="stageMeta">Tiada template</span></div>
+          <div style="font-size:11px;">Template disimpan di Cloudinary</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PANEL B — PRINT QR
+     ============================================================ -->
+<div class="panel" id="panel-print">
+  <div class="container">
+    <div class="print-grid">
+
+      <!-- LEFT: CONTROLS -->
+      <div>
+        <div class="card">
+          <h2><span class="num">1</span> Pilih Mod</h2>
+
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="range">
+              <div class="icon">🔢</div>
+              <div class="txt">RANGE NOMBOR</div>
+            </button>
+            <button class="mode-btn" data-mode="list">
+              <div class="icon">📝</div>
+              <div class="txt">SENARAI NOMBOR</div>
+            </button>
+          </div>
+
+          <!-- MODE: RANGE -->
+          <div class="mode-section active" id="mode-range">
+            <div class="control-group">
+              <label>Dari Nombor</label>
+              <input type="number" id="inpRangeFrom" min="1" value="1" step="1">
+            </div>
+            <div class="control-group">
+              <label>Sampai Nombor</label>
+              <input type="number" id="inpRangeTo" min="1" value="10" step="1">
+            </div>
+            <div class="control-group">
+              <label>Jumlah Digit (contoh: 4 = 0001)</label>
+              <input type="number" id="inpDigitCount" min="1" max="10" value="4" step="1">
+            </div>
+          </div>
+
+          <!-- MODE: LIST -->
+          <div class="mode-section" id="mode-list">
+            <div class="control-group">
+              <label>Senarai Nombor (pisah dengan koma atau baris baru)</label>
+              <textarea id="inpListNumbers" rows="6" placeholder="Contoh:&#10;0001&#10;0005&#10;0010&#10;atau&#10;0001, 0002, 0003"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">2</span> Preview & Print</h2>
+
+          <div class="control-group">
+            <label>Jumlah QR akan dijana</label>
+            <div style="padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:800;color:var(--accent);font-family:'Courier New',monospace;" id="qrCountDisplay">0</div>
+          </div>
+
+          <button class="btn-primary" id="btnGenerate" style="margin-bottom:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Generate Preview
+          </button>
+
+          <button class="btn-primary" id="btnPrint" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print Semua QR
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: PREVIEW -->
+      <div class="card">
+        <h2>🔍 Preview QR</h2>
+        <div id="qrPreviewGrid" class="qr-preview-grid">
+          <div class="preview-empty" style="grid-column:1/-1;">
+            <div class="icon">📱</div>
+            <p>Klik "Generate Preview" untuk paparkan QR code</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PRINT SHEET (hanya muncul bila print)
+     ============================================================ -->
+<div class="print-sheet" id="printSheet"></div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const CLOUDINARY_CLOUD_NAME = 'q9xbizqj';
+const CLOUDINARY_UPLOAD_PRESET = 'anugerah_unsigned';
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  template: null,
+  templatePublicId: null,
+  qrSize: 30,
+  qrPos: { x: 50, y: 70 },
+  showLabel: true,
+  sampleQr: '0001'
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function toast(msg, type = 'info', duration = 3500) {
+  const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="icon">${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'all 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(400px)';
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ============================================================
+   BAHAGIAN A — EDIT TEMPLATE
+   ============================================================ */
+const uploadZone = document.getElementById('uploadZone');
+const inpFile = document.getElementById('inpFile');
+const stage = document.getElementById('stage');
+
+uploadZone.addEventListener('click', () => inpFile.click());
+
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFileUpload(file);
+});
+
+inpFile.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) handleFileUpload(file);
+  e.target.value = '';
+});
+
+async function handleFileUpload(file) {
+  if (file.size > 10 * 1024 * 1024) {
+    return toast('Fail terlalu besar (max 10MB)', 'error');
+  }
+  if (!file.type.startsWith('image/')) {
+    return toast('Hanya gambar PNG/JPG sahaja', 'error');
+  }
+
+  uploadZone.classList.add('uploading');
+  const progressEl = document.getElementById('uploadProgress');
+  const progressFill = document.getElementById('progressFill');
+  const uploadPct = document.getElementById('uploadPct');
+  progressEl.classList.add('show');
+  progressFill.style.width = '0%';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('folder', 'anugerah_qr_templates');
+
+  const xhr = new XMLHttpRequest();
+
+  xhr.upload.addEventListener('progress', (e) => {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
+      progressFill.style.width = pct + '%';
+      uploadPct.textContent = pct + '%';
+    }
+  });
+
+  xhr.addEventListener('load', () => {
+    uploadZone.classList.remove('uploading');
+    progressEl.classList.remove('show');
+
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        const result = JSON.parse(xhr.responseText);
+        state.template = result.secure_url;
+        state.templatePublicId = result.public_id;
+        renderStage();
+        renderFileInfo();
+        toast('✅ Template berjaya di-upload', 'success');
+      } catch (e) {
+        toast('Ralat parse: ' + e.message, 'error');
+      }
+    } else {
+      let errMsg = 'Status ' + xhr.status;
+      try {
+        const errData = JSON.parse(xhr.responseText);
+        if (errData.error && errData.error.message) errMsg = errData.error.message;
+      } catch(e) {}
+      toast('❌ Upload gagal: ' + errMsg, 'error', 6000);
+    }
+  });
+
+  xhr.addEventListener('error', () => {
+    uploadZone.classList.remove('uploading');
+    progressEl.classList.remove('show');
+    toast('❌ Ralat sambungan', 'error');
+  });
+
+  const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+  xhr.open('POST', url, true);
+  xhr.send(formData);
+}
+
+function renderFileInfo() {
+  const wrap = document.getElementById('fileInfoContainer');
+  if (!state.template) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = `
+    <div class="file-info">
+      <div class="file-icon">🖼️</div>
+      <div class="file-meta">
+        <div class="file-name">Template QR Background</div>
+        <div class="file-size">☁️ Cloudinary</div>
+      </div>
+      <button class="file-remove" id="btnRemoveFile" title="Padam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  `;
+
+  document.getElementById('btnRemoveFile').addEventListener('click', removeFile);
+}
+
+function removeFile() {
+  if (!confirm('Padam template?')) return;
+  state.template = null;
+  state.templatePublicId = null;
+  renderStage();
+  renderFileInfo();
+  toast('Template dipadam', 'success');
+}
+
+/* ============================================================
+   RENDER STAGE
+   ============================================================ */
+async function renderStage() {
+  stage.innerHTML = '';
+
+  if (!state.template) {
+    stage.innerHTML = `
+      <div class="placeholder">
+        <div class="icon">🖼️</div>
+        <p>Upload background template untuk mula</p>
+      </div>
+    `;
+    document.getElementById('stageMeta').textContent = 'Tiada template';
+    return;
+  }
+
+  // Background
+  const bg = document.createElement('img');
+  bg.className = 'stage-bg';
+  bg.src = state.template;
+  bg.draggable = false;
+  bg.onload = () => {
+    document.getElementById('stageMeta').textContent =
+      `🖼️ ${bg.naturalWidth} × ${bg.naturalHeight} px`;
+  };
+  stage.appendChild(bg);
+
+  // QR preview
+  await renderQRPreviewOnStage();
+}
+
+async function renderQRPreviewOnStage() {
+  const sampleQr = document.getElementById('inpSampleQr').value.trim() || '0001';
+  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
+  const showLabel = document.getElementById('selShowLabel').value === 'yes';
+
+  // Container QR
+  const qrWrap = document.createElement('div');
+  qrWrap.className = 'drag-qr';
+  qrWrap.id = 'dragQr';
+  qrWrap.style.left = state.qrPos.x + '%';
+  qrWrap.style.top = state.qrPos.y + '%';
+  qrWrap.style.width = qrSizePercent + '%';
+
+  // Canvas QR — AUTO-GENERATE
+  const canvas = document.createElement('canvas');
+  try {
+    await QRCode.toCanvas(canvas, sampleQr, {
+      width: 400,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch(e) {
+    console.error('QR error:', e);
+  }
+
+  qrWrap.appendChild(canvas);
+
+  // Label
+  if (showLabel) {
+    const label = document.createElement('div');
+    label.className = 'qr-label';
+    label.textContent = sampleQr;
+    qrWrap.appendChild(label);
+  }
+
+  makeDraggable(qrWrap);
+  stage.appendChild(qrWrap);
+  updateCoordDisplay();
+}
+
+function makeDraggable(el) {
+  let dragging = false;
+  let startX, startY, startXPct, startYPct;
+
+  el.addEventListener('mousedown', (e) => {
+    dragging = true;
+    el.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY;
+    startXPct = state.qrPos.x;
+    startYPct = state.qrPos.y;
+    e.preventDefault();
+  });
+
+  el.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dragging = true;
+    el.classList.add('dragging');
+    startX = t.clientX; startY = t.clientY;
+    startXPct = state.qrPos.x;
+    startYPct = state.qrPos.y;
+  }, { passive: true });
+
+  function move(cx, cy) {
+    if (!dragging) return;
+    const rect = stage.getBoundingClientRect();
+    const dx = ((cx - startX) / rect.width) * 100;
+    const dy = ((cy - startY) / rect.height) * 100;
+
+    state.qrPos.x = Math.max(0, Math.min(100, startXPct + dx));
+    state.qrPos.y = Math.max(0, Math.min(100, startYPct + dy));
+
+    el.style.left = state.qrPos.x + '%';
+    el.style.top = state.qrPos.y + '%';
+    updateCoordDisplay();
+  }
+
+  function end() {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+  }
+
+  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+  document.addEventListener('mouseup', end);
+  document.addEventListener('touchmove', e => {
+    if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); }
+  }, { passive: true });
+  document.addEventListener('touchend', end);
+}
+
+function updateCoordDisplay() {
+  document.getElementById('coordDisplay').textContent =
+    `QR: x ${state.qrPos.x.toFixed(1)}% · y ${state.qrPos.y.toFixed(1)}%`;
+}
+
+/* ============================================================
+   CONTROLS — EDITOR
+   ============================================================ */
+document.getElementById('inpQrSize').addEventListener('input', renderStage);
+document.getElementById('inpSampleQr').addEventListener('input', renderStage);
+document.getElementById('selShowLabel').addEventListener('change', renderStage);
+
+document.getElementById('btnResetPos').addEventListener('click', () => {
+  state.qrPos = { x: 50, y: 70 };
+  renderStage();
+});
+
+document.getElementById('btnSaveTemplate').addEventListener('click', () => {
+  if (!state.template) {
+    return toast('Upload background template dulu', 'warn');
+  }
+
+  const data = {
+    template: state.template,
+    templatePublicId: state.templatePublicId,
+    qrSize: parseInt(document.getElementById('inpQrSize').value) || 30,
+    qrPos: state.qrPos,
+    showLabel: document.getElementById('selShowLabel').value === 'yes'
+  };
+
+  localStorage.setItem('qrTemplateConfig', JSON.stringify(data));
+  toast('✅ Template QR disimpan', 'success');
+});
+
+/* ============================================================
+   LOAD CONFIG
+   ============================================================ */
+function loadSavedConfig() {
+  try {
+    const saved = localStorage.getItem('qrTemplateConfig');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+
+    if (data.template) {
+      state.template = data.template;
+      state.templatePublicId = data.templatePublicId;
+    }
+    if (data.qrPos) state.qrPos = data.qrPos;
+    if (data.qrSize) document.getElementById('inpQrSize').value = data.qrSize;
+    if (data.showLabel !== undefined) {
+      document.getElementById('selShowLabel').value = data.showLabel ? 'yes' : 'no';
+    }
+
+    renderStage();
+    renderFileInfo();
+  } catch(e) {
+    console.error('Load config error:', e);
+  }
+}
+
+/* ============================================================
+   BAHAGIAN B — PRINT
+   ============================================================ */
+let currentMode = 'range';
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = btn.dataset.mode;
+    document.getElementById('mode-' + currentMode).classList.add('active');
+    updateQrCount();
+  });
+});
+
+function updateQrCount() {
+  const numbers = generateNumberList();
+  document.getElementById('qrCountDisplay').textContent = numbers.length;
+}
+
+function generateNumberList() {
+  if (currentMode === 'range') {
+    const from = parseInt(document.getElementById('inpRangeFrom').value) || 1;
+    const to = parseInt(document.getElementById('inpRangeTo').value) || 10;
+    const digits = parseInt(document.getElementById('inpDigitCount').value) || 4;
+
+    const arr = [];
+    const start = Math.min(from, to);
+    const end = Math.max(from, to);
+
+    for (let i = start; i <= end; i++) {
+      arr.push(String(i).padStart(digits, '0'));
+    }
+    return arr;
+  } else {
+    const raw = document.getElementById('inpListNumbers').value.trim();
+    if (!raw) return [];
+
+    const numbers = raw
+      .split(/[\s,]+/)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(s => {
+        if (/^\d+$/.test(s)) return s.padStart(4, '0');
+        return s;
+      });
+
+    return [...new Set(numbers)];
+  }
+}
+
+document.getElementById('inpRangeFrom').addEventListener('input', updateQrCount);
+document.getElementById('inpRangeTo').addEventListener('input', updateQrCount);
+document.getElementById('inpDigitCount').addEventListener('input', updateQrCount);
+document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
+
+/* ============================================================
+   GENERATE PREVIEW
+   ============================================================ */
+document.getElementById('btnGenerate').addEventListener('click', async () => {
+  const numbers = generateNumberList();
+
+  if (numbers.length === 0) {
+    return toast('Takde nombor untuk dijana', 'warn');
+  }
+
+  if (numbers.length > 500) {
+    return toast('Maksimum 500 QR untuk preview', 'warn');
+  }
+
+  const grid = document.getElementById('qrPreviewGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Generating...</div>';
+
+  await new Promise(r => setTimeout(r, 50));
+
+  grid.innerHTML = '';
+
+  for (const num of numbers) {
+    const item = document.createElement('div');
+    item.className = 'qr-preview-item';
+
+    const canvas = document.createElement('canvas');
+    try {
+      await QRCode.toCanvas(canvas, num, {
+        width: 200,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+    } catch(e) {
+      console.error(e);
+    }
+
+    item.appendChild(canvas);
+
+    if (state.showLabel) {
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = num;
+      item.appendChild(label);
+    }
+
+    grid.appendChild(item);
+  }
+
+  document.getElementById('btnPrint').disabled = false;
+  toast(`✅ ${numbers.length} QR dijana`, 'success');
+});
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+document.getElementById('btnPrint').addEventListener('click', async () => {
+  const numbers = generateNumberList();
+
+  if (numbers.length === 0) {
+    return toast('Takde nombor untuk dicetak', 'warn');
+  }
+
+  const sheet = document.getElementById('printSheet');
+  sheet.innerHTML = '';
+
+  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
+  const qrPos = state.qrPos;
+  const showLabel = document.getElementById('selShowLabel').value === 'yes';
+
+  toast('Sediakan print sheet...', 'info', 1500);
+
+  for (const num of numbers) {
+    const card = document.createElement('div');
+    card.className = 'print-card';
+
+    // Background
+    if (state.template) {
+      const bg = document.createElement('img');
+      bg.className = 'print-bg';
+      bg.src = state.template;
+      bg.crossOrigin = 'anonymous';
+      card.appendChild(bg);
+    }
+
+    // QR
+    const qrDiv = document.createElement('div');
+    qrDiv.className = 'print-qr';
+    qrDiv.style.left = qrPos.x + '%';
+    qrDiv.style.top = qrPos.y + '%';
+    qrDiv.style.width = qrSizePercent + '%';
+
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    canvas.style.display = 'block';
+
+    try {
+      await QRCode.toCanvas(canvas, num, {
+        width: 800,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+    } catch(e) {
+      console.error(e);
+    }
+
+    qrDiv.appendChild(canvas);
+    card.appendChild(qrDiv);
+
+    // Label
+    if (showLabel) {
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'print-label';
+      labelDiv.style.left = qrPos.x + '%';
+      // Letak label bawah QR
+      labelDiv.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 3mm)`;
+      labelDiv.style.fontSize = '4mm';
+      labelDiv.textContent = num;
+      card.appendChild(labelDiv);
+    }
+
+    sheet.appendChild(card);
+  }
+
+  // Tunggu image load
+  await new Promise(r => setTimeout(r, 800));
+
+  toast('🖨️ Membuka print dialog...', 'info', 2000);
+
+  setTimeout(() => {
+    window.print();
+  }, 300);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+updateQrCount();
+loadSavedConfig();
+
+console.log('%c📱 QR Code Penerima', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
+console.log('✅ QR library loaded:', typeof QRCode !== 'undefined');
+console.log('Cloudinary:', CLOUDINARY_CLOUD_NAME);
+</script>
+
+</body>
+</html>
