@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Penerima · Sistem Anugerah</title>
 
-<!-- QR Code Generator - Library Utama -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"
-        onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js';"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +15,6 @@
     --bg-card: #131a2e;
     --bg-input: #0d1424;
     --border: #1f2b47;
-    --border-focus: #2dd4bf;
     --text: #e2e8f0;
     --text-dim: #94a3b8;
     --text-muted: #64748b;
@@ -27,11 +24,12 @@
     --green: #34d399;
     --red: #ef4444;
     --yellow: #fbbf24;
+    --purple: #a78bfa;
   }
 
   html, body {
     min-height: 100%;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
   }
@@ -45,19 +43,6 @@
       radial-gradient(circle at 85% 90%, rgba(56, 189, 248, 0.1) 0%, transparent 45%);
     pointer-events: none;
     z-index: 0;
-  }
-
-  .grid-overlay {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(45, 212, 191, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(45, 212, 191, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-    z-index: 0;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
   .topbar {
@@ -126,17 +111,6 @@
     border: 1px solid rgba(52, 211, 153, 0.3);
     color: var(--green);
   }
-  .status-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 10px currentColor;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.85); }
-  }
 
   .tabs {
     position: relative;
@@ -165,16 +139,12 @@
     transition: all 0.25s;
   }
 
-  .tab-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .tab-btn.active {
     background: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(56, 189, 248, 0.15));
     border-color: var(--accent);
     color: var(--accent);
-    box-shadow: 0 4px 16px -4px rgba(45, 212, 191, 0.5);
   }
 
   .tab-btn svg { width: 16px; height: 16px; }
@@ -188,22 +158,6 @@
     padding: 32px;
   }
 
-  @media (max-width: 960px) {
-    .container { padding: 20px 16px; }
-    .tabs { padding: 16px; }
-  }
-
-  .editor-grid {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 24px;
-    align-items: start;
-  }
-
-  @media (max-width: 1100px) {
-    .editor-grid { grid-template-columns: 1fr; }
-  }
-
   .card {
     background: linear-gradient(145deg, var(--bg-card), rgba(19, 26, 46, 0.6));
     border: 1px solid var(--border);
@@ -211,6 +165,7 @@
     padding: 20px;
     margin-bottom: 16px;
   }
+
   .card:last-child { margin-bottom: 0; }
 
   .card h2 {
@@ -224,6 +179,7 @@
     align-items: center;
     gap: 8px;
   }
+
   .card h2 .num {
     width: 22px; height: 22px;
     border-radius: 6px;
@@ -236,6 +192,7 @@
     color: var(--accent);
   }
 
+  /* UPLOAD */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -245,11 +202,9 @@
     transition: all 0.25s;
     background: var(--bg-input);
   }
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(45, 212, 191, 0.06);
-  }
-  .upload-zone.uploading { opacity: 0.6; pointer-events: none; }
+
+  .upload-zone:hover { border-color: var(--accent); }
+
   .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
   .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
   .upload-zone .sub { font-size: 11.5px; color: var(--text-muted); }
@@ -264,7 +219,9 @@
     font-size: 12px;
     display: none;
   }
+
   .upload-progress.show { display: block; }
+
   .progress-bar {
     height: 4px;
     background: var(--border);
@@ -272,6 +229,7 @@
     overflow: hidden;
     margin-top: 6px;
   }
+
   .progress-bar-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--accent), var(--blue));
@@ -289,6 +247,7 @@
     border-radius: 10px;
     margin-top: 12px;
   }
+
   .file-info .file-icon {
     width: 36px; height: 36px;
     border-radius: 8px;
@@ -297,18 +256,12 @@
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    flex-shrink: 0;
   }
-  .file-info .file-meta { flex: 1; min-width: 0; }
-  .file-info .file-name {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+
+  .file-info .file-meta { flex: 1; }
+  .file-info .file-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
   .file-info .file-size { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
   .file-remove {
     width: 30px; height: 30px;
     border-radius: 6px;
@@ -319,18 +272,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
   }
-  .file-remove:hover {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: var(--red);
-    color: var(--red);
-  }
+
+  .file-remove:hover { color: var(--red); border-color: var(--red); }
   .file-remove svg { width: 14px; height: 14px; }
 
+  /* CONTROLS */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
+
   .control-group label {
     display: block;
     font-size: 11.5px;
@@ -340,8 +290,8 @@
     text-transform: uppercase;
     margin-bottom: 6px;
   }
-  .control-group input[type="text"],
-  .control-group input[type="number"],
+
+  .control-group input,
   .control-group select,
   .control-group textarea {
     width: 100%;
@@ -353,13 +303,13 @@
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
-    transition: all 0.2s;
   }
-  .control-group textarea { resize: vertical; line-height: 1.6; }
-  .control-group input:focus, .control-group select:focus, .control-group textarea:focus {
+
+  .control-group input:focus,
+  .control-group select:focus,
+  .control-group textarea:focus {
     outline: none;
-    border-color: var(--border-focus);
-    background: rgba(45, 212, 191, 0.04);
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
   }
 
@@ -369,159 +319,81 @@
     gap: 10px;
   }
 
-  .dimension-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    background: rgba(45, 212, 191, 0.08);
-    border: 1px solid rgba(45, 212, 191, 0.3);
-    border-radius: 8px;
-    font-size: 12px;
-    color: var(--accent);
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .dimension-info .dim-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-family: 'Courier New', monospace;
-    font-weight: 700;
-  }
-  .dimension-info .dim-item strong { color: #fff; }
-
-  .canvas-wrapper {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
+  /* EDITOR LAYOUT */
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    align-items: start;
   }
 
-  .canvas-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
+  @media (max-width: 1100px) {
+    .editor-grid { grid-template-columns: 1fr; }
   }
 
-  .canvas-header .title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .stage-wrapper {
+  /* STAGE — GUNA INLINE STYLE SAHAJA */
+  .stage-container {
+    background: #000;
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #1a1f35, #0d1424);
-    border-radius: 12px;
-    min-height: 400px;
+    min-height: 500px;
   }
 
   #stage {
     position: relative;
     background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    max-width: 100%;
-    max-height: 70vh;
+    /* Saiz akan di-set oleh JavaScript */
   }
 
-  #stage img.stage-bg {
-    position: absolute;
-    inset: 0;
+  #stage img.template-bg {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: fill;
     pointer-events: none;
   }
 
-  #stage .placeholder {
-    text-align: center;
-    color: #94a3b8;
-    padding: 40px 60px;
-    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-    min-width: 300px;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  #stage .placeholder .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
-  #stage .placeholder p { font-size: 13px; color: #475569; font-weight: 600; }
-
-  .drag-qr {
+  /* QR drag area */
+  #qrDraggable {
     position: absolute;
-    cursor: move;
-    border: 2px dashed transparent;
     transform: translate(-50%, -50%);
-    z-index: 10;
-    transition: box-shadow 0.2s;
     background: #fff;
     padding: 4px;
     border-radius: 4px;
-  }
-  .drag-qr:hover {
-    border-color: rgba(45, 212, 191, 0.8);
-    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
-  }
-  .drag-qr.dragging {
-    border-color: var(--accent);
-    border-style: solid;
+    cursor: move;
+    border: 2px dashed rgba(45, 212, 191, 0.6);
     z-index: 100;
+  }
+
+  #qrDraggable.dragging {
+    border-color: #2dd4bf;
+    border-style: solid;
     box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4);
   }
-  .drag-qr canvas {
+
+  #qrDraggable canvas {
     display: block;
     pointer-events: none;
-    width: 100%;
-    height: auto;
   }
-  .drag-qr .qr-label {
+
+  #qrDraggable .qr-num-label {
     text-align: center;
     font-family: 'Courier New', monospace;
     font-weight: 900;
     color: #000;
     background: #fff;
     padding: 2px 6px;
-    margin-top: 4px;
+    margin-top: 3px;
     border-radius: 4px;
     font-size: 12px;
     letter-spacing: 0.05em;
   }
 
-  .stage-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 12px;
-    font-size: 11.5px;
-    color: var(--text-muted);
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .stage-info .coord {
-    font-family: 'Courier New', monospace;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 8px;
-    color: var(--text-dim);
-  }
-
+  /* BUTTONS */
   .btn-primary {
     width: 100%;
     padding: 12px 20px;
@@ -540,19 +412,24 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
-    box-shadow: 0 6px 20px -6px rgba(45, 212, 191, 0.5);
   }
+
   .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 12px 28px -6px rgba(45, 212, 191, 0.6);
   }
+
   .btn-primary:disabled {
     background: #334155;
     color: #94a3b8;
     cursor: not-allowed;
-    box-shadow: none;
   }
+
   .btn-primary svg { width: 16px; height: 16px; }
+
+  .btn-purple {
+    background: linear-gradient(135deg, var(--purple), #8b5cf6);
+  }
 
   .chip-btn {
     padding: 8px 14px;
@@ -564,18 +441,15 @@
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
-  .chip-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(45, 212, 191, 0.08);
-  }
+
+  .chip-btn:hover { border-color: var(--accent); color: var(--accent); }
   .chip-btn svg { width: 14px; height: 14px; }
 
+  /* PRINT LAYOUT */
   .print-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -604,17 +478,10 @@
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    text-align: center;
-  }
-
-  .mode-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
   }
 
   .mode-btn.active {
@@ -624,44 +491,68 @@
   }
 
   .mode-btn .icon { font-size: 20px; }
-  .mode-btn .txt { font-size: 11px; letter-spacing: 0.03em; }
 
   .mode-section { display: none; }
   .mode-section.active { display: block; }
 
-  .qr-preview-grid {
+  /* ============================================================
+     PREVIEW CARD — SETIAP KAD = TEMPLATE + QR
+     Ini yang paling penting. Guna inline style untuk kesahihan.
+     ============================================================ */
+  .preview-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-    max-height: 600px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    max-height: 700px;
     overflow-y: auto;
     padding: 4px;
   }
 
-  .qr-preview-item {
+  .preview-card {
+    position: relative;
     background: #fff;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    /* Penting: aspect-ratio dan saiz di-set oleh JS inline */
   }
 
-  .qr-preview-item canvas {
+  .preview-card .card-template-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
     display: block;
-    width: 100% !important;
-    height: auto !important;
-    max-width: 120px;
   }
 
-  .qr-preview-item .label {
-    font-size: 11px;
-    font-weight: 800;
-    color: #0a0e1a;
+  .preview-card .card-qr-overlay {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 3px;
+    border-radius: 3px;
+    /* left, top, width di-set oleh JS */
+  }
+
+  .preview-card .card-qr-overlay canvas {
+    display: block;
+    /* Saiz di-set oleh JS */
+  }
+
+  .preview-card .card-label-overlay {
+    position: absolute;
+    transform: translate(-50%, 0);
     font-family: 'Courier New', monospace;
+    font-weight: 900;
+    color: #000;
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
     letter-spacing: 0.05em;
+    font-size: 10px;
   }
 
   .preview-empty {
@@ -671,10 +562,12 @@
     background: var(--bg-input);
     border: 1px dashed var(--border);
     border-radius: 12px;
+    grid-column: 1 / -1;
   }
-  .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
-  .preview-empty p { font-size: 13px; }
 
+  .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
+
+  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -696,47 +589,32 @@
     font-size: 13.5px;
     font-weight: 600;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 340px;
     display: flex;
     align-items: center;
     gap: 10px;
+    animation: toastIn 0.35s;
   }
+
   .toast.success { border-left-color: var(--green); }
   .toast.error { border-left-color: var(--red); }
   .toast.warn { border-left-color: var(--yellow); }
-  .toast .icon { font-size: 18px; }
+
   @keyframes toastIn {
     from { transform: translateX(400px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
 
   @media (max-width: 640px) {
-    .mode-selector { grid-template-columns: 1fr; }
-    .qr-preview-grid { grid-template-columns: repeat(2, 1fr); }
     .field-row { grid-template-columns: 1fr; }
-  }
-
-  /* DEBUG INFO */
-  .debug-info {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    padding: 6px 10px;
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid #334155;
-    border-radius: 6px;
-    font-size: 11px;
-    font-family: 'Courier New', monospace;
-    color: #94a3b8;
-    z-index: 999;
-    pointer-events: none;
+    .preview-list { grid-template-columns: repeat(2, 1fr); }
+    .mode-selector { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+    .tabs { padding: 16px; }
   }
 </style>
 </head>
 <body>
-
-<div class="grid-overlay"></div>
 
 <div class="topbar">
   <a href="index.html" class="back-btn">
@@ -751,7 +629,7 @@
     QR CODE PENERIMA
   </div>
   <div class="status-badge">
-    <span class="status-dot"></span>
+    <span style="width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;"></span>
     <span id="libStatus">Loading...</span>
   </div>
 </div>
@@ -774,22 +652,23 @@
   </button>
 </div>
 
+<!-- PANEL A — EDITOR -->
 <div class="panel active" id="panel-editor">
   <div class="container">
     <div class="editor-grid">
 
       <div>
         <div class="card">
-          <h2><span class="num">1</span> Upload Background</h2>
+          <h2><span class="num">1</span> Upload Background Template</h2>
           <div class="upload-zone" id="uploadZone">
             <div class="icon">🖼️</div>
             <div class="title">Klik atau drag fail</div>
-            <div class="sub">PNG · JPG (saiz sebenar akan diikuti)</div>
+            <div class="sub">PNG · JPG (max 10MB)</div>
             <input type="file" id="inpFile" accept="image/*">
           </div>
 
           <div class="upload-progress" id="uploadProgress">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;">
               <span id="uploadText">Uploading...</span>
               <span id="uploadPct">0%</span>
             </div>
@@ -802,18 +681,7 @@
         </div>
 
         <div class="card">
-          <h2><span class="num">2</span> Saiz Sebenar Template</h2>
-
-          <div class="dimension-info" id="dimensionInfo" style="display:none;">
-            <div class="dim-item">📏 <strong id="dimWidth">-</strong> cm (W)</div>
-            <div class="dim-item">×</div>
-            <div class="dim-item"><strong id="dimHeight">-</strong> cm (H)</div>
-          </div>
-
-          <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-            Ukur gambar anda dan masukkan saiz sebenar dalam cm supaya print tepat.
-          </p>
-
+          <h2><span class="num">2</span> Saiz Template (cm)</h2>
           <div class="field-row">
             <div class="control-group">
               <label>Lebar (cm)</label>
@@ -827,8 +695,7 @@
         </div>
 
         <div class="card">
-          <h2><span class="num">3</span> Saiz & Posisi QR</h2>
-
+          <h2><span class="num">3</span> QR Settings</h2>
           <div class="control-group">
             <label>Saiz QR (% dari lebar template)</label>
             <input type="number" id="inpQrSize" min="5" max="100" value="30" step="1">
@@ -840,52 +707,30 @@
           </div>
 
           <div class="control-group">
-            <label>Tunjuk Nombor Bawah QR</label>
+            <label>Label Nombor</label>
             <select id="selShowLabel">
-              <option value="yes">Ya — tunjuk nombor di bawah QR</option>
-              <option value="no">Tidak</option>
+              <option value="yes">Tunjuk nombor bawah QR</option>
+              <option value="no">Tak tunjuk</option>
             </select>
           </div>
 
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="chip-btn" id="btnResetPos" style="flex:1;justify-content:center;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-              </svg>
-              Reset Tengah
-            </button>
-          </div>
+          <button class="chip-btn" id="btnResetPos" style="width:100%;justify-content:center;margin-top:8px;">
+            Reset Posisi QR
+          </button>
         </div>
 
         <button class="btn-primary" id="btnSaveTemplate">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
-          Simpan Template QR
+          💾 Simpan Template QR
         </button>
       </div>
 
-      <div class="canvas-wrapper">
-        <div class="canvas-header">
-          <div class="title">🎨 Posisi QR pada Template</div>
-          <div style="font-size:11px;color:var(--text-muted);" id="coordDisplay">Drag QR untuk ubah posisi</div>
+      <div class="card" style="margin:0;">
+        <h2>🎨 Preview — Drag QR untuk letak posisi</h2>
+        <div class="stage-container" id="stageContainer">
+          <div id="stage"></div>
         </div>
-
-        <div class="stage-wrapper">
-          <div id="stage">
-            <div class="placeholder">
-              <div class="icon">🖼️</div>
-              <p>Upload background template untuk mula</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="stage-info">
-          <div><span class="coord" id="stageMeta">Tiada template</span></div>
-          <div style="font-size:11px;">Preview pada skrin ikut saiz sebenar (skala)</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-muted);text-align:center;" id="coordDisplay">
+          Upload template untuk mula
         </div>
       </div>
 
@@ -893,98 +738,77 @@
   </div>
 </div>
 
+<!-- PANEL B — PRINT -->
 <div class="panel" id="panel-print">
   <div class="container">
     <div class="print-grid">
 
       <div>
         <div class="card">
-          <h2><span class="num">1</span> Pilih Mod</h2>
+          <h2><span class="num">1</span> Mode Jana QR</h2>
 
           <div class="mode-selector">
             <button class="mode-btn active" data-mode="range">
               <div class="icon">🔢</div>
-              <div class="txt">RANGE NOMBOR</div>
+              <div>RANGE</div>
             </button>
             <button class="mode-btn" data-mode="list">
               <div class="icon">📝</div>
-              <div class="txt">SENARAI NOMBOR</div>
+              <div>SENARAI</div>
             </button>
           </div>
 
           <div class="mode-section active" id="mode-range">
             <div class="control-group">
-              <label>Dari Nombor</label>
-              <input type="number" id="inpRangeFrom" min="1" value="1" step="1">
+              <label>Dari</label>
+              <input type="number" id="inpRangeFrom" min="1" value="1">
             </div>
             <div class="control-group">
-              <label>Sampai Nombor</label>
-              <input type="number" id="inpRangeTo" min="1" value="10" step="1">
+              <label>Sampai</label>
+              <input type="number" id="inpRangeTo" min="1" value="10">
             </div>
             <div class="control-group">
-              <label>Jumlah Digit</label>
-              <input type="number" id="inpDigitCount" min="1" max="10" value="4" step="1">
+              <label>Digit (4 = 0001)</label>
+              <input type="number" id="inpDigitCount" min="1" max="10" value="4">
             </div>
           </div>
 
           <div class="mode-section" id="mode-list">
             <div class="control-group">
-              <label>Senarai Nombor (pisah dengan koma atau baris baru)</label>
-              <textarea id="inpListNumbers" rows="6" placeholder="Contoh:&#10;0001&#10;0005&#10;0010"></textarea>
+              <label>Senarai nombor (pisah koma/baris baru)</label>
+              <textarea id="inpListNumbers" rows="5" placeholder="0001&#10;0005&#10;0010"></textarea>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <h2><span class="num">2</span> Layout Print</h2>
+          <h2><span class="num">2</span> Print</h2>
 
           <div class="control-group">
-            <label>Susun atur kertas A4</label>
-            <select id="selPrintLayout">
-              <option value="auto">Auto — Susun banyak dalam 1 A4</option>
-              <option value="one-page">1 Template = 1 A4</option>
-            </select>
-          </div>
-
-          <div class="control-group">
-            <label>Jumlah QR akan dijana</label>
-            <div style="padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:800;color:var(--accent);font-family:'Courier New',monospace;" id="qrCountDisplay">0</div>
+            <label>Jumlah QR</label>
+            <div style="padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:800;color:var(--accent);font-family:monospace;" id="qrCountDisplay">0</div>
           </div>
 
           <button class="btn-primary" id="btnGenerate" style="margin-bottom:8px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-            </svg>
-            Generate Preview
+            👁️ Generate Preview
           </button>
 
-          <button class="btn-primary" id="btnTestQR" style="margin-bottom:8px; background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            🧪 Test Generate 1 QR
+          <button class="btn-primary btn-purple" id="btnTestQR" style="margin-bottom:8px;">
+            🧪 Test QR (1 sahaja)
           </button>
 
           <button class="btn-primary" id="btnPrint" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9"></polyline>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-              <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
-            Print Semua QR
+            🖨️ Print Semua QR
           </button>
         </div>
       </div>
 
-      <div class="card">
-        <h2>🔍 Preview QR</h2>
-        <div id="qrPreviewGrid" class="qr-preview-grid">
-          <div class="preview-empty" style="grid-column:1/-1;">
+      <div class="card" style="margin:0;">
+        <h2>🔍 Preview QR + Template</h2>
+        <div id="previewList" class="preview-list">
+          <div class="preview-empty">
             <div class="icon">📱</div>
-            <p>Klik "Generate Preview" atau "Test Generate 1 QR"</p>
+            <p>Klik "Generate Preview" untuk lihat QR</p>
           </div>
         </div>
       </div>
@@ -994,9 +818,6 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
-
-<!-- DEBUG INFO -->
-<div class="debug-info" id="debugInfo">Checking libraries...</div>
 
 <script>
 /* ============================================================
@@ -1011,38 +832,10 @@ const CLOUDINARY_UPLOAD_PRESET = 'anugerah_unsigned';
 const state = {
   template: null,
   templatePublicId: null,
-  qrSize: 30,
-  qrPos: { x: 50, y: 70 },
-  showLabel: true,
-  sampleQr: '0001',
+  qrPos: { x: 50, y: 70 },  // % dari template
   widthCm: 5,
   heightCm: 8
 };
-
-/* ============================================================
-   LIBRARY CHECK
-   ============================================================ */
-function updateDebug(msg) {
-  const el = document.getElementById('debugInfo');
-  if (el) el.textContent = msg;
-}
-
-function checkLibraries() {
-  const hasQRCode = typeof window.QRCode !== 'undefined' &&
-                    typeof window.QRCode.toCanvas === 'function';
-
-  console.log('🔍 QRCode library:', typeof window.QRCode);
-  console.log('🔍 QRCode.toCanvas:', typeof window.QRCode?.toCanvas);
-
-  updateDebug(`QRCode: ${hasQRCode ? '✅ OK' : '❌ MISSING'}`);
-
-  const libStatus = document.getElementById('libStatus');
-  if (libStatus) {
-    libStatus.textContent = hasQRCode ? 'QR Ready' : 'QR Not Loaded';
-  }
-
-  return hasQRCode;
-}
 
 /* ============================================================
    HELPERS
@@ -1051,7 +844,7 @@ function toast(msg, type = 'info', duration = 3500) {
   const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.innerHTML = `<span class="icon">${icons[type]}</span><span>${msg}</span>`;
+  el.innerHTML = `<span style="font-size:18px;">${icons[type]}</span><span>${msg}</span>`;
   document.getElementById('toastContainer').appendChild(el);
   setTimeout(() => {
     el.style.transition = 'all 0.3s';
@@ -1061,93 +854,31 @@ function toast(msg, type = 'info', duration = 3500) {
   }, duration);
 }
 
+function setStatus(text, ok = true) {
+  const el = document.getElementById('libStatus');
+  if (el) el.textContent = text;
+}
+
 /* ============================================================
-   GENERATE QR — FUNCTION UTAMA
+   GENERATE QR CANVAS — FUNGSI UTAMA
    ============================================================ */
-async function generateQRCanvas(text, size = 400) {
-  // Pastikan library QR sudah tersedia sebelum generate
-  if (typeof QRCode === 'undefined' || typeof QRCode.toCanvas !== 'function') {
-    console.error('❌ QRCode library tidak loaded');
-    throw new Error('QRCode library tidak loaded');
+async function makeQR(text, size = 300) {
+  if (typeof QRCode === 'undefined') {
+    throw new Error('QRCode library tak loaded');
   }
 
-  // Buat canvas baru
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
 
-  // Generate QR menggunakan callback API yang serasi dengan qrcode 1.5.x
-  try {
-    await new Promise((resolve, reject) => {
-      QRCode.toCanvas(canvas, String(text), {
-        width: size,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
-        },
-        errorCorrectionLevel: 'M'
-      }, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-    });
+  await QRCode.toCanvas(canvas, String(text), {
+    width: size,
+    margin: 1,
+    color: { dark: '#000000', light: '#ffffff' }
+  });
 
-    console.log('✅ QR generated:', text);
-    return canvas;
-  } catch (err) {
-    console.error('❌ QR generation error:', err);
-    throw err;
-  }
+  return canvas;
 }
-
-/* ============================================================
-   TEST GENERATE 1 QR
-   ============================================================ */
-document.getElementById('btnTestQR').addEventListener('click', async () => {
-  console.log('🧪 Testing QR generation...');
-
-  const hasLib = checkLibraries();
-  if (!hasLib) {
-    toast('❌ Library QRCode tak loaded. Refresh page.', 'error', 6000);
-    return;
-  }
-
-  try {
-    const canvas = await generateQRCanvas('TEST123', 300);
-
-    // Papar dalam preview grid
-    const grid = document.getElementById('qrPreviewGrid');
-    grid.innerHTML = '';
-
-    const item = document.createElement('div');
-    item.className = 'qr-preview-item';
-
-    const canvasClone = document.createElement('canvas');
-    canvasClone.width = canvas.width;
-    canvasClone.height = canvas.height;
-    canvasClone.getContext('2d').drawImage(canvas, 0, 0);
-    canvasClone.style.cssText = 'width:100%;height:auto;max-width:120px;display:block;';
-
-    item.appendChild(canvasClone);
-
-    const label = document.createElement('div');
-    label.className = 'label';
-    label.textContent = 'TEST123';
-    item.appendChild(label);
-
-    grid.appendChild(item);
-
-    toast('✅ QR Test berjaya! Library OK.', 'success', 5000);
-    console.log('✅ Test QR displayed');
-  } catch (err) {
-    console.error('❌ Test failed:', err);
-    toast('❌ Test gagal: ' + err.message, 'error', 6000);
-  }
-});
 
 /* ============================================================
    TABS
@@ -1162,40 +893,41 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 /* ============================================================
-   EDITOR
+   UPLOAD
    ============================================================ */
 const uploadZone = document.getElementById('uploadZone');
 const inpFile = document.getElementById('inpFile');
-const stage = document.getElementById('stage');
 
 uploadZone.addEventListener('click', () => inpFile.click());
-uploadZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadZone.classList.add('dragover');
-});
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFileUpload(file);
-});
 
 inpFile.addEventListener('change', (e) => {
   const file = e.target.files[0];
-  if (file) handleFileUpload(file);
+  if (file) handleUpload(file);
   e.target.value = '';
 });
 
-async function handleFileUpload(file) {
-  if (file.size > 10 * 1024 * 1024) {
-    return toast('Fail terlalu besar (max 10MB)', 'error');
-  }
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.style.borderColor = '#2dd4bf';
+});
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.style.borderColor = '';
+});
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file) handleUpload(file);
+});
+
+async function handleUpload(file) {
   if (!file.type.startsWith('image/')) {
-    return toast('Hanya gambar PNG/JPG sahaja', 'error');
+    return toast('Hanya gambar PNG/JPG', 'error');
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return toast('Max 10MB', 'error');
   }
 
-  uploadZone.classList.add('uploading');
   const progressEl = document.getElementById('uploadProgress');
   const progressFill = document.getElementById('progressFill');
   const uploadPct = document.getElementById('uploadPct');
@@ -1218,9 +950,7 @@ async function handleFileUpload(file) {
   });
 
   xhr.addEventListener('load', () => {
-    uploadZone.classList.remove('uploading');
     progressEl.classList.remove('show');
-
     if (xhr.status >= 200 && xhr.status < 300) {
       try {
         const result = JSON.parse(xhr.responseText);
@@ -1228,24 +958,23 @@ async function handleFileUpload(file) {
         state.templatePublicId = result.public_id;
         renderStage();
         renderFileInfo();
-        toast('✅ Template berjaya di-upload', 'success');
+        toast('✅ Template di-upload', 'success');
       } catch (e) {
         toast('Ralat parse: ' + e.message, 'error');
       }
     } else {
       let errMsg = 'Status ' + xhr.status;
       try {
-        const errData = JSON.parse(xhr.responseText);
-        if (errData.error && errData.error.message) errMsg = errData.error.message;
+        const err = JSON.parse(xhr.responseText);
+        if (err.error && err.error.message) errMsg = err.error.message;
       } catch(e) {}
-      toast('❌ Upload gagal: ' + errMsg, 'error', 6000);
+      toast('Upload gagal: ' + errMsg, 'error', 6000);
     }
   });
 
   xhr.addEventListener('error', () => {
-    uploadZone.classList.remove('uploading');
     progressEl.classList.remove('show');
-    toast('❌ Ralat sambungan', 'error');
+    toast('Ralat sambungan', 'error');
   });
 
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
@@ -1264,7 +993,7 @@ function renderFileInfo() {
         <div class="file-name">Template QR Background</div>
         <div class="file-size">☁️ Cloudinary</div>
       </div>
-      <button class="file-remove" id="btnRemoveFile" title="Padam">
+      <button class="file-remove" id="btnRemoveFile">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1273,149 +1002,177 @@ function renderFileInfo() {
     </div>
   `;
 
-  document.getElementById('btnRemoveFile').addEventListener('click', removeFile);
-}
-
-function removeFile() {
-  if (!confirm('Padam template?')) return;
-  state.template = null;
-  state.templatePublicId = null;
-  renderStage();
-  renderFileInfo();
-  toast('Template dipadam', 'success');
+  document.getElementById('btnRemoveFile').addEventListener('click', () => {
+    if (!confirm('Padam template?')) return;
+    state.template = null;
+    state.templatePublicId = null;
+    renderStage();
+    renderFileInfo();
+    toast('Template dipadam', 'success');
+  });
 }
 
 /* ============================================================
-   RENDER STAGE
+   RENDER STAGE — SIMPLE VERSION
    ============================================================ */
 async function renderStage() {
+  const stage = document.getElementById('stage');
+  const stageContainer = document.getElementById('stageContainer');
+
   stage.innerHTML = '';
 
   if (!state.template) {
-    stage.style.width = '';
-    stage.style.height = '';
-    stage.style.aspectRatio = '';
+    stage.style.width = '300px';
+    stage.style.height = '480px';
+    stage.style.display = 'flex';
+    stage.style.alignItems = 'center';
+    stage.style.justifyContent = 'center';
+    stage.style.background = 'linear-gradient(135deg, #e2e8f0, #cbd5e1)';
     stage.innerHTML = `
-      <div class="placeholder">
-        <div class="icon">🖼️</div>
-        <p>Upload background template untuk mula</p>
+      <div style="text-align:center;color:#475569;padding:30px;">
+        <div style="font-size:48px;opacity:0.5;margin-bottom:12px;">🖼️</div>
+        <p style="font-weight:600;">Upload template untuk mula</p>
       </div>
     `;
-    document.getElementById('stageMeta').textContent = 'Tiada template';
-    document.getElementById('dimensionInfo').style.display = 'none';
+    document.getElementById('coordDisplay').textContent = 'Tiada template';
     return;
   }
 
-  const wCm = state.widthCm;
-  const hCm = state.heightCm;
+  // Kira saiz display — max 500px tinggi
+  const maxH = 500;
+  const maxW = stageContainer.clientWidth - 40;
+  const aspect = state.widthCm / state.heightCm;
 
-  stage.style.aspectRatio = `${wCm} / ${hCm}`;
-  stage.style.width = 'auto';
-  stage.style.height = 'min(70vh, 600px)';
+  let displayW, displayH;
 
-  const bg = document.createElement('img');
-  bg.className = 'stage-bg';
-  bg.src = state.template;
-  bg.draggable = false;
-  bg.onload = () => {
-    document.getElementById('stageMeta').textContent =
-      `🖼️ ${bg.naturalWidth} × ${bg.naturalHeight} px · ${wCm}×${hCm} cm`;
-  };
-  stage.appendChild(bg);
-
-  document.getElementById('dimensionInfo').style.display = 'flex';
-  document.getElementById('dimWidth').textContent = wCm.toFixed(1);
-  document.getElementById('dimHeight').textContent = hCm.toFixed(1);
-
-  await renderQRPreviewOnStage();
-}
-
-async function renderQRPreviewOnStage() {
-  const sampleQr = document.getElementById('inpSampleQr').value.trim() || '0001';
-  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
-  const showLabel = document.getElementById('selShowLabel').value === 'yes';
-
-  const qrWrap = document.createElement('div');
-  qrWrap.className = 'drag-qr';
-  qrWrap.id = 'dragQr';
-  qrWrap.style.left = state.qrPos.x + '%';
-  qrWrap.style.top = state.qrPos.y + '%';
-  qrWrap.style.width = qrSizePercent + '%';
-
-  try {
-    const canvas = await generateQRCanvas(sampleQr, 300);
-    canvas.style.cssText = 'display:block;width:100%;height:auto;';
-    qrWrap.appendChild(canvas);
-  } catch (e) {
-    console.error('QR preview error:', e);
-    qrWrap.innerHTML = '<div style="padding:20px;color:#ef4444;font-size:11px;">QR error</div>';
+  if (maxW / aspect <= maxH) {
+    displayW = maxW;
+    displayH = maxW / aspect;
+  } else {
+    displayH = maxH;
+    displayW = maxH * aspect;
   }
 
+  // Set stage size
+  stage.style.width = displayW + 'px';
+  stage.style.height = displayH + 'px';
+  stage.style.display = 'block';
+  stage.style.background = '#fff';
+  stage.style.position = 'relative';
+
+  // Template background
+  const img = document.createElement('img');
+  img.className = 'template-bg';
+  img.src = state.template;
+  img.style.position = 'absolute';
+  img.style.top = '0';
+  img.style.left = '0';
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'fill';
+  img.draggable = false;
+  img.onload = () => {
+    document.getElementById('coordDisplay').textContent =
+      `📐 ${state.widthCm}×${state.heightCm}cm · Preview ${Math.round(displayW)}×${Math.round(displayH)}px`;
+  };
+  stage.appendChild(img);
+
+  // Tambah QR preview
+  await addQRToStage();
+}
+
+async function addQRToStage() {
+  const stage = document.getElementById('stage');
+  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
+  const sampleQr = document.getElementById('inpSampleQr').value.trim() || '0001';
+  const showLabel = document.getElementById('selShowLabel').value === 'yes';
+
+  // Buat QR wrapper
+  const qrWrap = document.createElement('div');
+  qrWrap.id = 'qrDraggable';
+  qrWrap.style.position = 'absolute';
+  qrWrap.style.left = state.qrPos.x + '%';
+  qrWrap.style.top = state.qrPos.y + '%';
+  qrWrap.style.transform = 'translate(-50%, -50%)';
+  qrWrap.style.width = qrSizePercent + '%';
+  qrWrap.style.background = '#fff';
+  qrWrap.style.padding = '4px';
+  qrWrap.style.borderRadius = '4px';
+  qrWrap.style.cursor = 'move';
+  qrWrap.style.border = '2px dashed rgba(45, 212, 191, 0.6)';
+  qrWrap.style.zIndex = '100';
+
+  // Generate QR
+  try {
+    const canvas = await makeQR(sampleQr, 300);
+    canvas.style.display = 'block';
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    qrWrap.appendChild(canvas);
+  } catch (e) {
+    console.error('QR error:', e);
+    qrWrap.innerHTML = '<div style="padding:20px;color:red;font-size:10px;">QR Error</div>';
+  }
+
+  // Label
   if (showLabel) {
     const label = document.createElement('div');
-    label.className = 'qr-label';
+    label.style.cssText = 'text-align:center;font-family:"Courier New",monospace;font-weight:900;color:#000;background:#fff;padding:2px 6px;margin-top:3px;border-radius:4px;font-size:12px;letter-spacing:0.05em;';
     label.textContent = sampleQr;
     qrWrap.appendChild(label);
   }
 
+  // Make draggable
   makeDraggable(qrWrap);
+
   stage.appendChild(qrWrap);
-  updateCoordDisplay();
 }
 
 function makeDraggable(el) {
   let dragging = false;
-  let startX, startY, startXPct, startYPct;
+  let startX, startY, startXPercent, startYPercent;
 
   el.addEventListener('mousedown', (e) => {
     dragging = true;
-    el.classList.add('dragging');
-    startX = e.clientX; startY = e.clientY;
-    startXPct = state.qrPos.x;
-    startYPct = state.qrPos.y;
+    el.style.borderColor = '#2dd4bf';
+    el.style.borderStyle = 'solid';
+    el.style.boxShadow = '0 0 0 4px rgba(45, 212, 191, 0.4)';
+    startX = e.clientX;
+    startY = e.clientY;
+    startXPercent = state.qrPos.x;
+    startYPercent = state.qrPos.y;
     e.preventDefault();
+    e.stopPropagation();
   });
 
-  el.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    dragging = true;
-    el.classList.add('dragging');
-    startX = t.clientX; startY = t.clientY;
-    startXPct = state.qrPos.x;
-    startYPct = state.qrPos.y;
-  }, { passive: true });
-
-  function move(cx, cy) {
+  function onMove(e) {
     if (!dragging) return;
+    const stage = document.getElementById('stage');
     const rect = stage.getBoundingClientRect();
-    const dx = ((cx - startX) / rect.width) * 100;
-    const dy = ((cy - startY) / rect.height) * 100;
 
-    state.qrPos.x = Math.max(0, Math.min(100, startXPct + dx));
-    state.qrPos.y = Math.max(0, Math.min(100, startYPct + dy));
+    const dx = ((e.clientX - startX) / rect.width) * 100;
+    const dy = ((e.clientY - startY) / rect.height) * 100;
+
+    state.qrPos.x = Math.max(0, Math.min(100, startXPercent + dx));
+    state.qrPos.y = Math.max(0, Math.min(100, startYPercent + dy));
 
     el.style.left = state.qrPos.x + '%';
     el.style.top = state.qrPos.y + '%';
-    updateCoordDisplay();
+
+    document.getElementById('coordDisplay').textContent =
+      `QR: x ${state.qrPos.x.toFixed(1)}% · y ${state.qrPos.y.toFixed(1)}%`;
   }
 
-  function end() {
+  function onUp() {
     if (!dragging) return;
     dragging = false;
-    el.classList.remove('dragging');
+    el.style.borderColor = 'rgba(45, 212, 191, 0.6)';
+    el.style.borderStyle = 'dashed';
+    el.style.boxShadow = '';
   }
 
-  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
-  document.addEventListener('mouseup', end);
-  document.addEventListener('touchmove', e => {
-    if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); }
-  }, { passive: true });
-  document.addEventListener('touchend', end);
-}
-
-function updateCoordDisplay() {
-  document.getElementById('coordDisplay').textContent =
-    `QR: x ${state.qrPos.x.toFixed(1)}% · y ${state.qrPos.y.toFixed(1)}%`;
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
 /* ============================================================
@@ -1424,12 +1181,10 @@ function updateCoordDisplay() {
 document.getElementById('inpQrSize').addEventListener('input', renderStage);
 document.getElementById('inpSampleQr').addEventListener('input', renderStage);
 document.getElementById('selShowLabel').addEventListener('change', renderStage);
-
 document.getElementById('inpWidthCm').addEventListener('input', (e) => {
   state.widthCm = parseFloat(e.target.value) || 5;
   renderStage();
 });
-
 document.getElementById('inpHeightCm').addEventListener('input', (e) => {
   state.heightCm = parseFloat(e.target.value) || 8;
   renderStage();
@@ -1442,7 +1197,7 @@ document.getElementById('btnResetPos').addEventListener('click', () => {
 
 document.getElementById('btnSaveTemplate').addEventListener('click', () => {
   if (!state.template) {
-    return toast('Upload background template dulu', 'warn');
+    return toast('Upload template dulu', 'warn');
   }
 
   const data = {
@@ -1456,10 +1211,10 @@ document.getElementById('btnSaveTemplate').addEventListener('click', () => {
   };
 
   localStorage.setItem('qrTemplateConfig', JSON.stringify(data));
-  toast('✅ Template QR disimpan', 'success');
+  toast('✅ Template disimpan', 'success');
 });
 
-function loadSavedConfig() {
+function loadConfig() {
   try {
     const saved = localStorage.getItem('qrTemplateConfig');
     if (!saved) return;
@@ -1486,12 +1241,12 @@ function loadSavedConfig() {
     renderStage();
     renderFileInfo();
   } catch(e) {
-    console.error('Load config error:', e);
+    console.error('Load error:', e);
   }
 }
 
 /* ============================================================
-   PRINT — BAHAGIAN B
+   PRINT PANEL
    ============================================================ */
 let currentMode = 'range';
 
@@ -1516,11 +1271,10 @@ function generateNumberList() {
     const from = parseInt(document.getElementById('inpRangeFrom').value) || 1;
     const to = parseInt(document.getElementById('inpRangeTo').value) || 10;
     const digits = parseInt(document.getElementById('inpDigitCount').value) || 4;
-
-    const arr = [];
     const start = Math.min(from, to);
     const end = Math.max(from, to);
 
+    const arr = [];
     for (let i = start; i <= end; i++) {
       arr.push(String(i).padStart(digits, '0'));
     }
@@ -1529,16 +1283,12 @@ function generateNumberList() {
     const raw = document.getElementById('inpListNumbers').value.trim();
     if (!raw) return [];
 
-    const numbers = raw
-      .split(/[\s,]+/)
-      .map(s => s.trim())
-      .filter(Boolean)
-      .map(s => {
-        if (/^\d+$/.test(s)) return s.padStart(4, '0');
-        return s;
-      });
-
-    return [...new Set(numbers)];
+    return [...new Set(
+      raw.split(/[\s,]+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => /^\d+$/.test(s) ? s.padStart(4, '0') : s)
+    )];
   }
 }
 
@@ -1548,99 +1298,183 @@ document.getElementById('inpDigitCount').addEventListener('input', updateQrCount
 document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
 
 /* ============================================================
-   GENERATE PREVIEW
+   TEST 1 QR
+   ============================================================ */
+document.getElementById('btnTestQR').addEventListener('click', async () => {
+  console.log('🧪 Test QR...');
+
+  if (typeof QRCode === 'undefined') {
+    return toast('❌ QRCode library tak loaded', 'error', 6000);
+  }
+
+  try {
+    const canvas = await makeQR('TEST123', 300);
+    const list = document.getElementById('previewList');
+    list.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'background:#fff;padding:12px;border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:8px;';
+    wrapper.appendChild(canvas);
+    const label = document.createElement('div');
+    label.style.cssText = 'font-family:monospace;font-weight:900;color:#000;font-size:12px;';
+    label.textContent = 'TEST123';
+    wrapper.appendChild(label);
+    list.appendChild(wrapper);
+
+    toast('✅ Test QR berjaya! Library OK', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('❌ Test gagal: ' + e.message, 'error', 6000);
+  }
+});
+
+/* ============================================================
+   GENERATE PREVIEW — DENGAN TEMPLATE BACKGROUND
    ============================================================ */
 document.getElementById('btnGenerate').addEventListener('click', async () => {
-  console.log('🔵 Generate Preview clicked');
+  console.log('🔵 Generate Preview');
 
-  // CHECK LIBRARY DULU
-  const hasLib = checkLibraries();
-  if (!hasLib) {
-    toast('❌ Library QRCode tak loaded. Refresh page (Ctrl+Shift+R).', 'error', 6000);
-    return;
+  if (typeof QRCode === 'undefined') {
+    return toast('❌ QRCode tak loaded. Refresh.', 'error', 6000);
   }
 
   const numbers = generateNumberList();
-  console.log('📋 Numbers to generate:', numbers.length);
+  if (numbers.length === 0) return toast('Takde nombor', 'warn');
+  if (numbers.length > 500) return toast('Max 500 QR', 'warn');
 
-  if (numbers.length === 0) {
-    return toast('Takde nombor untuk dijana', 'warn');
-  }
-
-  if (numbers.length > 500) {
-    return toast('Maksimum 500 QR untuk preview', 'warn');
-  }
-
-  const grid = document.getElementById('qrPreviewGrid');
-  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Generating ' + numbers.length + ' QR...</div>';
+  const list = document.getElementById('previewList');
+  list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Generating...</div>';
 
   await new Promise(r => setTimeout(r, 50));
+  list.innerHTML = '';
 
-  grid.innerHTML = '';
+  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
+  const qrPos = state.qrPos;
+  const showLabel = document.getElementById('selShowLabel').value === 'yes';
+  const wCm = state.widthCm;
+  const hCm = state.heightCm;
 
-  let successCount = 0;
-  let errorCount = 0;
+  // Kalau takde template — tunjuk QR kosong sahaja
+  if (!state.template) {
+    for (const num of numbers) {
+      const card = document.createElement('div');
+      card.style.cssText = 'background:#fff;padding:12px;border-radius:6px;display:flex;flex-direction:column;align-items:center;gap:8px;';
 
+      try {
+        const canvas = await makeQR(num, 200);
+        canvas.style.cssText = 'width:100%;max-width:160px;height:auto;';
+        card.appendChild(canvas);
+
+        if (showLabel) {
+          const label = document.createElement('div');
+          label.style.cssText = 'font-family:monospace;font-weight:900;color:#000;font-size:12px;';
+          label.textContent = num;
+          card.appendChild(label);
+        }
+      } catch(e) {
+        card.textContent = 'Error: ' + num;
+      }
+
+      list.appendChild(card);
+    }
+
+    document.getElementById('btnPrint').disabled = false;
+    toast(`✅ ${numbers.length} QR (tanpa template)`, 'success');
+    return;
+  }
+
+  // DENGAN template
   for (const num of numbers) {
-    const item = document.createElement('div');
-    item.className = 'qr-preview-item';
+    // Buat card container
+    const card = document.createElement('div');
+    card.className = 'preview-card';
+
+    // Set saiz card — guna aspect ratio
+    // Kita set fixed width 100%, height auto ikut aspect ratio template
+    // Tapi CSS aspect-ratio tak reliable dalam beberapa browser, jadi kita guna padding-top hack
+    card.style.position = 'relative';
+    card.style.width = '100%';
+    // padding-bottom untuk aspect ratio: (h/w) * 100%
+    card.style.paddingBottom = ((hCm / wCm) * 100) + '%';
+    card.style.height = '0';
+    card.style.overflow = 'hidden';
+
+    // Template background
+    const bg = document.createElement('img');
+    bg.src = state.template;
+    bg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:fill;display:block;';
+    card.appendChild(bg);
+
+    // QR overlay
+    const qrWrap = document.createElement('div');
+    qrWrap.style.cssText = `
+      position: absolute;
+      left: ${qrPos.x}%;
+      top: ${qrPos.y}%;
+      width: ${qrSizePercent}%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 3px;
+      border-radius: 3px;
+      z-index: 2;
+    `;
 
     try {
-      const canvas = await generateQRCanvas(num, 300);
-      canvas.style.cssText = 'display:block;width:100%;height:auto;max-width:120px;';
-
-      item.appendChild(canvas);
-      successCount++;
-    } catch (e) {
-      console.error('Error generating QR for', num, e);
-      item.innerHTML = `<div style="padding:20px;color:#ef4444;font-size:10px;text-align:center;">Error: ${num}</div>`;
-      errorCount++;
+      const canvas = await makeQR(num, 300);
+      canvas.style.cssText = 'display:block;width:100%;height:auto;';
+      qrWrap.appendChild(canvas);
+    } catch(e) {
+      console.error(e);
     }
 
-    if (state.showLabel) {
+    card.appendChild(qrWrap);
+
+    // Label
+    if (showLabel) {
       const label = document.createElement('div');
-      label.className = 'label';
+      // Label position: center X, bawah QR (qrPos.y + half height QR + gap)
+      // Half height QR dalam % = (qrSizePercent * wCm / hCm) / 2
+      const labelTop = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
+      label.style.cssText = `
+        position: absolute;
+        left: ${qrPos.x}%;
+        top: ${labelTop}%;
+        transform: translate(-50%, 0);
+        font-family: 'Courier New', monospace;
+        font-weight: 900;
+        color: #000;
+        background: #fff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        white-space: nowrap;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        z-index: 3;
+      `;
       label.textContent = num;
-      item.appendChild(label);
+      card.appendChild(label);
     }
 
-    grid.appendChild(item);
+    list.appendChild(card);
   }
 
   document.getElementById('btnPrint').disabled = false;
-
-  if (errorCount > 0) {
-    toast(`⚠️ ${successCount} berjaya, ${errorCount} gagal`, 'warn', 5000);
-  } else {
-    toast(`✅ ${successCount} QR berjaya dijana`, 'success');
-  }
-
-  console.log(`✅ Generated ${successCount}/${numbers.length} QR`);
+  toast(`✅ ${numbers.length} QR dengan template`, 'success');
 });
 
 /* ============================================================
    PRINT
    ============================================================ */
 document.getElementById('btnPrint').addEventListener('click', async () => {
-  console.log('🖨️ Print clicked');
-
-  const hasLib = checkLibraries();
-  if (!hasLib) {
-    toast('❌ Library QRCode tak loaded', 'error');
-    return;
+  if (typeof QRCode === 'undefined') {
+    return toast('QRCode tak loaded', 'error');
   }
 
   const numbers = generateNumberList();
+  if (numbers.length === 0) return toast('Takde nombor', 'warn');
+  if (!state.template) return toast('Upload template dulu', 'warn');
 
-  if (numbers.length === 0) {
-    return toast('Takde nombor untuk dicetak', 'warn');
-  }
-
-  if (!state.template) {
-    return toast('Upload template dulu di tab Edit Template', 'warn');
-  }
-
-  const layout = document.getElementById('selPrintLayout').value;
+  const layout = 'auto';
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const qrPos = state.qrPos;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
@@ -1649,146 +1483,115 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
 
   toast('Sediakan print sheet...', 'info', 2000);
 
-  // Generate semua QR sebagai data URL
+  // Generate QR data URLs
   const cardsData = [];
   for (const num of numbers) {
     try {
-      const canvas = await generateQRCanvas(num, 600);
+      const canvas = await makeQR(num, 600);
       cardsData.push({
         num: num,
         qrDataUrl: canvas.toDataURL('image/png')
       });
-    } catch (e) {
-      console.error('Error for', num, e);
+    } catch(e) {
+      console.error(e);
     }
   }
 
-  if (cardsData.length === 0) {
-    return toast('❌ Tak berjaya generate QR', 'error');
-  }
+  if (cardsData.length === 0) return toast('Gagal generate', 'error');
 
-  // Kira layout
-  let cardsPerPage = 1;
-  if (layout === 'auto') {
-    const pageW = 19;
-    const pageH = 27.7;
-    const gap = 0.2;
-    const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
-    const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
-    cardsPerPage = cols * rows;
-    console.log(`Auto layout: ${cols} × ${rows} = ${cardsPerPage} per page`);
-  }
+  // Kira layout auto
+  const pageW = 19;
+  const pageH = 27.7;
+  const gap = 0.2;
+  const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
+  const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
+  const cardsPerPage = cols * rows;
 
-  // Susun dalam pages
+  // Susun pages
   const pages = [];
-  let currentPage = [];
-  for (const card of cardsData) {
-    currentPage.push(card);
-    if (currentPage.length >= cardsPerPage) {
-      pages.push(currentPage);
-      currentPage = [];
+  let cur = [];
+  for (const c of cardsData) {
+    cur.push(c);
+    if (cur.length >= cardsPerPage) {
+      pages.push(cur);
+      cur = [];
     }
   }
-  if (currentPage.length > 0) pages.push(currentPage);
+  if (cur.length > 0) pages.push(cur);
 
-  // Bina HTML
-  const html = buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout);
+  // Build HTML
+  const labelFontMm = Math.max(2.5, hCm * 0.5);
+  const labelTopCalc = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
 
-  // Buka tab baru
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    return toast('Popup block! Benarkan popup untuk print', 'error', 5000);
-  }
+  const pagesHTML = pages.map(page => {
+    const cardsHTML = page.map(card => `
+      <div class="card" style="width: ${wCm}cm; height: ${hCm}cm;">
+        <img class="card-bg" src="${state.template}" alt="">
+        <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrSizePercent}%;">
+          <img src="${card.qrDataUrl}" alt="">
+        </div>
+        ${showLabel ? `<div class="qr-label" style="left: ${qrPos.x}%; top: ${labelTopCalc}%; font-size: ${labelFontMm}mm;">${card.num}</div>` : ''}
+      </div>
+    `).join('');
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
+    return `<div class="page">${cardsHTML}</div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Print QR</title>
+<style>
+  @page { size: A4 portrait; margin: 5mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #fff; font-family: sans-serif; }
+  .page { width: 200mm; height: 287mm; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 2mm; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .card { position: relative; overflow: hidden; background: #fff; flex-shrink: 0; }
+  .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; display: block; }
+  .qr-wrap { position: absolute; transform: translate(-50%, -50%); background: #fff; padding: 0.5mm; }
+  .qr-wrap img { display: block; width: 100%; height: auto; }
+  .qr-label { position: absolute; transform: translate(-50%, 0); font-family: 'Courier New', monospace; font-weight: 900; color: #000; background: #fff; padding: 0.5mm 1.5mm; border-radius: 1mm; white-space: nowrap; }
+  @media screen { body { background: #333; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; } .page { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5); } }
+</style>
+</head>
+<body>
+${pagesHTML}
+<script>
+window.addEventListener('load', () => setTimeout(() => window.print(), 500));
+<\/script>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) return toast('Popup block! Benarkan popup.', 'error', 5000);
+
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
 
   toast(`📄 ${cardsData.length} QR · ${pages.length} halaman`, 'success', 4000);
 });
 
 /* ============================================================
-   BUILD PRINT HTML
-   ============================================================ */
-function buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout) {
-  const cardsHTML = pages.map(page => {
-    const cardsInner = page.map(card => {
-      const labelFontMm = Math.max(2.5, hCm * 0.5);
-      const labelTopCalc = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
-
-      return `
-        <div class="card" style="width: ${wCm}cm; height: ${hCm}cm;">
-          <img class="card-bg" src="${state.template}" alt="">
-          <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrSizePercent}%;">
-            <img src="${card.qrDataUrl}" alt="QR ${card.num}">
-          </div>
-          ${showLabel ? `
-            <div class="qr-label" style="left: ${qrPos.x}%; top: ${labelTopCalc}%; font-size: ${labelFontMm}mm;">
-              ${card.num}
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
-
-    const flexStyle = layout === 'auto'
-      ? 'flex-wrap: wrap; align-content: flex-start; gap: 2mm;'
-      : 'flex-wrap: wrap; align-content: center; justify-content: center;';
-
-    return `<div class="page" style="${flexStyle}">${cardsInner}</div>`;
-  }).join('');
-
-  return `<!DOCTYPE html>
-<html lang="ms">
-<head>
-<meta charset="UTF-8">
-<title>Print QR Codes</title>
-<style>
-  @page { size: A4 portrait; margin: 5mm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #fff; color: #000; font-family: 'Segoe UI', sans-serif; }
-  .page { width: 200mm; height: 287mm; display: flex; page-break-after: always; overflow: hidden; }
-  .page:last-child { page-break-after: auto; }
-  .card { position: relative; overflow: hidden; background: #fff; flex-shrink: 0; }
-  .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; }
-  .qr-wrap { position: absolute; transform: translate(-50%, -50%); background: #fff; padding: 0.5mm; border-radius: 1mm; }
-  .qr-wrap img { display: block; width: 100%; height: auto; }
-  .qr-label { position: absolute; transform: translate(-50%, 0); font-family: 'Courier New', monospace; font-weight: 900; color: #000; text-align: center; background: #fff; padding: 0.5mm 1.5mm; border-radius: 1mm; letter-spacing: 0.5px; white-space: nowrap; }
-  @media screen {
-    body { background: #333; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    .page { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-  }
-</style>
-</head>
-<body>
-${cardsHTML}
-<script>
-  window.addEventListener('load', () => {
-    setTimeout(() => window.print(), 500);
-  });
-<\/script>
-</body>
-</html>`;
-}
-
-/* ============================================================
    INIT
    ============================================================ */
-updateQrCount();
-loadSavedConfig();
-
-// Check library selepas 500ms (bg library load)
 setTimeout(() => {
-  const ok = checkLibraries();
-  if (ok) {
-    console.log('✅ QRCode library sedia untuk digunakan');
+  const ok = typeof QRCode !== 'undefined';
+  setStatus(ok ? 'QR Ready' : 'QR Error');
+  if (!ok) {
+    console.error('❌ QRCode library tak loaded');
+    toast('⚠️ Library QR tak loaded. Refresh page.', 'warn', 6000);
   } else {
-    console.error('❌ QRCode library TAK LOADED! Cuba refresh page.');
-    toast('⚠️ Library QR tak loaded. Cuba refresh (Ctrl+Shift+R)', 'warn', 6000);
+    console.log('✅ QRCode library OK');
   }
 }, 500);
 
-console.log('%c📱 QR Code Penerima', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
+updateQrCount();
+loadConfig();
+
+console.log('📱 QR Code Penerima ready');
 </script>
 
 </body>
