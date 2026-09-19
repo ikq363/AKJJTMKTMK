@@ -373,7 +373,6 @@
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
   }
 
-  /* Range slider */
   .control-group input[type="range"] {
     width: 100%;
     height: 6px;
@@ -550,7 +549,6 @@
   #stage .placeholder .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
   #stage .placeholder p { font-size: 13px; color: #475569; font-weight: 600; }
 
-  /* QR WRAPPER — sama dalam edit, preview, print */
   .qr-wrapper {
     position: absolute;
     cursor: move;
@@ -736,9 +734,6 @@
   .mode-section { display: none; }
   .mode-section.active { display: block; }
 
-  /* ============================================================
-     PREVIEW WYSIWYG GRID
-     ============================================================ */
   .qr-preview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -857,9 +852,10 @@
       margin: 5mm;
     }
 
-    /* Landscape override */
-    body.print-landscape {
-      /* fallback — Chrome support named page */
+    /* Landscape named page */
+    @page landscape-page {
+      size: A4 landscape;
+      margin: 5mm;
     }
 
     html, body {
@@ -899,6 +895,7 @@
     body.print-landscape .print-page {
       width: 287mm;
       height: 200mm;
+      page: landscape-page;
     }
 
     .print-page:last-child {
@@ -960,18 +957,6 @@
     }
   }
 
-  /* CSS Named Page untuk landscape — Chrome 85+ support */
-  @media print {
-    @page landscape-page {
-      size: A4 landscape;
-      margin: 5mm;
-    }
-
-    body.print-landscape .print-page {
-      page: landscape-page;
-    }
-  }
-
   .toast-container {
     position: fixed;
     top: 24px;
@@ -994,7 +979,7 @@
     font-weight: 600;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 340px;
+    max-width: 380px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1269,8 +1254,8 @@
           <div class="control-group">
             <label>Orientasi Kertas</label>
             <select id="selOrientation">
-              <option value="portrait">Potrait (Menegak) — 210×297mm</option>
-              <option value="landscape">Landscape (Melintang) — 297×210mm</option>
+              <option value="portrait">Potrait (Menegak) — 21 × 29.7 cm</option>
+              <option value="landscape">Landscape (Melintang) — 29.7 × 21 cm</option>
             </select>
           </div>
 
@@ -2062,9 +2047,9 @@ document.getElementById('btnPrint').addEventListener('click', () => {
   toast('Sediakan print sheet...', 'info', 2000);
 
   if (layout === 'auto') {
-    // Kira page size ikut orientation
-    // Portrait: 210×297mm, margin 5mm → 200×287mm usable = 20×28.7cm
-    // Landscape: 297×210mm, margin 5mm → 287×200mm usable = 28.7×20cm
+    // ===== KIRA PAGE USABLE =====
+    // Potrait: 21×29.7cm, margin 5mm (0.5cm) setiap sisi = 20×28.7cm usable
+    // Landscape: 29.7×21cm, margin 5mm (0.5cm) setiap sisi = 28.7×20cm usable
     const pageW = orientation === 'landscape' ? 28.7 : 20;
     const pageH = orientation === 'landscape' ? 20 : 28.7;
     const gap = 0.3;
@@ -2073,8 +2058,10 @@ document.getElementById('btnPrint').addEventListener('click', () => {
     const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
     const perPage = cols * rows;
 
+    const paperSize = orientation === 'landscape' ? '29.7×21' : '21×29.7';
+
     console.log(`Auto layout (${orientation}): ${cols} × ${rows} = ${perPage} per page`);
-    console.log(`Page usable: ${pageW}×${pageH}cm`);
+    console.log(`Kertas: ${paperSize}cm, usable: ${pageW}×${pageH}cm`);
 
     let currentPage = null;
     let countInPage = 0;
@@ -2092,8 +2079,10 @@ document.getElementById('btnPrint').addEventListener('click', () => {
       countInPage++;
     }
 
-    toast(`📄 ${numbers.length} QR · ${Math.ceil(numbers.length / perPage)} halaman A4 (${orientation}) · ${perPage} per page`, 'success', 4000);
+    toast(`📄 ${numbers.length} QR · ${Math.ceil(numbers.length / perPage)} halaman A4 · ${paperSize}cm (${orientation}) · ${perPage} per page`, 'success', 4000);
   } else {
+    const paperSize = orientation === 'landscape' ? '29.7×21' : '21×29.7';
+
     numbers.forEach(num => {
       const page = document.createElement('div');
       page.className = 'print-page';
@@ -2106,7 +2095,7 @@ document.getElementById('btnPrint').addEventListener('click', () => {
       sheet.appendChild(page);
     });
 
-    toast(`📄 ${numbers.length} halaman A4 (${orientation})`, 'success', 4000);
+    toast(`📄 ${numbers.length} halaman A4 · ${paperSize}cm (${orientation})`, 'success', 4000);
   }
 
   setTimeout(() => {
