@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Penerima · Sistem Anugerah</title>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- QR Code Library — sama macam E-MindCare -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -137,7 +138,6 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* TABS */
   .tabs {
     position: relative;
     z-index: 2;
@@ -179,7 +179,6 @@
 
   .tab-btn svg { width: 16px; height: 16px; }
 
-  /* PANELS */
   .panel { display: none; position: relative; z-index: 1; }
   .panel.active { display: block; }
 
@@ -194,7 +193,6 @@
     .tabs { padding: 16px; }
   }
 
-  /* EDITOR */
   .editor-grid {
     display: grid;
     grid-template-columns: 340px 1fr;
@@ -238,7 +236,6 @@
     color: var(--accent);
   }
 
-  /* UPLOAD */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -332,7 +329,6 @@
   }
   .file-remove svg { width: 14px; height: 14px; }
 
-  /* CONTROLS */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
   .control-group label {
@@ -397,7 +393,6 @@
     color: #fff;
   }
 
-  /* STAGE EDITOR */
   .canvas-wrapper {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -491,11 +486,14 @@
     z-index: 100;
     box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4);
   }
-  .drag-qr canvas {
+  .drag-qr > div {
     display: block;
     pointer-events: none;
-    width: 100%;
-    height: auto;
+  }
+  .drag-qr img, .drag-qr canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
   }
   .drag-qr .qr-label {
     text-align: center;
@@ -529,7 +527,6 @@
     color: var(--text-dim);
   }
 
-  /* BUTTON */
   .btn-primary {
     width: 100%;
     padding: 12px 20px;
@@ -584,7 +581,6 @@
   }
   .chip-btn svg { width: 14px; height: 14px; }
 
-  /* PRINT */
   .print-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -638,70 +634,56 @@
   .mode-section { display: none; }
   .mode-section.active { display: block; }
 
-  /* ============================================================
-     PREVIEW GRID — QR dengan background template
-     ============================================================ */
+  /* PREVIEW GRID — QR sahaja */
   .qr-preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
     max-height: 700px;
     overflow-y: auto;
     padding: 4px;
   }
 
   .qr-preview-item {
-    position: relative;
     background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
   }
 
-  .qr-preview-item .preview-canvas-wrap {
-    position: relative;
-    width: 100%;
-    background: #fff;
-    overflow: hidden;
+  .qr-preview-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
   }
 
-  .qr-preview-item .preview-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
+  .qr-preview-item > div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .qr-preview-item .preview-qr-overlay {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 1px;
-    border-radius: 2px;
-  }
-
-  .qr-preview-item .preview-qr-overlay canvas {
+  .qr-preview-item canvas,
+  .qr-preview-item img {
     display: block;
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 110px;
   }
 
-  .qr-preview-item .preview-label-overlay {
-    position: absolute;
-    transform: translate(-50%, 0);
+  .qr-preview-item .label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0a0e1a;
     font-family: 'Courier New', monospace;
-    font-weight: 900;
-    color: #000;
-    text-align: center;
-    background: #fff;
-    padding: 0 3px;
-    border-radius: 2px;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    font-size: 10px;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    background: #f1f5f9;
+    border-radius: 4px;
   }
 
   .preview-empty {
@@ -715,7 +697,6 @@
   .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
   .preview-empty p { font-size: 13px; }
 
-  /* PRINT SHEET */
   .print-sheet { display: none; }
 
   @media print {
@@ -786,10 +767,11 @@
       border-radius: 1mm;
     }
 
-    .print-card .print-qr canvas {
+    .print-card .print-qr canvas,
+    .print-card .print-qr img {
       display: block;
-      width: 100%;
-      height: auto;
+      width: 100% !important;
+      height: auto !important;
     }
 
     .print-card .print-label {
@@ -807,7 +789,6 @@
     }
   }
 
-  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -846,7 +827,7 @@
 
   @media (max-width: 640px) {
     .mode-selector { grid-template-columns: 1fr; }
-    .qr-preview-grid { grid-template-columns: repeat(2, 1fr); }
+    .qr-preview-grid { grid-template-columns: repeat(3, 1fr); }
     .field-row { grid-template-columns: 1fr; }
   }
 </style>
@@ -889,7 +870,7 @@
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
       <rect x="6" y="14" width="12" height="8"></rect>
     </svg>
-    Print QR Code
+    Jana & Print QR
   </button>
 </div>
 
@@ -900,7 +881,7 @@
 
       <div>
         <div class="card">
-          <h2><span class="num">1</span> Upload Background</h2>
+          <h2><span class="num">1</span> Upload Background Template</h2>
           <div class="upload-zone" id="uploadZone">
             <div class="icon">🖼️</div>
             <div class="title">Klik atau drag fail</div>
@@ -931,7 +912,7 @@
           </div>
 
           <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-            Ini adalah saiz template anda. Ukur gambar anda dan masukkan saiz sebenar dalam cm supaya print tepat.
+            Masukkan saiz sebenar template dalam cm supaya print tepat.
           </p>
 
           <div class="field-row">
@@ -1013,7 +994,7 @@
   </div>
 </div>
 
-<!-- PANEL B — PRINT QR -->
+<!-- PANEL B — JANA & PRINT -->
 <div class="panel" id="panel-print">
   <div class="container">
     <div class="print-grid">
@@ -1057,28 +1038,36 @@
         </div>
 
         <div class="card">
-          <h2><span class="num">2</span> Layout Print</h2>
-
-          <div class="control-group">
-            <label>Susun atur kertas A4</label>
-            <select id="selPrintLayout">
-              <option value="auto">Auto — Susun banyak dalam 1 A4 (jimat kertas)</option>
-              <option value="one-page">1 Template = 1 A4 (besar, banyak white space)</option>
-            </select>
-          </div>
+          <h2><span class="num">2</span> Preview QR</h2>
 
           <div class="control-group">
             <label>Jumlah QR akan dijana</label>
             <div style="padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:800;color:var(--accent);font-family:'Courier New',monospace;" id="qrCountDisplay">0</div>
           </div>
 
-          <button class="btn-primary" id="btnGenerate" style="margin-bottom:8px;">
+          <button class="btn-primary" id="btnGenerate">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="23 4 23 10 17 10"></polyline>
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
-            Generate Preview
+            Jana QR Code
           </button>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">3</span> Print dengan Template</h2>
+
+          <div class="control-group">
+            <label>Susun atur kertas A4</label>
+            <select id="selPrintLayout">
+              <option value="auto">Auto — Susun banyak dalam 1 A4 (jimat kertas)</option>
+              <option value="one-page">1 Template = 1 A4 (besar)</option>
+            </select>
+          </div>
+
+          <div id="printWarn" style="padding:10px 12px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11.5px;color:var(--yellow);margin-bottom:12px;display:none;">
+            ⚠️ Upload template dulu di tab <b>Edit Template QR</b> untuk print dengan background.
+          </div>
 
           <button class="btn-primary" id="btnPrint" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1086,17 +1075,20 @@
               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
               <rect x="6" y="14" width="12" height="8"></rect>
             </svg>
-            Print Semua QR
+            Print QR + Template
           </button>
         </div>
       </div>
 
       <div class="card">
-        <h2>🔍 Preview QR (dengan background template)</h2>
+        <h2>🔍 Preview QR Code (Nombor Sahaja)</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+          Preview ni tunjuk QR code bersih sahaja. Bila tekan <b>"Print QR + Template"</b>, barulah QR akan disusun atas template.
+        </p>
         <div id="qrPreviewGrid" class="qr-preview-grid">
           <div class="preview-empty" style="grid-column:1/-1;">
             <div class="icon">📱</div>
-            <p>Klik "Generate Preview" untuk paparkan QR code</p>
+            <p>Klik "Jana QR Code" untuk paparkan QR</p>
           </div>
         </div>
       </div>
@@ -1145,6 +1137,24 @@ function toast(msg, type = 'info', duration = 3500) {
     el.style.transform = 'translateX(400px)';
     setTimeout(() => el.remove(), 300);
   }, duration);
+}
+
+/* ============================================================
+   GENERATE QR — guna qrcodejs (macam E-MindCare)
+   ============================================================ */
+function createQRCode(container, text, size = 200) {
+  // Clear container
+  container.innerHTML = '';
+
+  // Create QR dengan qrcodejs
+  new QRCode(container, {
+    text: text,
+    width: size,
+    height: size,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
 }
 
 /* ============================================================
@@ -1226,6 +1236,7 @@ async function handleFileUpload(file) {
         state.templatePublicId = result.public_id;
         renderStage();
         renderFileInfo();
+        updatePrintAvailability();
         toast('✅ Template berjaya di-upload', 'success');
       } catch (e) {
         toast('Ralat parse: ' + e.message, 'error');
@@ -1280,13 +1291,23 @@ function removeFile() {
   state.templatePublicId = null;
   renderStage();
   renderFileInfo();
+  updatePrintAvailability();
   toast('Template dipadam', 'success');
+}
+
+function updatePrintAvailability() {
+  const warn = document.getElementById('printWarn');
+  if (state.template) {
+    warn.style.display = 'none';
+  } else {
+    warn.style.display = 'block';
+  }
 }
 
 /* ============================================================
    RENDER STAGE
    ============================================================ */
-async function renderStage() {
+function renderStage() {
   stage.innerHTML = '';
 
   if (!state.template) {
@@ -1325,10 +1346,10 @@ async function renderStage() {
   document.getElementById('dimWidth').textContent = wCm.toFixed(1);
   document.getElementById('dimHeight').textContent = hCm.toFixed(1);
 
-  await renderQRPreviewOnStage();
+  renderQRPreviewOnStage();
 }
 
-async function renderQRPreviewOnStage() {
+function renderQRPreviewOnStage() {
   const sampleQr = document.getElementById('inpSampleQr').value.trim() || '0001';
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
@@ -1340,8 +1361,12 @@ async function renderQRPreviewOnStage() {
   qrWrap.style.top = state.qrPos.y + '%';
   qrWrap.style.width = qrSizePercent + '%';
 
-  const canvas = document.createElement('canvas');
-  qrWrap.appendChild(canvas);
+  // Buat QR code guna qrcodejs
+  const qrHolder = document.createElement('div');
+  qrHolder.style.cssText = 'display:flex;align-items:center;justify-content:center;';
+  qrWrap.appendChild(qrHolder);
+
+  createQRCode(qrHolder, sampleQr, 400);
 
   if (showLabel) {
     const label = document.createElement('div');
@@ -1353,19 +1378,6 @@ async function renderQRPreviewOnStage() {
   makeDraggable(qrWrap);
   stage.appendChild(qrWrap);
   updateCoordDisplay();
-
-  // Lukis QR Code menggunakan Callback supaya stabil dengan qrcode.min.js v1.5.3
-  try {
-    QRCode.toCanvas(canvas, sampleQr, {
-      width: 400,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    }, function (error) {
-      if (error) console.error('QR error:', error);
-    });
-  } catch(e) {
-    console.error('QR error:', e);
-  }
 }
 
 function makeDraggable(el) {
@@ -1493,6 +1505,7 @@ function loadSavedConfig() {
 
     renderStage();
     renderFileInfo();
+    updatePrintAvailability();
   } catch(e) {
     console.error('Load config error:', e);
   }
@@ -1556,9 +1569,9 @@ document.getElementById('inpDigitCount').addEventListener('input', updateQrCount
 document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
 
 /* ============================================================
-   GENERATE PREVIEW
+   JANA QR — GUNA qrcodejs (macam E-MindCare)
    ============================================================ */
-document.getElementById('btnGenerate').addEventListener('click', async () => {
+document.getElementById('btnGenerate').addEventListener('click', () => {
   const numbers = generateNumberList();
 
   if (numbers.length === 0) {
@@ -1570,88 +1583,46 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   }
 
   const grid = document.getElementById('qrPreviewGrid');
-  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Generating...</div>';
-
-  await new Promise(r => setTimeout(r, 50));
-
   grid.innerHTML = '';
 
-  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
-  const qrPos = state.qrPos;
-  const showLabel = document.getElementById('selShowLabel').value === 'yes';
-  const wCm = state.widthCm;
-  const hCm = state.heightCm;
-
-  for (const num of numbers) {
+  // Generate QR untuk setiap nombor — guna qrcodejs, terus render (tak async)
+  numbers.forEach(num => {
     const item = document.createElement('div');
     item.className = 'qr-preview-item';
 
-    const canvasWrap = document.createElement('div');
-    canvasWrap.className = 'preview-canvas-wrap';
-    canvasWrap.style.aspectRatio = `${wCm} / ${hCm}`;
+    // Container untuk QR
+    const qrHolder = document.createElement('div');
+    qrHolder.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;';
+    item.appendChild(qrHolder);
 
-    if (state.template) {
-      const bg = document.createElement('img');
-      bg.className = 'preview-bg';
-      bg.src = state.template;
-      bg.crossOrigin = 'anonymous';
-      canvasWrap.appendChild(bg);
-    } else {
-      canvasWrap.style.background = 'linear-gradient(135deg, #e2e8f0, #cbd5e1)';
-    }
+    // Buat QR dengan qrcodejs
+    createQRCode(qrHolder, num, 200);
 
-    const qrOverlay = document.createElement('div');
-    qrOverlay.className = 'preview-qr-overlay';
-    qrOverlay.style.left = qrPos.x + '%';
-    qrOverlay.style.top = qrPos.y + '%';
-    qrOverlay.style.width = qrSizePercent + '%';
+    // Label nombor
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = num;
+    item.appendChild(label);
 
-    const canvas = document.createElement('canvas');
-    qrOverlay.appendChild(canvas);
-    canvasWrap.appendChild(qrOverlay);
-
-    if (showLabel) {
-      const labelOverlay = document.createElement('div');
-      labelOverlay.className = 'preview-label-overlay';
-      labelOverlay.style.left = qrPos.x + '%';
-      labelOverlay.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 2px)`;
-      labelOverlay.textContent = num;
-      canvasWrap.appendChild(labelOverlay);
-    }
-
-    item.appendChild(canvasWrap);
     grid.appendChild(item);
-
-    // Render QR menggunakan callback
-    try {
-      QRCode.toCanvas(canvas, num, {
-        width: 300,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      }, function (error) {
-        if (error) console.error(error);
-      });
-    } catch(e) {
-      console.error(e);
-    }
-  }
+  });
 
   document.getElementById('btnPrint').disabled = false;
   toast(`✅ ${numbers.length} QR dijana`, 'success');
 });
 
 /* ============================================================
-   PRINT — MAIN
+   PRINT — DENGAN TEMPLATE
    ============================================================ */
-document.getElementById('btnPrint').addEventListener('click', async () => {
+document.getElementById('btnPrint').addEventListener('click', () => {
+  if (!state.template) {
+    return toast('Upload template dulu di tab Edit Template QR', 'warn', 5000);
+  }
+
   const numbers = generateNumberList();
 
   if (numbers.length === 0) {
     return toast('Takde nombor untuk dicetak', 'warn');
-  }
-
-  if (!state.template) {
-    return toast('Upload template dulu di tab Edit Template', 'warn');
   }
 
   const layout = document.getElementById('selPrintLayout').value;
@@ -1675,6 +1646,8 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
     const perPage = cols * rows;
 
+    console.log(`Auto layout: ${cols} × ${rows} = ${perPage} per page`);
+
     let currentPage = null;
     let countInPage = 0;
 
@@ -1686,67 +1659,68 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
         countInPage = 0;
       }
 
-      const card = await buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel);
+      const card = buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel);
       currentPage.appendChild(card);
       countInPage++;
     }
 
     toast(`📄 ${numbers.length} QR · ${Math.ceil(numbers.length / perPage)} halaman A4`, 'success', 4000);
   } else {
-    for (const num of numbers) {
+    numbers.forEach(num => {
       const page = document.createElement('div');
       page.className = 'print-page';
       page.style.display = 'flex';
       page.style.alignItems = 'center';
       page.style.justifyContent = 'center';
 
-      const card = await buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel);
+      const card = buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel);
       page.appendChild(card);
       sheet.appendChild(page);
-    }
+    });
 
     toast(`📄 ${numbers.length} halaman A4`, 'success', 4000);
   }
 
-  await new Promise(r => setTimeout(r, 800));
-
-  toast('🖨️ Membuka print dialog...', 'info', 2000);
-
   setTimeout(() => {
+    toast('🖨️ Membuka print dialog...', 'info', 2000);
     window.print();
-  }, 300);
+  }, 800);
 });
 
 /* ============================================================
    BUILD PRINT CARD
    ============================================================ */
-async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
+function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
   const card = document.createElement('div');
   card.className = 'print-card';
 
   card.style.width = (wCm * 10) + 'mm';
   card.style.height = (hCm * 10) + 'mm';
 
+  // Background template
   const bg = document.createElement('img');
   bg.className = 'print-bg';
   bg.src = state.template;
   bg.crossOrigin = 'anonymous';
   card.appendChild(bg);
 
+  // QR overlay
   const qrDiv = document.createElement('div');
   qrDiv.className = 'print-qr';
   qrDiv.style.left = qrPos.x + '%';
   qrDiv.style.top = qrPos.y + '%';
   qrDiv.style.width = qrSizePercent + '%';
 
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%';
-  canvas.style.height = 'auto';
-  canvas.style.display = 'block';
+  const qrHolder = document.createElement('div');
+  qrHolder.style.cssText = 'display:block;width:100%;';
+  qrDiv.appendChild(qrHolder);
 
-  qrDiv.appendChild(canvas);
+  // Buat QR dengan qrcodejs
+  createQRCode(qrHolder, num, 400);
+
   card.appendChild(qrDiv);
 
+  // Label
   if (showLabel) {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'print-label';
@@ -1760,18 +1734,6 @@ async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
     card.appendChild(labelDiv);
   }
 
-  try {
-    QRCode.toCanvas(canvas, num, {
-      width: 800,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    }, function (error) {
-      if (error) console.error(error);
-    });
-  } catch(e) {
-    console.error(e);
-  }
-
   return card;
 }
 
@@ -1780,10 +1742,10 @@ async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
    ============================================================ */
 updateQrCount();
 loadSavedConfig();
+updatePrintAvailability();
 
-console.log('%c📱 QR Code Penerima', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
-console.log('✅ QR library loaded:', typeof QRCode !== 'undefined');
-console.log('Cloudinary:', CLOUDINARY_CLOUD_NAME);
+console.log('%c📱 QR Code Penerima · qrcodejs', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
+console.log('✅ QRCode library:', typeof QRCode !== 'undefined');
 </script>
 
 </body>
