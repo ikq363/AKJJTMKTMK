@@ -22,6 +22,7 @@
     --green: #34d399;
     --orange: #fb923c;
     --yellow: #fbbf24;
+    --teal: #2dd4bf;
   }
 
   html, body {
@@ -238,6 +239,7 @@
   .menu-card[data-color="purple"] { --card-accent: #a78bfa; }
   .menu-card[data-color="orange"] { --card-accent: #fb923c; }
   .menu-card[data-color="pink"]   { --card-accent: #f472b6; }
+  .menu-card[data-color="teal"]   { --card-accent: #2dd4bf; }
 
   .menu-icon {
     width: 60px;
@@ -258,6 +260,7 @@
   .menu-card[data-color="purple"] .menu-icon { background: rgba(167, 139, 250, 0.12); border-color: rgba(167, 139, 250, 0.3); }
   .menu-card[data-color="orange"] .menu-icon { background: rgba(251, 146, 60, 0.12);  border-color: rgba(251, 146, 60, 0.3);  }
   .menu-card[data-color="pink"]   .menu-icon { background: rgba(244, 114, 182, 0.12); border-color: rgba(244, 114, 182, 0.3); }
+  .menu-card[data-color="teal"]   .menu-icon { background: rgba(45, 212, 191, 0.12);  border-color: rgba(45, 212, 191, 0.3);  }
 
   .menu-card:hover .menu-icon {
     transform: scale(1.1) rotate(-5deg);
@@ -369,6 +372,7 @@
   .delay-3 { animation-delay: 0.25s; }
   .delay-4 { animation-delay: 0.35s; }
   .delay-5 { animation-delay: 0.45s; }
+  .delay-6 { animation-delay: 0.55s; }
 </style>
 </head>
 <body>
@@ -459,10 +463,24 @@
       </span>
     </a>
 
+    <!-- 5. QR CODE PENERIMA -->
+    <a href="qrcode.html" class="menu-card fade-up delay-6" data-color="teal">
+      <div class="menu-icon">📱</div>
+      <h3>QR Code Penerima</h3>
+      <p>Jana dan cetak QR code setiap penerima untuk kegunaan pendaftaran masuk majlis.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
+
   </section>
 
   <!-- FOOTER -->
-  <footer class="footer fade-up delay-5">
+  <footer class="footer fade-up delay-6">
     <p>© 2025 <span>Sistem Pengurusan Anugerah</span> · Dibina untuk AKJ JTMK</p>
   </footer>
 
