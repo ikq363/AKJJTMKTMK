@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Penerima · Sistem Anugerah</title>
 
+<!-- QR Code Generator - Library Utama -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <style>
@@ -649,8 +650,8 @@
 
   .qr-preview-item canvas {
     display: block;
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: auto !important;
     max-width: 120px;
   }
 
@@ -673,9 +674,6 @@
   .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
   .preview-empty p { font-size: 13px; }
 
-  .print-sheet { display: none; }
-
-  /* TOAST */
   .toast-container {
     position: fixed;
     top: 24px;
@@ -717,6 +715,22 @@
     .qr-preview-grid { grid-template-columns: repeat(2, 1fr); }
     .field-row { grid-template-columns: 1fr; }
   }
+
+  /* DEBUG INFO */
+  .debug-info {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #334155;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: #94a3b8;
+    z-index: 999;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -737,7 +751,7 @@
   </div>
   <div class="status-badge">
     <span class="status-dot"></span>
-    <span>Sistem Aktif</span>
+    <span id="libStatus">Loading...</span>
   </div>
 </div>
 
@@ -926,8 +940,8 @@
           <div class="control-group">
             <label>Susun atur kertas A4</label>
             <select id="selPrintLayout">
-              <option value="auto">Auto — Susun banyak dalam 1 A4 (jimat kertas)</option>
-              <option value="one-page">1 Template = 1 A4 (besar, banyak white space)</option>
+              <option value="auto">Auto — Susun banyak dalam 1 A4</option>
+              <option value="one-page">1 Template = 1 A4</option>
             </select>
           </div>
 
@@ -942,6 +956,15 @@
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
             Generate Preview
+          </button>
+
+          <button class="btn-primary" id="btnTestQR" style="margin-bottom:8px; background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            🧪 Test Generate 1 QR
           </button>
 
           <button class="btn-primary" id="btnPrint" disabled>
@@ -960,7 +983,7 @@
         <div id="qrPreviewGrid" class="qr-preview-grid">
           <div class="preview-empty" style="grid-column:1/-1;">
             <div class="icon">📱</div>
-            <p>Klik "Generate Preview" untuk paparkan QR code</p>
+            <p>Klik "Generate Preview" atau "Test Generate 1 QR"</p>
           </div>
         </div>
       </div>
@@ -970,6 +993,9 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- DEBUG INFO -->
+<div class="debug-info" id="debugInfo">Checking libraries...</div>
 
 <script>
 /* ============================================================
@@ -993,6 +1019,30 @@ const state = {
 };
 
 /* ============================================================
+   LIBRARY CHECK
+   ============================================================ */
+function updateDebug(msg) {
+  const el = document.getElementById('debugInfo');
+  if (el) el.textContent = msg;
+}
+
+function checkLibraries() {
+  const hasQRCode = typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function';
+
+  console.log('🔍 QRCode library:', typeof QRCode);
+  console.log('🔍 QRCode.toCanvas:', typeof QRCode?.toCanvas);
+
+  updateDebug(`QRCode: ${hasQRCode ? '✅ OK' : '❌ MISSING'}`);
+
+  const libStatus = document.getElementById('libStatus');
+  if (libStatus) {
+    libStatus.textContent = hasQRCode ? 'QR Ready' : 'QR Not Loaded';
+  }
+
+  return hasQRCode;
+}
+
+/* ============================================================
    HELPERS
    ============================================================ */
 function toast(msg, type = 'info', duration = 3500) {
@@ -1008,6 +1058,85 @@ function toast(msg, type = 'info', duration = 3500) {
     setTimeout(() => el.remove(), 300);
   }, duration);
 }
+
+/* ============================================================
+   GENERATE QR — FUNCTION UTAMA
+   ============================================================ */
+async function generateQRCanvas(text, size = 400) {
+  // Check library
+  if (typeof QRCode === 'undefined') {
+    console.error('❌ QRCode library tidak loaded');
+    throw new Error('QRCode library tidak loaded');
+  }
+
+  // Buat canvas baru
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  // Generate QR
+  try {
+    await QRCode.toCanvas(canvas, text, {
+      width: size,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      },
+      errorCorrectionLevel: 'M'
+    });
+    console.log('✅ QR generated:', text);
+    return canvas;
+  } catch (err) {
+    console.error('❌ QR generation error:', err);
+    throw err;
+  }
+}
+
+/* ============================================================
+   TEST GENERATE 1 QR
+   ============================================================ */
+document.getElementById('btnTestQR').addEventListener('click', async () => {
+  console.log('🧪 Testing QR generation...');
+
+  const hasLib = checkLibraries();
+  if (!hasLib) {
+    toast('❌ Library QRCode tak loaded. Refresh page.', 'error', 6000);
+    return;
+  }
+
+  try {
+    const canvas = await generateQRCanvas('TEST123', 300);
+
+    // Papar dalam preview grid
+    const grid = document.getElementById('qrPreviewGrid');
+    grid.innerHTML = '';
+
+    const item = document.createElement('div');
+    item.className = 'qr-preview-item';
+
+    const canvasClone = document.createElement('canvas');
+    canvasClone.width = canvas.width;
+    canvasClone.height = canvas.height;
+    canvasClone.getContext('2d').drawImage(canvas, 0, 0);
+    canvasClone.style.cssText = 'width:100%;height:auto;max-width:120px;display:block;';
+
+    item.appendChild(canvasClone);
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = 'TEST123';
+    item.appendChild(label);
+
+    grid.appendChild(item);
+
+    toast('✅ QR Test berjaya! Library OK.', 'success', 5000);
+    console.log('✅ Test QR displayed');
+  } catch (err) {
+    console.error('❌ Test failed:', err);
+    toast('❌ Test gagal: ' + err.message, 'error', 6000);
+  }
+});
 
 /* ============================================================
    TABS
@@ -1202,18 +1331,14 @@ async function renderQRPreviewOnStage() {
   qrWrap.style.top = state.qrPos.y + '%';
   qrWrap.style.width = qrSizePercent + '%';
 
-  const canvas = document.createElement('canvas');
   try {
-    await QRCode.toCanvas(canvas, sampleQr, {
-      width: 400,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    });
-  } catch(e) {
-    console.error('QR error:', e);
+    const canvas = await generateQRCanvas(sampleQr, 300);
+    canvas.style.cssText = 'display:block;width:100%;height:auto;';
+    qrWrap.appendChild(canvas);
+  } catch (e) {
+    console.error('QR preview error:', e);
+    qrWrap.innerHTML = '<div style="padding:20px;color:#ef4444;font-size:11px;">QR error</div>';
   }
-
-  qrWrap.appendChild(canvas);
 
   if (showLabel) {
     const label = document.createElement('div');
@@ -1355,7 +1480,7 @@ function loadSavedConfig() {
 }
 
 /* ============================================================
-   PRINT
+   PRINT — BAHAGIAN B
    ============================================================ */
 let currentMode = 'range';
 
@@ -1415,7 +1540,17 @@ document.getElementById('inpListNumbers').addEventListener('input', updateQrCoun
    GENERATE PREVIEW
    ============================================================ */
 document.getElementById('btnGenerate').addEventListener('click', async () => {
+  console.log('🔵 Generate Preview clicked');
+
+  // CHECK LIBRARY DULU
+  const hasLib = checkLibraries();
+  if (!hasLib) {
+    toast('❌ Library QRCode tak loaded. Refresh page (Ctrl+Shift+R).', 'error', 6000);
+    return;
+  }
+
   const numbers = generateNumberList();
+  console.log('📋 Numbers to generate:', numbers.length);
 
   if (numbers.length === 0) {
     return toast('Takde nombor untuk dijana', 'warn');
@@ -1426,28 +1561,30 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   }
 
   const grid = document.getElementById('qrPreviewGrid');
-  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Generating...</div>';
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted);">Generating ' + numbers.length + ' QR...</div>';
 
   await new Promise(r => setTimeout(r, 50));
 
   grid.innerHTML = '';
 
+  let successCount = 0;
+  let errorCount = 0;
+
   for (const num of numbers) {
     const item = document.createElement('div');
     item.className = 'qr-preview-item';
 
-    const canvas = document.createElement('canvas');
     try {
-      await QRCode.toCanvas(canvas, num, {
-        width: 200,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      });
-    } catch(e) {
-      console.error(e);
-    }
+      const canvas = await generateQRCanvas(num, 300);
+      canvas.style.cssText = 'display:block;width:100%;height:auto;max-width:120px;';
 
-    item.appendChild(canvas);
+      item.appendChild(canvas);
+      successCount++;
+    } catch (e) {
+      console.error('Error generating QR for', num, e);
+      item.innerHTML = `<div style="padding:20px;color:#ef4444;font-size:10px;text-align:center;">Error: ${num}</div>`;
+      errorCount++;
+    }
 
     if (state.showLabel) {
       const label = document.createElement('div');
@@ -1460,13 +1597,28 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   }
 
   document.getElementById('btnPrint').disabled = false;
-  toast(`✅ ${numbers.length} QR dijana`, 'success');
+
+  if (errorCount > 0) {
+    toast(`⚠️ ${successCount} berjaya, ${errorCount} gagal`, 'warn', 5000);
+  } else {
+    toast(`✅ ${successCount} QR berjaya dijana`, 'success');
+  }
+
+  console.log(`✅ Generated ${successCount}/${numbers.length} QR`);
 });
 
 /* ============================================================
-   PRINT — GUNA TAB BARU (paling reliable)
+   PRINT
    ============================================================ */
 document.getElementById('btnPrint').addEventListener('click', async () => {
+  console.log('🖨️ Print clicked');
+
+  const hasLib = checkLibraries();
+  if (!hasLib) {
+    toast('❌ Library QRCode tak loaded', 'error');
+    return;
+  }
+
   const numbers = generateNumberList();
 
   if (numbers.length === 0) {
@@ -1486,47 +1638,37 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
 
   toast('Sediakan print sheet...', 'info', 2000);
 
-  // Buat HTML string untuk setiap QR — pakai canvas.toDataURL supaya boleh print terus
+  // Generate semua QR sebagai data URL
   const cardsData = [];
-
   for (const num of numbers) {
-    // Buat canvas QR
-    const canvas = document.createElement('canvas');
     try {
-      await QRCode.toCanvas(canvas, num, {
-        width: 600,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
+      const canvas = await generateQRCanvas(num, 600);
+      cardsData.push({
+        num: num,
+        qrDataUrl: canvas.toDataURL('image/png')
       });
-    } catch(e) {
-      console.error(e);
+    } catch (e) {
+      console.error('Error for', num, e);
     }
+  }
 
-    cardsData.push({
-      num: num,
-      qrDataUrl: canvas.toDataURL('image/png')
-    });
+  if (cardsData.length === 0) {
+    return toast('❌ Tak berjaya generate QR', 'error');
   }
 
   // Kira layout
   let cardsPerPage = 1;
-  let cols = 1;
-
   if (layout === 'auto') {
-    // A4 dalam cm = 21 × 29.7, dengan margin 1cm setiap sisi = 19 × 27.7 usable
     const pageW = 19;
     const pageH = 27.7;
     const gap = 0.2;
-
-    cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
+    const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
     const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
     cardsPerPage = cols * rows;
-  } else {
-    cardsPerPage = 1;
-    cols = 1;
+    console.log(`Auto layout: ${cols} × ${rows} = ${cardsPerPage} per page`);
   }
 
-  // Susun cards dalam pages
+  // Susun dalam pages
   const pages = [];
   let currentPage = [];
   for (const card of cardsData) {
@@ -1538,10 +1680,10 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
   }
   if (currentPage.length > 0) pages.push(currentPage);
 
-  // Bina HTML untuk tab baru
-  const html = buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, layout);
+  // Bina HTML
+  const html = buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout);
 
-  // Buka tab baru & print
+  // Buka tab baru
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
     return toast('Popup block! Benarkan popup untuk print', 'error', 5000);
@@ -1551,34 +1693,22 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
   printWindow.document.write(html);
   printWindow.document.close();
 
-  toast(`📄 ${numbers.length} QR · ${pages.length} halaman`, 'success', 4000);
-
-  // Tunggu render
-  setTimeout(() => {
-    printWindow.focus();
-    printWindow.print();
-  }, 800);
+  toast(`📄 ${cardsData.length} QR · ${pages.length} halaman`, 'success', 4000);
 });
 
 /* ============================================================
    BUILD PRINT HTML
    ============================================================ */
-function buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, layout) {
+function buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout) {
   const cardsHTML = pages.map(page => {
     const cardsInner = page.map(card => {
-      const qrWidthPercent = qrSizePercent; // % dari card
       const labelFontMm = Math.max(2.5, hCm * 0.5);
-
-      // Label position — betul-betul bawah QR
-      // qrPos.y = % dari atas. QR center di qrPos.y.
-      // QR tinggi = qrSizePercent% dari LEBAR card
-      // Untuk label, letak bawah QR center + half QR height
       const labelTopCalc = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
 
       return `
         <div class="card" style="width: ${wCm}cm; height: ${hCm}cm;">
           <img class="card-bg" src="${state.template}" alt="">
-          <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrWidthPercent}%;">
+          <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrSizePercent}%;">
             <img src="${card.qrDataUrl}" alt="QR ${card.num}">
           </div>
           ${showLabel ? `
@@ -1603,89 +1733,19 @@ function buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, 
 <meta charset="UTF-8">
 <title>Print QR Codes</title>
 <style>
-  @page {
-    size: A4 portrait;
-    margin: 5mm;
-  }
-
+  @page { size: A4 portrait; margin: 5mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    background: #fff;
-    color: #000;
-    font-family: 'Segoe UI', sans-serif;
-  }
-
-  .page {
-    width: 200mm;
-    height: 287mm;
-    display: flex;
-    page-break-after: always;
-    overflow: hidden;
-  }
-
-  .page:last-child {
-    page-break-after: auto;
-  }
-
-  .card {
-    position: relative;
-    overflow: hidden;
-    background: #fff;
-    flex-shrink: 0;
-    border: 0.1mm solid #eee;
-  }
-
-  .card-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-  }
-
-  .qr-wrap {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 0.5mm;
-    border-radius: 1mm;
-  }
-
-  .qr-wrap img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .qr-label {
-    position: absolute;
-    transform: translate(-50%, 0);
-    font-family: 'Courier New', monospace;
-    font-weight: 900;
-    color: #000;
-    text-align: center;
-    background: #fff;
-    padding: 0.5mm 1.5mm;
-    border-radius: 1mm;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-
+  html, body { background: #fff; color: #000; font-family: 'Segoe UI', sans-serif; }
+  .page { width: 200mm; height: 287mm; display: flex; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .card { position: relative; overflow: hidden; background: #fff; flex-shrink: 0; }
+  .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; }
+  .qr-wrap { position: absolute; transform: translate(-50%, -50%); background: #fff; padding: 0.5mm; border-radius: 1mm; }
+  .qr-wrap img { display: block; width: 100%; height: auto; }
+  .qr-label { position: absolute; transform: translate(-50%, 0); font-family: 'Courier New', monospace; font-weight: 900; color: #000; text-align: center; background: #fff; padding: 0.5mm 1.5mm; border-radius: 1mm; letter-spacing: 0.5px; white-space: nowrap; }
   @media screen {
-    body {
-      background: #333;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    .page {
-      background: #fff;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
+    body { background: #333; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .page { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
   }
 </style>
 </head>
@@ -1693,9 +1753,7 @@ function buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, 
 ${cardsHTML}
 <script>
   window.addEventListener('load', () => {
-    setTimeout(() => {
-      window.print();
-    }, 500);
+    setTimeout(() => window.print(), 500);
   });
 <\/script>
 </body>
@@ -1708,9 +1766,18 @@ ${cardsHTML}
 updateQrCount();
 loadSavedConfig();
 
+// Check library selepas 500ms (bg library load)
+setTimeout(() => {
+  const ok = checkLibraries();
+  if (ok) {
+    console.log('✅ QRCode library sedia untuk digunakan');
+  } else {
+    console.error('❌ QRCode library TAK LOADED! Cuba refresh page.');
+    toast('⚠️ Library QR tak loaded. Cuba refresh (Ctrl+Shift+R)', 'warn', 6000);
+  }
+}, 500);
+
 console.log('%c📱 QR Code Penerima', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
-console.log('✅ QR library loaded:', typeof QRCode !== 'undefined');
-console.log('Cloudinary:', CLOUDINARY_CLOUD_NAME);
 </script>
 
 </body>
