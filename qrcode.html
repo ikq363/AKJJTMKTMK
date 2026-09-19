@@ -22,7 +22,6 @@
     --accent: #2dd4bf;
     --accent-hover: #14b8a6;
     --blue: #38bdf8;
-    --purple: #a78bfa;
     --green: #34d399;
     --red: #ef4444;
     --yellow: #fbbf24;
@@ -59,7 +58,6 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
-  /* TOPBAR */
   .topbar {
     position: relative;
     z-index: 2;
@@ -138,7 +136,6 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* TABS */
   .tabs {
     position: relative;
     z-index: 2;
@@ -180,7 +177,6 @@
 
   .tab-btn svg { width: 16px; height: 16px; }
 
-  /* PANELS */
   .panel { display: none; position: relative; z-index: 1; }
   .panel.active { display: block; }
 
@@ -195,7 +191,6 @@
     .tabs { padding: 16px; }
   }
 
-  /* EDITOR */
   .editor-grid {
     display: grid;
     grid-template-columns: 340px 1fr;
@@ -239,7 +234,6 @@
     color: var(--accent);
   }
 
-  /* UPLOAD */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -333,7 +327,6 @@
   }
   .file-remove svg { width: 14px; height: 14px; }
 
-  /* CONTROLS */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
   .control-group label {
@@ -374,7 +367,6 @@
     gap: 10px;
   }
 
-  /* DIMENSION DISPLAY */
   .dimension-info {
     display: flex;
     align-items: center;
@@ -395,11 +387,8 @@
     font-family: 'Courier New', monospace;
     font-weight: 700;
   }
-  .dimension-info .dim-item strong {
-    color: #fff;
-  }
+  .dimension-info .dim-item strong { color: #fff; }
 
-  /* STAGE EDITOR */
   .canvas-wrapper {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -444,7 +433,6 @@
     justify-content: center;
     user-select: none;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    /* Saiz akan di-set secara dynamically ikut template */
     max-width: 100%;
     max-height: 70vh;
   }
@@ -532,7 +520,6 @@
     color: var(--text-dim);
   }
 
-  /* BUTTON */
   .btn-primary {
     width: 100%;
     padding: 12px 20px;
@@ -587,7 +574,6 @@
   }
   .chip-btn svg { width: 14px; height: 14px; }
 
-  /* PRINT */
   .print-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -687,98 +673,7 @@
   .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
   .preview-empty p { font-size: 13px; }
 
-  /* PRINT SHEET */
   .print-sheet { display: none; }
-
-  @media print {
-    @page {
-      size: A4 portrait;
-      margin: 5mm;
-    }
-
-    html, body {
-      background: #fff !important;
-      color: #000;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    body::before,
-    .grid-overlay,
-    .topbar,
-    .tabs,
-    .container,
-    .toast-container {
-      display: none !important;
-    }
-
-    .print-sheet {
-      display: block !important;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Print page */
-    .print-page {
-      width: 200mm;    /* A4 minus margins */
-      height: 287mm;
-      page-break-after: always;
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      justify-content: flex-start;
-      gap: 2mm;
-    }
-
-    .print-page:last-child {
-      page-break-after: auto;
-    }
-
-    .print-card {
-      position: relative;
-      overflow: hidden;
-      background: #fff;
-      flex-shrink: 0;
-      flex-grow: 0;
-    }
-
-    .print-card img.print-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: fill;
-    }
-
-    .print-card .print-qr {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      background: #fff;
-      padding: 1mm;
-      border-radius: 1mm;
-    }
-
-    .print-card .print-qr canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .print-card .print-label {
-      position: absolute;
-      transform: translate(-50%, 0);
-      font-family: 'Courier New', monospace;
-      font-weight: 900;
-      color: #000;
-      text-align: center;
-      background: #fff;
-      padding: 0.5mm 1.5mm;
-      border-radius: 1mm;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-    }
-  }
 
   /* TOAST */
   .toast-container {
@@ -828,7 +723,6 @@
 
 <div class="grid-overlay"></div>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <a href="index.html" class="back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -847,7 +741,6 @@
   </div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <button class="tab-btn active" data-tab="editor">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -866,7 +759,6 @@
   </button>
 </div>
 
-<!-- PANEL A — EDIT TEMPLATE -->
 <div class="panel active" id="panel-editor">
   <div class="container">
     <div class="editor-grid">
@@ -904,7 +796,7 @@
           </div>
 
           <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-            Ini adalah saiz template anda. Ukur gambar anda dan masukkan saiz sebenar dalam cm supaya print tepat.
+            Ukur gambar anda dan masukkan saiz sebenar dalam cm supaya print tepat.
           </p>
 
           <div class="field-row">
@@ -986,7 +878,6 @@
   </div>
 </div>
 
-<!-- PANEL B — PRINT QR -->
 <div class="panel" id="panel-print">
   <div class="container">
     <div class="print-grid">
@@ -1077,8 +968,6 @@
     </div>
   </div>
 </div>
-
-<div class="print-sheet" id="printSheet"></div>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1257,7 +1146,7 @@ function removeFile() {
 }
 
 /* ============================================================
-   RENDER STAGE — ikut saiz sebenar template
+   RENDER STAGE
    ============================================================ */
 async function renderStage() {
   stage.innerHTML = '';
@@ -1277,17 +1166,13 @@ async function renderStage() {
     return;
   }
 
-  // Set saiz stage ikut nisbah sebenar
   const wCm = state.widthCm;
   const hCm = state.heightCm;
-  const aspectRatio = wCm / hCm;
 
-  // Preview stage — scale supaya muat screen (max tinggi 70vh)
   stage.style.aspectRatio = `${wCm} / ${hCm}`;
   stage.style.width = 'auto';
   stage.style.height = 'min(70vh, 600px)';
 
-  // Background
   const bg = document.createElement('img');
   bg.className = 'stage-bg';
   bg.src = state.template;
@@ -1298,7 +1183,6 @@ async function renderStage() {
   };
   stage.appendChild(bg);
 
-  // Tunjuk dimension info
   document.getElementById('dimensionInfo').style.display = 'flex';
   document.getElementById('dimWidth').textContent = wCm.toFixed(1);
   document.getElementById('dimHeight').textContent = hCm.toFixed(1);
@@ -1439,9 +1323,6 @@ document.getElementById('btnSaveTemplate').addEventListener('click', () => {
   toast('✅ Template QR disimpan', 'success');
 });
 
-/* ============================================================
-   LOAD CONFIG
-   ============================================================ */
 function loadSavedConfig() {
   try {
     const saved = localStorage.getItem('qrTemplateConfig');
@@ -1474,7 +1355,7 @@ function loadSavedConfig() {
 }
 
 /* ============================================================
-   PRINT — BAHAGIAN B
+   PRINT
    ============================================================ */
 let currentMode = 'range';
 
@@ -1583,7 +1464,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 });
 
 /* ============================================================
-   PRINT — MAIN
+   PRINT — GUNA TAB BARU (paling reliable)
    ============================================================ */
 document.getElementById('btnPrint').addEventListener('click', async () => {
   const numbers = generateNumberList();
@@ -1597,9 +1478,6 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
   }
 
   const layout = document.getElementById('selPrintLayout').value;
-  const sheet = document.getElementById('printSheet');
-  sheet.innerHTML = '';
-
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const qrPos = state.qrPos;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
@@ -1608,125 +1486,220 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
 
   toast('Sediakan print sheet...', 'info', 2000);
 
-  if (layout === 'auto') {
-    // ===== AUTO: BANYAK PER A4 =====
-    // A4 = 21cm × 29.7cm, dengan margin 0.5cm setiap sisi = 20cm × 28.7cm
-    const pageW = 20;  // cm
-    const pageH = 28.7; // cm
-    const gap = 0.3;    // cm gap antara template
+  // Buat HTML string untuk setiap QR — pakai canvas.toDataURL supaya boleh print terus
+  const cardsData = [];
 
-    // Kira berapa template boleh muat
-    const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
-    const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
-    const perPage = cols * rows;
-
-    console.log(`Auto layout: ${cols} × ${rows} = ${perPage} per page`);
-
-    // Buat pages
-    let currentPage = null;
-    let countInPage = 0;
-
-    for (let i = 0; i < numbers.length; i++) {
-      if (countInPage >= perPage || currentPage === null) {
-        currentPage = document.createElement('div');
-        currentPage.className = 'print-page';
-        sheet.appendChild(currentPage);
-        countInPage = 0;
-      }
-
-      const card = await buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel);
-      currentPage.appendChild(card);
-      countInPage++;
+  for (const num of numbers) {
+    // Buat canvas QR
+    const canvas = document.createElement('canvas');
+    try {
+      await QRCode.toCanvas(canvas, num, {
+        width: 600,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+    } catch(e) {
+      console.error(e);
     }
 
-    toast(`📄 ${numbers.length} QR · ${Math.ceil(numbers.length / perPage)} halaman A4 (${perPage} per page)`, 'success', 4000);
-  } else {
-    // ===== ONE PAGE: 1 TEMPLATE = 1 A4 =====
-    for (const num of numbers) {
-      const page = document.createElement('div');
-      page.className = 'print-page';
-      page.style.display = 'flex';
-      page.style.alignItems = 'center';
-      page.style.justifyContent = 'center';
-
-      const card = await buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel);
-      page.appendChild(card);
-      sheet.appendChild(page);
-    }
-
-    toast(`📄 ${numbers.length} halaman A4`, 'success', 4000);
+    cardsData.push({
+      num: num,
+      qrDataUrl: canvas.toDataURL('image/png')
+    });
   }
 
-  // Tunggu image load
-  await new Promise(r => setTimeout(r, 800));
+  // Kira layout
+  let cardsPerPage = 1;
+  let cols = 1;
 
-  toast('🖨️ Membuka print dialog...', 'info', 2000);
+  if (layout === 'auto') {
+    // A4 dalam cm = 21 × 29.7, dengan margin 1cm setiap sisi = 19 × 27.7 usable
+    const pageW = 19;
+    const pageH = 27.7;
+    const gap = 0.2;
 
+    cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
+    const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
+    cardsPerPage = cols * rows;
+  } else {
+    cardsPerPage = 1;
+    cols = 1;
+  }
+
+  // Susun cards dalam pages
+  const pages = [];
+  let currentPage = [];
+  for (const card of cardsData) {
+    currentPage.push(card);
+    if (currentPage.length >= cardsPerPage) {
+      pages.push(currentPage);
+      currentPage = [];
+    }
+  }
+  if (currentPage.length > 0) pages.push(currentPage);
+
+  // Bina HTML untuk tab baru
+  const html = buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, layout);
+
+  // Buka tab baru & print
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    return toast('Popup block! Benarkan popup untuk print', 'error', 5000);
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+
+  toast(`📄 ${numbers.length} QR · ${pages.length} halaman`, 'success', 4000);
+
+  // Tunggu render
   setTimeout(() => {
-    window.print();
-  }, 300);
+    printWindow.focus();
+    printWindow.print();
+  }, 800);
 });
 
 /* ============================================================
-   BUILD PRINT CARD — saiz tepat dalam cm
+   BUILD PRINT HTML
    ============================================================ */
-async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
-  const card = document.createElement('div');
-  card.className = 'print-card';
+function buildPrintHTML(pages, cols, wCm, hCm, qrPos, qrSizePercent, showLabel, layout) {
+  const cardsHTML = pages.map(page => {
+    const cardsInner = page.map(card => {
+      const qrWidthPercent = qrSizePercent; // % dari card
+      const labelFontMm = Math.max(2.5, hCm * 0.5);
 
-  // SET SAIZ TEPAT — dalam mm (print CSS guna mm)
-  card.style.width = (wCm * 10) + 'mm';
-  card.style.height = (hCm * 10) + 'mm';
+      // Label position — betul-betul bawah QR
+      // qrPos.y = % dari atas. QR center di qrPos.y.
+      // QR tinggi = qrSizePercent% dari LEBAR card
+      // Untuk label, letak bawah QR center + half QR height
+      const labelTopCalc = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
 
-  // Background
-  const bg = document.createElement('img');
-  bg.className = 'print-bg';
-  bg.src = state.template;
-  bg.crossOrigin = 'anonymous';
-  card.appendChild(bg);
+      return `
+        <div class="card" style="width: ${wCm}cm; height: ${hCm}cm;">
+          <img class="card-bg" src="${state.template}" alt="">
+          <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrWidthPercent}%;">
+            <img src="${card.qrDataUrl}" alt="QR ${card.num}">
+          </div>
+          ${showLabel ? `
+            <div class="qr-label" style="left: ${qrPos.x}%; top: ${labelTopCalc}%; font-size: ${labelFontMm}mm;">
+              ${card.num}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
 
-  // QR
-  const qrDiv = document.createElement('div');
-  qrDiv.className = 'print-qr';
-  qrDiv.style.left = qrPos.x + '%';
-  qrDiv.style.top = qrPos.y + '%';
-  qrDiv.style.width = qrSizePercent + '%';
+    const flexStyle = layout === 'auto'
+      ? 'flex-wrap: wrap; align-content: flex-start; gap: 2mm;'
+      : 'flex-wrap: wrap; align-content: center; justify-content: center;';
 
-  const canvas = document.createElement('canvas');
-  canvas.style.width = '100%';
-  canvas.style.height = 'auto';
-  canvas.style.display = 'block';
+    return `<div class="page" style="${flexStyle}">${cardsInner}</div>`;
+  }).join('');
 
-  try {
-    await QRCode.toCanvas(canvas, num, {
-      width: 800,
-      margin: 1,
-      color: { dark: '#000000', light: '#ffffff' }
-    });
-  } catch(e) {
-    console.error(e);
+  return `<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Print QR Codes</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
   }
 
-  qrDiv.appendChild(canvas);
-  card.appendChild(qrDiv);
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  // Label — saiz font ikut saiz card
-  if (showLabel) {
-    const labelDiv = document.createElement('div');
-    labelDiv.className = 'print-label';
-    labelDiv.style.left = qrPos.x + '%';
-    // Letak bawah QR — kira offset
-    labelDiv.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 1mm)`;
-
-    // Font size relatif — 5% dari tinggi card
-    const fontMm = Math.max(2, hCm * 0.5); // min 2mm
-    labelDiv.style.fontSize = fontMm + 'mm';
-
-    labelDiv.textContent = num;
-    card.appendChild(labelDiv);
+  html, body {
+    background: #fff;
+    color: #000;
+    font-family: 'Segoe UI', sans-serif;
   }
 
-  return card;
+  .page {
+    width: 200mm;
+    height: 287mm;
+    display: flex;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  .page:last-child {
+    page-break-after: auto;
+  }
+
+  .card {
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    flex-shrink: 0;
+    border: 0.1mm solid #eee;
+  }
+
+  .card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+
+  .qr-wrap {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 0.5mm;
+    border-radius: 1mm;
+  }
+
+  .qr-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .qr-label {
+    position: absolute;
+    transform: translate(-50%, 0);
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    color: #000;
+    text-align: center;
+    background: #fff;
+    padding: 0.5mm 1.5mm;
+    border-radius: 1mm;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  @media screen {
+    body {
+      background: #333;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .page {
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+  }
+</style>
+</head>
+<body>
+${cardsHTML}
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  });
+<\/script>
+</body>
+</html>`;
 }
 
 /* ============================================================
