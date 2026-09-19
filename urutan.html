@@ -1098,9 +1098,10 @@
     justify-content: center;
   }
 
+  /* QR FRAME — buat segi empat sama untuk QR */
   .scan-frame {
     width: 70%;
-    aspect-ratio: 1.6;
+    aspect-ratio: 1;
     border: 3px solid var(--accent);
     border-radius: 14px;
     position: relative;
@@ -1232,8 +1233,8 @@
     <div class="card">
       <h2><span class="icon">🎯</span> Scan / Cari Penerima</h2>
       <div class="input-row">
-        <input type="text" id="inpBarcode" placeholder="Taip nombor barcode..." maxlength="20" autocomplete="off">
-        <button class="btn-icon" id="btnOpenScan" title="Scan dengan kamera">
+        <input type="text" id="inpBarcode" placeholder="Taip nombor QR / ID..." maxlength="20" autocomplete="off">
+        <button class="btn-icon" id="btnOpenScan" title="Scan QR dengan kamera">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
             <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
@@ -1241,7 +1242,7 @@
             <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
             <line x1="7" y1="12" x2="17" y2="12"></line>
           </svg>
-          Scan
+          Scan QR
         </button>
       </div>
       <div class="suggestions" id="suggestions"></div>
@@ -1281,7 +1282,7 @@
     <div class="empty-state" style="grid-column:1/-1;">
       <div class="icon">🎬</div>
       <h3>Belum ada urutan</h3>
-      <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
+      <p>Scan QR atau cari penerima di atas untuk mula susun urutan slide.</p>
     </div>
   </div>
 
@@ -1291,7 +1292,7 @@
 <div class="modal-overlay" id="scanModal">
   <div class="modal" style="max-width: 560px;">
     <div class="modal-header">
-      <h3>📷 Scan Barcode</h3>
+      <h3>📱 Scan QR Code</h3>
       <button class="modal-close" id="btnCloseScan">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1382,7 +1383,7 @@
               <input type="text" id="editMatrik" class="nama-input" maxlength="30">
             </div>
             <div class="edit-field">
-              <label>Barcode (tak boleh edit)</label>
+              <label>Nombor QR (tak boleh edit)</label>
               <input type="text" id="editBarcode" disabled>
             </div>
           </div>
@@ -1655,7 +1656,7 @@ function renderGallery() {
       <div class="empty-state" style="grid-column:1/-1;">
         <div class="icon">🎬</div>
         <h3>Belum ada urutan</h3>
-        <p>Scan barcode atau cari penerima di atas untuk mula susun urutan slide.</p>
+        <p>Scan QR atau cari penerima di atas untuk mula susun urutan slide.</p>
       </div>
     `;
     return;
@@ -1902,14 +1903,14 @@ document.getElementById('btnAdd').addEventListener('click', addToOrder);
 
 async function addToOrder() {
   const val = inpBarcode.value.trim().toUpperCase();
-  if (!val) return toast('Masukkan barcode dulu', 'warn');
+  if (!val) return toast('Masukkan nombor QR dulu', 'warn');
 
   const found = recipients.find(r =>
     String(r.barcode || '').toUpperCase() === val ||
     String(r.nama || '').toUpperCase() === val
   );
 
-  if (!found) return toast('Barcode ' + val + ' tidak dijumpai', 'error');
+  if (!found) return toast('QR ' + val + ' tidak dijumpai', 'error');
   if (slideOrder.includes(found.id)) return toast(found.nama + ' sudah dalam urutan', 'warn');
 
   slideOrder.push(found.id);
@@ -2289,7 +2290,7 @@ document.getElementById('btnRemoveFromOrder').addEventListener('click', async ()
 });
 
 /* ============================================================
-   SCAN
+   SCAN QR CODE
    ============================================================ */
 let codeReader = null;
 let scanActive = false;
@@ -2309,15 +2310,14 @@ async function openScanModal() {
 
   try {
     codeReader = new ZXing.BrowserMultiFormatReader();
+
+    // FOKUS QR CODE SAHAJA — lagi laju + stabil
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
-      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.ITF,
-      ZXing.BarcodeFormat.CODABAR
+      ZXing.BarcodeFormat.QR_CODE
     ]);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
     codeReader.hints = hints;
     scanActive = true;
 
@@ -2325,7 +2325,7 @@ async function openScanModal() {
       if (result && scanActive) handleScanResult(result.getText().trim().toUpperCase());
     });
 
-    scanStatusText.textContent = '✅ Kamera aktif';
+    scanStatusText.textContent = '✅ Kamera aktif — halakan ke QR code';
   } catch (e) {
     console.error(e);
     scanStatus.className = 'scan-status error';
@@ -2348,7 +2348,7 @@ function handleScanResult(code) {
   lastScanTime = now;
 
   scanStatus.className = 'scan-status success';
-  scanStatusText.textContent = `✅ ${code}`;
+  scanStatusText.textContent = `✅ QR dikesan: ${code}`;
 
   try { playBeep(); } catch(e) {}
 
@@ -2375,7 +2375,7 @@ function playBeep() {
    INIT
    ============================================================ */
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide · Cloudinary', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide · QR Scan', 'color: #fb923c; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
