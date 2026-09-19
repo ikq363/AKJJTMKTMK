@@ -6,7 +6,8 @@
 <title>QR Code Penerima · Sistem Anugerah</title>
 
 <!-- QR Code Generator - Library Utama -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"
+        onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js';"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -433,11 +434,9 @@
     align-items: center;
     justify-content: center;
     user-select: none;
-    touch-action: none;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    width: min(100%, 760px);
+    max-width: 100%;
     max-height: 70vh;
-    aspect-ratio: 5 / 8;
   }
 
   #stage img.stage-bg {
@@ -466,7 +465,7 @@
 
   .drag-qr {
     position: absolute;
-    cursor: grab;
+    cursor: move;
     border: 2px dashed transparent;
     transform: translate(-50%, -50%);
     z-index: 10;
@@ -480,7 +479,6 @@
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
   }
   .drag-qr.dragging {
-    cursor: grabbing;
     border-color: var(--accent);
     border-style: solid;
     z-index: 100;
@@ -787,7 +785,7 @@
             <div class="icon">🖼️</div>
             <div class="title">Klik atau drag fail</div>
             <div class="sub">PNG · JPG (saiz sebenar akan diikuti)</div>
-            <input type="file" id="inpFile" accept="image/png,image/jpeg,image/webp">
+            <input type="file" id="inpFile" accept="image/*">
           </div>
 
           <div class="upload-progress" id="uploadProgress">
@@ -961,7 +959,7 @@
             Generate Preview
           </button>
 
-          <button class="btn-primary" id="btnTestQR" style="display:none;margin-bottom:8px;background:linear-gradient(135deg,#a78bfa,#8b5cf6);">
+          <button class="btn-primary" id="btnTestQR" style="margin-bottom:8px; background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -986,7 +984,7 @@
         <div id="qrPreviewGrid" class="qr-preview-grid">
           <div class="preview-empty" style="grid-column:1/-1;">
             <div class="icon">📱</div>
-            <p>Klik "Generate Preview" untuk jana QR mengikut nombor yang dipilih</p>
+            <p>Klik "Generate Preview" atau "Test Generate 1 QR"</p>
           </div>
         </div>
       </div>
@@ -1030,10 +1028,11 @@ function updateDebug(msg) {
 }
 
 function checkLibraries() {
-  const hasQRCode = typeof QRCode !== 'undefined' && typeof QRCode.toCanvas === 'function';
+  const hasQRCode = typeof window.QRCode !== 'undefined' &&
+                    typeof window.QRCode.toCanvas === 'function';
 
-  console.log('🔍 QRCode library:', typeof QRCode);
-  console.log('🔍 QRCode.toCanvas:', typeof QRCode?.toCanvas);
+  console.log('🔍 QRCode library:', typeof window.QRCode);
+  console.log('🔍 QRCode.toCanvas:', typeof window.QRCode?.toCanvas);
 
   updateDebug(`QRCode: ${hasQRCode ? '✅ OK' : '❌ MISSING'}`);
 
@@ -1066,8 +1065,8 @@ function toast(msg, type = 'info', duration = 3500) {
    GENERATE QR — FUNCTION UTAMA
    ============================================================ */
 async function generateQRCanvas(text, size = 400) {
-  // Check library
-  if (typeof QRCode === 'undefined') {
+  // Pastikan library QR sudah tersedia sebelum generate
+  if (typeof QRCode === 'undefined' || typeof QRCode.toCanvas !== 'function') {
     console.error('❌ QRCode library tidak loaded');
     throw new Error('QRCode library tidak loaded');
   }
@@ -1077,17 +1076,26 @@ async function generateQRCanvas(text, size = 400) {
   canvas.width = size;
   canvas.height = size;
 
-  // Generate QR
+  // Generate QR menggunakan callback API yang serasi dengan qrcode 1.5.x
   try {
-    await QRCode.toCanvas(canvas, text, {
-      width: size,
-      margin: 1,
-      color: {
-        dark: '#000000',
-        light: '#ffffff'
-      },
-      errorCorrectionLevel: 'M'
+    await new Promise((resolve, reject) => {
+      QRCode.toCanvas(canvas, String(text), {
+        width: size,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      }, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
     });
+
     console.log('✅ QR generated:', text);
     return canvas;
   } catch (err) {
@@ -1302,8 +1310,8 @@ async function renderStage() {
   const hCm = state.heightCm;
 
   stage.style.aspectRatio = `${wCm} / ${hCm}`;
-  stage.style.height = `min(70vh, 600px)`;
-  stage.style.width = `min(100%, ${Math.max(240, Math.round(600 * (wCm / hCm)))}px)`;
+  stage.style.width = 'auto';
+  stage.style.height = 'min(70vh, 600px)';
 
   const bg = document.createElement('img');
   bg.className = 'stage-bg';
@@ -1357,59 +1365,52 @@ async function renderQRPreviewOnStage() {
 
 function makeDraggable(el) {
   let dragging = false;
-  let startX = 0, startY = 0;
-  let startXPct = 0, startYPct = 0;
+  let startX, startY, startXPct, startYPct;
 
-  const move = (cx, cy) => {
+  el.addEventListener('mousedown', (e) => {
+    dragging = true;
+    el.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY;
+    startXPct = state.qrPos.x;
+    startYPct = state.qrPos.y;
+    e.preventDefault();
+  });
+
+  el.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dragging = true;
+    el.classList.add('dragging');
+    startX = t.clientX; startY = t.clientY;
+    startXPct = state.qrPos.x;
+    startYPct = state.qrPos.y;
+  }, { passive: true });
+
+  function move(cx, cy) {
     if (!dragging) return;
-
     const rect = stage.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-
     const dx = ((cx - startX) / rect.width) * 100;
     const dy = ((cy - startY) / rect.height) * 100;
 
-    // Keep the QR center inside the template.
     state.qrPos.x = Math.max(0, Math.min(100, startXPct + dx));
     state.qrPos.y = Math.max(0, Math.min(100, startYPct + dy));
 
     el.style.left = state.qrPos.x + '%';
     el.style.top = state.qrPos.y + '%';
     updateCoordDisplay();
-  };
+  }
 
-  const end = () => {
+  function end() {
     if (!dragging) return;
     dragging = false;
     el.classList.remove('dragging');
-    try { el.releasePointerCapture?.(el._pointerId); } catch (_) {}
-  };
+  }
 
-  el.addEventListener('pointerdown', (e) => {
-    if (e.button !== undefined && e.button !== 0) return;
-
-    dragging = true;
-    el._pointerId = e.pointerId;
-    el.classList.add('dragging');
-
-    startX = e.clientX;
-    startY = e.clientY;
-    startXPct = state.qrPos.x;
-    startYPct = state.qrPos.y;
-
-    try { el.setPointerCapture(e.pointerId); } catch (_) {}
-    e.preventDefault();
-  });
-
-  el.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    move(e.clientX, e.clientY);
-    e.preventDefault();
-  });
-
-  el.addEventListener('pointerup', end);
-  el.addEventListener('pointercancel', end);
-  el.addEventListener('lostpointercapture', end);
+  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+  document.addEventListener('mouseup', end);
+  document.addEventListener('touchmove', e => {
+    if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); }
+  }, { passive: true });
+  document.addEventListener('touchend', end);
 }
 
 function updateCoordDisplay() {
@@ -1455,7 +1456,7 @@ document.getElementById('btnSaveTemplate').addEventListener('click', () => {
   };
 
   localStorage.setItem('qrTemplateConfig', JSON.stringify(data));
-  toast('✅ Template QR disimpan dalam browser', 'success');
+  toast('✅ Template QR disimpan', 'success');
 });
 
 function loadSavedConfig() {
@@ -1484,7 +1485,6 @@ function loadSavedConfig() {
 
     renderStage();
     renderFileInfo();
-    updateQrCount();
   } catch(e) {
     console.error('Load config error:', e);
   }
@@ -1494,8 +1494,6 @@ function loadSavedConfig() {
    PRINT — BAHAGIAN B
    ============================================================ */
 let currentMode = 'range';
-let generatedNumbersSignature = '';
-
 
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1510,58 +1508,41 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 
 function updateQrCount() {
   const numbers = generateNumberList();
-  const display = document.getElementById('qrCountDisplay');
-  display.textContent = numbers.length.toLocaleString('ms-MY');
-  display.title = numbers.length ? `${numbers.length} QR akan dijana` : 'Masukkan nombor yang sah';
+  document.getElementById('qrCountDisplay').textContent = numbers.length;
 }
 
 function generateNumberList() {
   if (currentMode === 'range') {
-    const fromRaw = document.getElementById('inpRangeFrom').value.trim();
-    const toRaw = document.getElementById('inpRangeTo').value.trim();
-    const digits = Math.max(1, Math.min(10, parseInt(document.getElementById('inpDigitCount').value) || 4));
+    const from = parseInt(document.getElementById('inpRangeFrom').value) || 1;
+    const to = parseInt(document.getElementById('inpRangeTo').value) || 10;
+    const digits = parseInt(document.getElementById('inpDigitCount').value) || 4;
 
-    if (fromRaw === '' || toRaw === '') return [];
-
-    const from = Number(fromRaw);
-    const to = Number(toRaw);
-
-    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to < 0) {
-      return [];
-    }
-
+    const arr = [];
     const start = Math.min(from, to);
     const end = Math.max(from, to);
 
-    // Prevent an accidental huge generation.
-    if (end - start + 1 > 5000) {
-      return [];
-    }
-
-    const arr = [];
     for (let i = start; i <= end; i++) {
       arr.push(String(i).padStart(digits, '0'));
     }
     return arr;
+  } else {
+    const raw = document.getElementById('inpListNumbers').value.trim();
+    if (!raw) return [];
+
+    const numbers = raw
+      .split(/[\s,]+/)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(s => {
+        if (/^\d+$/.test(s)) return s.padStart(4, '0');
+        return s;
+      });
+
+    return [...new Set(numbers)];
   }
-
-  const raw = document.getElementById('inpListNumbers').value.trim();
-  if (!raw) return [];
-
-  const numbers = raw
-    .split(/[\s,;]+/)
-    .map(s => s.trim())
-    .filter(Boolean)
-    .filter(s => /^\d+$/.test(s))
-    .map(s => {
-      // Preserve a user's explicit leading zeros; otherwise default to 4 digits.
-      return s.length >= 4 ? s : s.padStart(4, '0');
-    });
-
-  return [...new Set(numbers)];
 }
 
-document.getElementById('inpRangeFrom')).addEventListener('input', updateQrCount);
+document.getElementById('inpRangeFrom').addEventListener('input', updateQrCount);
 document.getElementById('inpRangeTo').addEventListener('input', updateQrCount);
 document.getElementById('inpDigitCount').addEventListener('input', updateQrCount);
 document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
@@ -1583,7 +1564,6 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
   console.log('📋 Numbers to generate:', numbers.length);
 
   if (numbers.length === 0) {
-    document.getElementById('btnPrint').disabled = true;
     return toast('Takde nombor untuk dijana', 'warn');
   }
 
@@ -1627,8 +1607,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
     grid.appendChild(item);
   }
 
-  generatedNumbersSignature = JSON.stringify(numbers);
-  document.getElementById('btnPrint').disabled = successCount === 0;
+  document.getElementById('btnPrint').disabled = false;
 
   if (errorCount > 0) {
     toast(`⚠️ ${successCount} berjaya, ${errorCount} gagal`, 'warn', 5000);
@@ -1645,19 +1624,16 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 document.getElementById('btnPrint').addEventListener('click', async () => {
   console.log('🖨️ Print clicked');
 
-  if (!checkLibraries()) {
+  const hasLib = checkLibraries();
+  if (!hasLib) {
     toast('❌ Library QRCode tak loaded', 'error');
     return;
   }
 
   const numbers = generateNumberList();
 
-  if (!numbers.length) {
+  if (numbers.length === 0) {
     return toast('Takde nombor untuk dicetak', 'warn');
-  }
-
-  if (generatedNumbersSignature !== JSON.stringify(numbers)) {
-    return toast('Nombor telah berubah. Klik "Generate Preview" dahulu.', 'warn');
   }
 
   if (!state.template) {
@@ -1665,352 +1641,134 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
   }
 
   const layout = document.getElementById('selPrintLayout').value;
-  const qrSizePercent = Math.max(5, Math.min(100, parseInt(document.getElementById('inpQrSize').value) || 30));
-  const qrPos = { ...state.qrPos };
+  const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
+  const qrPos = state.qrPos;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
-  const wCm = Math.max(1, parseFloat(state.widthCm) || 5);
-  const hCm = Math.max(1, parseFloat(state.heightCm) || 8);
+  const wCm = state.widthCm;
+  const hCm = state.heightCm;
 
-  // Generate QR image data once. QR itself contains the exact reference number.
-  toast(`Menjana ${numbers.length} QR...`, 'info', 2500);
+  toast('Sediakan print sheet...', 'info', 2000);
 
+  // Generate semua QR sebagai data URL
   const cardsData = [];
   for (const num of numbers) {
     try {
-      const canvas = await generateQRCanvas(num, 800);
+      const canvas = await generateQRCanvas(num, 600);
       cardsData.push({
-        num,
+        num: num,
         qrDataUrl: canvas.toDataURL('image/png')
       });
     } catch (e) {
-      console.error('QR generation error:', num, e);
+      console.error('Error for', num, e);
     }
   }
 
-  if (!cardsData.length) {
+  if (cardsData.length === 0) {
     return toast('❌ Tak berjaya generate QR', 'error');
   }
 
-  const pages = paginateCards(cardsData, wCm, hCm, layout);
+  // Kira layout
+  let cardsPerPage = 1;
+  if (layout === 'auto') {
+    const pageW = 19;
+    const pageH = 27.7;
+    const gap = 0.2;
+    const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
+    const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
+    cardsPerPage = cols * rows;
+    console.log(`Auto layout: ${cols} × ${rows} = ${cardsPerPage} per page`);
+  }
 
+  // Susun dalam pages
+  const pages = [];
+  let currentPage = [];
+  for (const card of cardsData) {
+    currentPage.push(card);
+    if (currentPage.length >= cardsPerPage) {
+      pages.push(currentPage);
+      currentPage = [];
+    }
+  }
+  if (currentPage.length > 0) pages.push(currentPage);
+
+  // Bina HTML
+  const html = buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout);
+
+  // Buka tab baru
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
     return toast('Popup block! Benarkan popup untuk print', 'error', 5000);
   }
 
-  const printHTML = buildPrintHTML(
-    pages,
-    wCm,
-    hCm,
-    qrPos,
-    qrSizePercent,
-    showLabel,
-    layout
-  );
-
   printWindow.document.open();
-  printWindow.document.write(printHTML);
+  printWindow.document.write(html);
   printWindow.document.close();
 
-  toast(`📄 ${cardsData.length} QR · ${pages.length} halaman A4`, 'success', 4000);
+  toast(`📄 ${cardsData.length} QR · ${pages.length} halaman`, 'success', 4000);
 });
 
-function paginateCards(cards, wCm, hCm, layout) {
-  if (layout === 'one-page') {
-    // One template/card per physical A4 sheet.
-    return cards.map(card => [card]);
-  }
-
-  // Exact A4 usable area. No CSS @page margin is used.
-  // Small 3mm safety margin prevents the outermost card from touching the
-  // printer's physical edge while preserving the template's own dimensions.
-  const pageWcm = 21.0;
-  const pageHcm = 29.7;
-  const safetyMarginCm = 0.3;
-  const gapCm = 0.2;
-
-  const usableW = pageWcm - (safetyMarginCm * 2);
-  const usableH = pageHcm - (safetyMarginCm * 2);
-
-  const cols = Math.max(1, Math.floor((usableW + gapCm) / (wCm + gapCm)));
-  const rows = Math.max(1, Math.floor((usableH + gapCm) / (hCm + gapCm)));
-  const perPage = Math.max(1, cols * rows);
-
-  console.log(`A4 auto: ${cols} × ${rows} = ${perPage} template/page`);
-
-  const pages = [];
-  for (let i = 0; i < cards.length; i += perPage) {
-    pages.push(cards.slice(i, i + perPage));
-  }
-  return pages;
-}
-
 /* ============================================================
-   BUILD EXACT-SIZE A4 PRINT HTML
+   BUILD PRINT HTML
    ============================================================ */
 function buildPrintHTML(pages, wCm, hCm, qrPos, qrSizePercent, showLabel, layout) {
-  const pageWcm = 21;
-  const pageHcm = 29.7;
-  const safetyMarginCm = layout === 'auto' ? 0.3 : 0;
-
-  const pagesHTML = pages.map((page, pageIndex) => {
-    const cardsHTML = page.map((card) => {
-      // QR width is defined as a percentage of the template width.
-      // Its physical size therefore stays identical on screen and print.
-      const qrWidthCm = (wCm * qrSizePercent) / 100;
-
-      // Label is positioned directly below the QR using the same center X.
-      // The QR's height equals its width because it is square.
-      const qrCenterX = qrPos.x;
-      const qrCenterY = qrPos.y;
-      const qrHalfHeightPct = ((qrWidthCm / hCm) * 100) / 2;
-      const labelTopPct = Math.min(
-        99,
-        qrCenterY + qrHalfHeightPct + 1.2
-      );
+  const cardsHTML = pages.map(page => {
+    const cardsInner = page.map(card => {
+      const labelFontMm = Math.max(2.5, hCm * 0.5);
+      const labelTopCalc = qrPos.y + (qrSizePercent * wCm / hCm) / 2 + 1;
 
       return `
-        <div class="template-card"
-             style="width:${wCm}cm;height:${hCm}cm;">
-          <img class="template-bg"
-               src="${escapeHtmlAttr(state.template)}"
-               alt="">
-
-          <div class="qr-wrap"
-               style="left:${qrCenterX}%;top:${qrCenterY}%;width:${qrSizePercent}%;">
-            <img src="${card.qrDataUrl}" alt="QR ${escapeHtmlAttr(card.num)}">
+        <div class="card" style="width: ${wCm}cm; height: ${hCm}cm;">
+          <img class="card-bg" src="${state.template}" alt="">
+          <div class="qr-wrap" style="left: ${qrPos.x}%; top: ${qrPos.y}%; width: ${qrSizePercent}%;">
+            <img src="${card.qrDataUrl}" alt="QR ${card.num}">
           </div>
-
           ${showLabel ? `
-            <div class="qr-label"
-                 style="left:${qrCenterX}%;top:${labelTopPct}%;">
-              ${escapeHtml(card.num)}
+            <div class="qr-label" style="left: ${qrPos.x}%; top: ${labelTopCalc}%; font-size: ${labelFontMm}mm;">
+              ${card.num}
             </div>
           ` : ''}
         </div>
       `;
     }).join('');
 
-    if (layout === 'one-page') {
-      return `
-        <section class="a4-page one-page">
-          <div class="single-holder">
-            ${cardsHTML}
-          </div>
-          <div class="page-number">A4 · ${pageIndex + 1}/${pages.length}</div>
-        </section>
-      `;
-    }
+    const flexStyle = layout === 'auto'
+      ? 'flex-wrap: wrap; align-content: flex-start; gap: 2mm;'
+      : 'flex-wrap: wrap; align-content: center; justify-content: center;';
 
-    return `
-      <section class="a4-page auto-page"
-               style="padding:${safetyMarginCm}cm;">
-        <div class="card-grid"
-             style="
-               grid-template-columns:repeat(auto-fit, ${wCm}cm);
-               grid-auto-rows:${hCm}cm;
-               gap:0.2cm;
-             ">
-          ${cardsHTML}
-        </div>
-      </section>
-    `;
+    return `<div class="page" style="${flexStyle}">${cardsInner}</div>`;
   }).join('');
 
   return `<!DOCTYPE html>
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Print QR Code Penerima</title>
+<title>Print QR Codes</title>
 <style>
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html, body {
-    width: 210mm;
-    min-height: 297mm;
-    background: #fff;
-    color: #000;
-    font-family: Arial, sans-serif;
-  }
-
-  body {
-    margin: 0;
-  }
-
-  .a4-page {
-    position: relative;
-    width: 210mm;
-    height: 297mm;
-    min-width: 210mm;
-    min-height: 297mm;
-    max-width: 210mm;
-    max-height: 297mm;
-    overflow: hidden;
-    page-break-after: always;
-    break-after: page;
-    background: #fff;
-  }
-
-  .a4-page:last-child {
-    page-break-after: auto;
-    break-after: auto;
-  }
-
-  .auto-page {
-    display: block;
-  }
-
-  .card-grid {
-    display: grid;
-    align-content: start;
-    justify-content: start;
-    width: 100%;
-  }
-
-  .one-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .single-holder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .template-card {
-    position: relative;
-    display: block;
-    flex: 0 0 auto;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  .template-bg {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    user-select: none;
-    -webkit-user-drag: none;
-  }
-
-  .qr-wrap {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 0.8mm;
-    line-height: 0;
-    border-radius: 0.8mm;
-  }
-
-  .qr-wrap img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
-
-  .qr-label {
-    position: absolute;
-    transform: translateX(-50%);
-    min-width: 8mm;
-    padding: 0.5mm 1.5mm;
-    background: #fff;
-    color: #000;
-    font-family: "Courier New", monospace;
-    font-size: 3.2mm;
-    line-height: 1.15;
-    font-weight: 900;
-    letter-spacing: 0.4mm;
-    text-align: center;
-    white-space: nowrap;
-    border-radius: 0.7mm;
-  }
-
-  .page-number {
-    display: none;
-  }
-
+  @page { size: A4 portrait; margin: 5mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; color: #000; font-family: 'Segoe UI', sans-serif; }
+  .page { width: 200mm; height: 287mm; display: flex; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+  .card { position: relative; overflow: hidden; background: #fff; flex-shrink: 0; }
+  .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; }
+  .qr-wrap { position: absolute; transform: translate(-50%, -50%); background: #fff; padding: 0.5mm; border-radius: 1mm; }
+  .qr-wrap img { display: block; width: 100%; height: auto; }
+  .qr-label { position: absolute; transform: translate(-50%, 0); font-family: 'Courier New', monospace; font-weight: 900; color: #000; text-align: center; background: #fff; padding: 0.5mm 1.5mm; border-radius: 1mm; letter-spacing: 0.5px; white-space: nowrap; }
   @media screen {
-    body {
-      background: #333;
-      padding: 20px;
-      width: auto;
-      min-height: 100vh;
-    }
-
-    .a4-page {
-      margin: 0 auto 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.45);
-    }
-
-    .page-number {
-      display: block;
-      position: absolute;
-      right: 5mm;
-      bottom: 3mm;
-      font-size: 2.5mm;
-      color: #777;
-    }
-  }
-
-  @media print {
-    html, body {
-      width: 210mm;
-      min-width: 210mm;
-      background: #fff;
-    }
-
-    .a4-page {
-      margin: 0;
-      box-shadow: none;
-    }
+    body { background: #333; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .page { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
   }
 </style>
 </head>
 <body>
-${pagesHTML}
-
+${cardsHTML}
 <script>
   window.addEventListener('load', () => {
-    // Give the browser enough time to load Cloudinary background + QR images.
-    setTimeout(() => {
-      window.focus();
-      window.print();
-    }, 800);
+    setTimeout(() => window.print(), 500);
   });
 <\/script>
 </body>
 </html>`;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function escapeHtmlAttr(value) {
-  return escapeHtml(value);
 }
 
 /* ============================================================
