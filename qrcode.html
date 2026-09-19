@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Code Penerima · Sistem Anugerah</title>
 
-<!-- QR Code Generator Library (auto-generate QR) -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <style>
@@ -60,7 +59,7 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   }
 
-  /* ============ TOPBAR ============ */
+  /* TOPBAR */
   .topbar {
     position: relative;
     z-index: 2;
@@ -139,7 +138,7 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* ============ TABS ============ */
+  /* TABS */
   .tabs {
     position: relative;
     z-index: 2;
@@ -179,17 +178,10 @@
     box-shadow: 0 4px 16px -4px rgba(45, 212, 191, 0.5);
   }
 
-  .tab-btn svg {
-    width: 16px;
-    height: 16px;
-  }
+  .tab-btn svg { width: 16px; height: 16px; }
 
-  /* ============ PANELS ============ */
-  .panel {
-    display: none;
-    position: relative;
-    z-index: 1;
-  }
+  /* PANELS */
+  .panel { display: none; position: relative; z-index: 1; }
   .panel.active { display: block; }
 
   .container {
@@ -203,12 +195,10 @@
     .tabs { padding: 16px; }
   }
 
-  /* ============================================================
-     BAHAGIAN A — EDIT TEMPLATE
-     ============================================================ */
+  /* EDITOR */
   .editor-grid {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 340px 1fr;
     gap: 24px;
     align-items: start;
   }
@@ -263,10 +253,7 @@
     border-color: var(--accent);
     background: rgba(45, 212, 191, 0.06);
   }
-  .upload-zone.uploading {
-    opacity: 0.6;
-    pointer-events: none;
-  }
+  .upload-zone.uploading { opacity: 0.6; pointer-events: none; }
   .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
   .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
   .upload-zone .sub { font-size: 11.5px; color: var(--text-muted); }
@@ -373,15 +360,43 @@
     font-weight: 600;
     transition: all 0.2s;
   }
-  .control-group textarea {
-    resize: vertical;
-    line-height: 1.6;
-  }
+  .control-group textarea { resize: vertical; line-height: 1.6; }
   .control-group input:focus, .control-group select:focus, .control-group textarea:focus {
     outline: none;
     border-color: var(--border-focus);
     background: rgba(45, 212, 191, 0.04);
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* DIMENSION DISPLAY */
+  .dimension-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.3);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .dimension-info .dim-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+  }
+  .dimension-info .dim-item strong {
+    color: #fff;
   }
 
   /* STAGE EDITOR */
@@ -409,19 +424,29 @@
     letter-spacing: 0.06em;
   }
 
+  .stage-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1f35, #0d1424);
+    border-radius: 12px;
+    min-height: 400px;
+  }
+
   #stage {
     position: relative;
-    width: 100%;
-    aspect-ratio: 5/7;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
-    max-height: 75vh;
-    margin: 0 auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    /* Saiz akan di-set secara dynamically ikut template */
+    max-width: 100%;
+    max-height: 70vh;
   }
 
   #stage img.stage-bg {
@@ -429,17 +454,17 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: fill;
     pointer-events: none;
   }
 
   #stage .placeholder {
     text-align: center;
     color: #94a3b8;
-    padding: 40px;
+    padding: 40px 60px;
     background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-    width: 100%;
-    height: 100%;
+    min-width: 300px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -562,9 +587,7 @@
   }
   .chip-btn svg { width: 14px; height: 14px; }
 
-  /* ============================================================
-     BAHAGIAN B — PRINT QR
-     ============================================================ */
+  /* PRINT */
   .print-grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -576,7 +599,6 @@
     .print-grid { grid-template-columns: 1fr; }
   }
 
-  /* MODE SELECTOR */
   .mode-selector {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -619,7 +641,6 @@
   .mode-section { display: none; }
   .mode-section.active { display: block; }
 
-  /* PREVIEW GRID */
   .qr-preview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -666,15 +687,13 @@
   .preview-empty .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
   .preview-empty p { font-size: 13px; }
 
-  /* ============ PRINT AREA (A4) ============ */
-  .print-sheet {
-    display: none;
-  }
+  /* PRINT SHEET */
+  .print-sheet { display: none; }
 
   @media print {
     @page {
       size: A4 portrait;
-      margin: 0;
+      margin: 5mm;
     }
 
     html, body {
@@ -699,18 +718,28 @@
       padding: 0;
     }
 
-    .print-card {
-      width: 210mm;
-      height: 297mm;
-      position: relative;
+    /* Print page */
+    .print-page {
+      width: 200mm;    /* A4 minus margins */
+      height: 287mm;
       page-break-after: always;
-      page-break-inside: avoid;
-      overflow: hidden;
-      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      justify-content: flex-start;
+      gap: 2mm;
     }
 
-    .print-card:last-child {
+    .print-page:last-child {
       page-break-after: auto;
+    }
+
+    .print-card {
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+      flex-shrink: 0;
+      flex-grow: 0;
     }
 
     .print-card img.print-bg {
@@ -726,8 +755,8 @@
       position: absolute;
       transform: translate(-50%, -50%);
       background: #fff;
-      padding: 2mm;
-      border-radius: 2mm;
+      padding: 1mm;
+      border-radius: 1mm;
     }
 
     .print-card .print-qr canvas {
@@ -744,9 +773,9 @@
       color: #000;
       text-align: center;
       background: #fff;
-      padding: 1mm 2mm;
+      padding: 0.5mm 1.5mm;
       border-radius: 1mm;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       white-space: nowrap;
     }
   }
@@ -791,6 +820,7 @@
   @media (max-width: 640px) {
     .mode-selector { grid-template-columns: 1fr; }
     .qr-preview-grid { grid-template-columns: repeat(2, 1fr); }
+    .field-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -836,21 +866,18 @@
   </button>
 </div>
 
-<!-- ============================================================
-     PANEL A — EDIT TEMPLATE
-     ============================================================ -->
+<!-- PANEL A — EDIT TEMPLATE -->
 <div class="panel active" id="panel-editor">
   <div class="container">
     <div class="editor-grid">
 
-      <!-- LEFT: CONTROLS -->
       <div>
         <div class="card">
           <h2><span class="num">1</span> Upload Background</h2>
           <div class="upload-zone" id="uploadZone">
             <div class="icon">🖼️</div>
             <div class="title">Klik atau drag fail</div>
-            <div class="sub">PNG · JPG (disyorkan 5:7 nisbah)</div>
+            <div class="sub">PNG · JPG (saiz sebenar akan diikuti)</div>
             <input type="file" id="inpFile" accept="image/*">
           </div>
 
@@ -868,10 +895,35 @@
         </div>
 
         <div class="card">
-          <h2><span class="num">2</span> Saiz & Posisi QR</h2>
+          <h2><span class="num">2</span> Saiz Sebenar Template</h2>
+
+          <div class="dimension-info" id="dimensionInfo" style="display:none;">
+            <div class="dim-item">📏 <strong id="dimWidth">-</strong> cm (W)</div>
+            <div class="dim-item">×</div>
+            <div class="dim-item"><strong id="dimHeight">-</strong> cm (H)</div>
+          </div>
+
+          <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+            Ini adalah saiz template anda. Ukur gambar anda dan masukkan saiz sebenar dalam cm supaya print tepat.
+          </p>
+
+          <div class="field-row">
+            <div class="control-group">
+              <label>Lebar (cm)</label>
+              <input type="number" id="inpWidthCm" min="1" max="100" value="5" step="0.1">
+            </div>
+            <div class="control-group">
+              <label>Tinggi (cm)</label>
+              <input type="number" id="inpHeightCm" min="1" max="100" value="8" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">3</span> Saiz & Posisi QR</h2>
 
           <div class="control-group">
-            <label>Saiz QR (% dari lebar)</label>
+            <label>Saiz QR (% dari lebar template)</label>
             <input type="number" id="inpQrSize" min="5" max="100" value="30" step="1">
           </div>
 
@@ -909,23 +961,24 @@
         </button>
       </div>
 
-      <!-- RIGHT: STAGE -->
       <div class="canvas-wrapper">
         <div class="canvas-header">
           <div class="title">🎨 Posisi QR pada Template</div>
           <div style="font-size:11px;color:var(--text-muted);" id="coordDisplay">Drag QR untuk ubah posisi</div>
         </div>
 
-        <div id="stage">
-          <div class="placeholder">
-            <div class="icon">🖼️</div>
-            <p>Upload background template untuk mula</p>
+        <div class="stage-wrapper">
+          <div id="stage">
+            <div class="placeholder">
+              <div class="icon">🖼️</div>
+              <p>Upload background template untuk mula</p>
+            </div>
           </div>
         </div>
 
         <div class="stage-info">
           <div><span class="coord" id="stageMeta">Tiada template</span></div>
-          <div style="font-size:11px;">Template disimpan di Cloudinary</div>
+          <div style="font-size:11px;">Preview pada skrin ikut saiz sebenar (skala)</div>
         </div>
       </div>
 
@@ -933,14 +986,11 @@
   </div>
 </div>
 
-<!-- ============================================================
-     PANEL B — PRINT QR
-     ============================================================ -->
+<!-- PANEL B — PRINT QR -->
 <div class="panel" id="panel-print">
   <div class="container">
     <div class="print-grid">
 
-      <!-- LEFT: CONTROLS -->
       <div>
         <div class="card">
           <h2><span class="num">1</span> Pilih Mod</h2>
@@ -956,7 +1006,6 @@
             </button>
           </div>
 
-          <!-- MODE: RANGE -->
           <div class="mode-section active" id="mode-range">
             <div class="control-group">
               <label>Dari Nombor</label>
@@ -967,22 +1016,29 @@
               <input type="number" id="inpRangeTo" min="1" value="10" step="1">
             </div>
             <div class="control-group">
-              <label>Jumlah Digit (contoh: 4 = 0001)</label>
+              <label>Jumlah Digit</label>
               <input type="number" id="inpDigitCount" min="1" max="10" value="4" step="1">
             </div>
           </div>
 
-          <!-- MODE: LIST -->
           <div class="mode-section" id="mode-list">
             <div class="control-group">
               <label>Senarai Nombor (pisah dengan koma atau baris baru)</label>
-              <textarea id="inpListNumbers" rows="6" placeholder="Contoh:&#10;0001&#10;0005&#10;0010&#10;atau&#10;0001, 0002, 0003"></textarea>
+              <textarea id="inpListNumbers" rows="6" placeholder="Contoh:&#10;0001&#10;0005&#10;0010"></textarea>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <h2><span class="num">2</span> Preview & Print</h2>
+          <h2><span class="num">2</span> Layout Print</h2>
+
+          <div class="control-group">
+            <label>Susun atur kertas A4</label>
+            <select id="selPrintLayout">
+              <option value="auto">Auto — Susun banyak dalam 1 A4 (jimat kertas)</option>
+              <option value="one-page">1 Template = 1 A4 (besar, banyak white space)</option>
+            </select>
+          </div>
 
           <div class="control-group">
             <label>Jumlah QR akan dijana</label>
@@ -1008,7 +1064,6 @@
         </div>
       </div>
 
-      <!-- RIGHT: PREVIEW -->
       <div class="card">
         <h2>🔍 Preview QR</h2>
         <div id="qrPreviewGrid" class="qr-preview-grid">
@@ -1023,16 +1078,10 @@
   </div>
 </div>
 
-<!-- ============================================================
-     PRINT SHEET (hanya muncul bila print)
-     ============================================================ -->
 <div class="print-sheet" id="printSheet"></div>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
 <script>
 /* ============================================================
    CONFIG
@@ -1049,7 +1098,9 @@ const state = {
   qrSize: 30,
   qrPos: { x: 50, y: 70 },
   showLabel: true,
-  sampleQr: '0001'
+  sampleQr: '0001',
+  widthCm: 5,
+  heightCm: 8
 };
 
 /* ============================================================
@@ -1082,14 +1133,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 /* ============================================================
-   BAHAGIAN A — EDIT TEMPLATE
+   EDITOR
    ============================================================ */
 const uploadZone = document.getElementById('uploadZone');
 const inpFile = document.getElementById('inpFile');
 const stage = document.getElementById('stage');
 
 uploadZone.addEventListener('click', () => inpFile.click());
-
 uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadZone.classList.add('dragover');
@@ -1207,12 +1257,15 @@ function removeFile() {
 }
 
 /* ============================================================
-   RENDER STAGE
+   RENDER STAGE — ikut saiz sebenar template
    ============================================================ */
 async function renderStage() {
   stage.innerHTML = '';
 
   if (!state.template) {
+    stage.style.width = '';
+    stage.style.height = '';
+    stage.style.aspectRatio = '';
     stage.innerHTML = `
       <div class="placeholder">
         <div class="icon">🖼️</div>
@@ -1220,8 +1273,19 @@ async function renderStage() {
       </div>
     `;
     document.getElementById('stageMeta').textContent = 'Tiada template';
+    document.getElementById('dimensionInfo').style.display = 'none';
     return;
   }
+
+  // Set saiz stage ikut nisbah sebenar
+  const wCm = state.widthCm;
+  const hCm = state.heightCm;
+  const aspectRatio = wCm / hCm;
+
+  // Preview stage — scale supaya muat screen (max tinggi 70vh)
+  stage.style.aspectRatio = `${wCm} / ${hCm}`;
+  stage.style.width = 'auto';
+  stage.style.height = 'min(70vh, 600px)';
 
   // Background
   const bg = document.createElement('img');
@@ -1230,11 +1294,15 @@ async function renderStage() {
   bg.draggable = false;
   bg.onload = () => {
     document.getElementById('stageMeta').textContent =
-      `🖼️ ${bg.naturalWidth} × ${bg.naturalHeight} px`;
+      `🖼️ ${bg.naturalWidth} × ${bg.naturalHeight} px · ${wCm}×${hCm} cm`;
   };
   stage.appendChild(bg);
 
-  // QR preview
+  // Tunjuk dimension info
+  document.getElementById('dimensionInfo').style.display = 'flex';
+  document.getElementById('dimWidth').textContent = wCm.toFixed(1);
+  document.getElementById('dimHeight').textContent = hCm.toFixed(1);
+
   await renderQRPreviewOnStage();
 }
 
@@ -1243,7 +1311,6 @@ async function renderQRPreviewOnStage() {
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
 
-  // Container QR
   const qrWrap = document.createElement('div');
   qrWrap.className = 'drag-qr';
   qrWrap.id = 'dragQr';
@@ -1251,7 +1318,6 @@ async function renderQRPreviewOnStage() {
   qrWrap.style.top = state.qrPos.y + '%';
   qrWrap.style.width = qrSizePercent + '%';
 
-  // Canvas QR — AUTO-GENERATE
   const canvas = document.createElement('canvas');
   try {
     await QRCode.toCanvas(canvas, sampleQr, {
@@ -1265,7 +1331,6 @@ async function renderQRPreviewOnStage() {
 
   qrWrap.appendChild(canvas);
 
-  // Label
   if (showLabel) {
     const label = document.createElement('div');
     label.className = 'qr-label';
@@ -1334,11 +1399,21 @@ function updateCoordDisplay() {
 }
 
 /* ============================================================
-   CONTROLS — EDITOR
+   CONTROLS
    ============================================================ */
 document.getElementById('inpQrSize').addEventListener('input', renderStage);
 document.getElementById('inpSampleQr').addEventListener('input', renderStage);
 document.getElementById('selShowLabel').addEventListener('change', renderStage);
+
+document.getElementById('inpWidthCm').addEventListener('input', (e) => {
+  state.widthCm = parseFloat(e.target.value) || 5;
+  renderStage();
+});
+
+document.getElementById('inpHeightCm').addEventListener('input', (e) => {
+  state.heightCm = parseFloat(e.target.value) || 8;
+  renderStage();
+});
 
 document.getElementById('btnResetPos').addEventListener('click', () => {
   state.qrPos = { x: 50, y: 70 };
@@ -1355,7 +1430,9 @@ document.getElementById('btnSaveTemplate').addEventListener('click', () => {
     templatePublicId: state.templatePublicId,
     qrSize: parseInt(document.getElementById('inpQrSize').value) || 30,
     qrPos: state.qrPos,
-    showLabel: document.getElementById('selShowLabel').value === 'yes'
+    showLabel: document.getElementById('selShowLabel').value === 'yes',
+    widthCm: state.widthCm,
+    heightCm: state.heightCm
   };
 
   localStorage.setItem('qrTemplateConfig', JSON.stringify(data));
@@ -1380,6 +1457,14 @@ function loadSavedConfig() {
     if (data.showLabel !== undefined) {
       document.getElementById('selShowLabel').value = data.showLabel ? 'yes' : 'no';
     }
+    if (data.widthCm) {
+      state.widthCm = data.widthCm;
+      document.getElementById('inpWidthCm').value = data.widthCm;
+    }
+    if (data.heightCm) {
+      state.heightCm = data.heightCm;
+      document.getElementById('inpHeightCm').value = data.heightCm;
+    }
 
     renderStage();
     renderFileInfo();
@@ -1389,7 +1474,7 @@ function loadSavedConfig() {
 }
 
 /* ============================================================
-   BAHAGIAN B — PRINT
+   PRINT — BAHAGIAN B
    ============================================================ */
 let currentMode = 'range';
 
@@ -1498,7 +1583,7 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 });
 
 /* ============================================================
-   PRINT
+   PRINT — MAIN
    ============================================================ */
 document.getElementById('btnPrint').addEventListener('click', async () => {
   const numbers = generateNumberList();
@@ -1507,66 +1592,69 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     return toast('Takde nombor untuk dicetak', 'warn');
   }
 
+  if (!state.template) {
+    return toast('Upload template dulu di tab Edit Template', 'warn');
+  }
+
+  const layout = document.getElementById('selPrintLayout').value;
   const sheet = document.getElementById('printSheet');
   sheet.innerHTML = '';
 
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const qrPos = state.qrPos;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
+  const wCm = state.widthCm;
+  const hCm = state.heightCm;
 
-  toast('Sediakan print sheet...', 'info', 1500);
+  toast('Sediakan print sheet...', 'info', 2000);
 
-  for (const num of numbers) {
-    const card = document.createElement('div');
-    card.className = 'print-card';
+  if (layout === 'auto') {
+    // ===== AUTO: BANYAK PER A4 =====
+    // A4 = 21cm × 29.7cm, dengan margin 0.5cm setiap sisi = 20cm × 28.7cm
+    const pageW = 20;  // cm
+    const pageH = 28.7; // cm
+    const gap = 0.3;    // cm gap antara template
 
-    // Background
-    if (state.template) {
-      const bg = document.createElement('img');
-      bg.className = 'print-bg';
-      bg.src = state.template;
-      bg.crossOrigin = 'anonymous';
-      card.appendChild(bg);
+    // Kira berapa template boleh muat
+    const cols = Math.floor((pageW + gap) / (wCm + gap)) || 1;
+    const rows = Math.floor((pageH + gap) / (hCm + gap)) || 1;
+    const perPage = cols * rows;
+
+    console.log(`Auto layout: ${cols} × ${rows} = ${perPage} per page`);
+
+    // Buat pages
+    let currentPage = null;
+    let countInPage = 0;
+
+    for (let i = 0; i < numbers.length; i++) {
+      if (countInPage >= perPage || currentPage === null) {
+        currentPage = document.createElement('div');
+        currentPage.className = 'print-page';
+        sheet.appendChild(currentPage);
+        countInPage = 0;
+      }
+
+      const card = await buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel);
+      currentPage.appendChild(card);
+      countInPage++;
     }
 
-    // QR
-    const qrDiv = document.createElement('div');
-    qrDiv.className = 'print-qr';
-    qrDiv.style.left = qrPos.x + '%';
-    qrDiv.style.top = qrPos.y + '%';
-    qrDiv.style.width = qrSizePercent + '%';
+    toast(`📄 ${numbers.length} QR · ${Math.ceil(numbers.length / perPage)} halaman A4 (${perPage} per page)`, 'success', 4000);
+  } else {
+    // ===== ONE PAGE: 1 TEMPLATE = 1 A4 =====
+    for (const num of numbers) {
+      const page = document.createElement('div');
+      page.className = 'print-page';
+      page.style.display = 'flex';
+      page.style.alignItems = 'center';
+      page.style.justifyContent = 'center';
 
-    const canvas = document.createElement('canvas');
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
-    canvas.style.display = 'block';
-
-    try {
-      await QRCode.toCanvas(canvas, num, {
-        width: 800,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      });
-    } catch(e) {
-      console.error(e);
+      const card = await buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel);
+      page.appendChild(card);
+      sheet.appendChild(page);
     }
 
-    qrDiv.appendChild(canvas);
-    card.appendChild(qrDiv);
-
-    // Label
-    if (showLabel) {
-      const labelDiv = document.createElement('div');
-      labelDiv.className = 'print-label';
-      labelDiv.style.left = qrPos.x + '%';
-      // Letak label bawah QR
-      labelDiv.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 3mm)`;
-      labelDiv.style.fontSize = '4mm';
-      labelDiv.textContent = num;
-      card.appendChild(labelDiv);
-    }
-
-    sheet.appendChild(card);
+    toast(`📄 ${numbers.length} halaman A4`, 'success', 4000);
   }
 
   // Tunggu image load
@@ -1578,6 +1666,68 @@ document.getElementById('btnPrint').addEventListener('click', async () => {
     window.print();
   }, 300);
 });
+
+/* ============================================================
+   BUILD PRINT CARD — saiz tepat dalam cm
+   ============================================================ */
+async function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
+  const card = document.createElement('div');
+  card.className = 'print-card';
+
+  // SET SAIZ TEPAT — dalam mm (print CSS guna mm)
+  card.style.width = (wCm * 10) + 'mm';
+  card.style.height = (hCm * 10) + 'mm';
+
+  // Background
+  const bg = document.createElement('img');
+  bg.className = 'print-bg';
+  bg.src = state.template;
+  bg.crossOrigin = 'anonymous';
+  card.appendChild(bg);
+
+  // QR
+  const qrDiv = document.createElement('div');
+  qrDiv.className = 'print-qr';
+  qrDiv.style.left = qrPos.x + '%';
+  qrDiv.style.top = qrPos.y + '%';
+  qrDiv.style.width = qrSizePercent + '%';
+
+  const canvas = document.createElement('canvas');
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
+  canvas.style.display = 'block';
+
+  try {
+    await QRCode.toCanvas(canvas, num, {
+      width: 800,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch(e) {
+    console.error(e);
+  }
+
+  qrDiv.appendChild(canvas);
+  card.appendChild(qrDiv);
+
+  // Label — saiz font ikut saiz card
+  if (showLabel) {
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'print-label';
+    labelDiv.style.left = qrPos.x + '%';
+    // Letak bawah QR — kira offset
+    labelDiv.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 1mm)`;
+
+    // Font size relatif — 5% dari tinggi card
+    const fontMm = Math.max(2, hCm * 0.5); // min 2mm
+    labelDiv.style.fontSize = fontMm + 'mm';
+
+    labelDiv.textContent = num;
+    card.appendChild(labelDiv);
+  }
+
+  return card;
+}
 
 /* ============================================================
    INIT
