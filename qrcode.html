@@ -194,7 +194,7 @@
 
   .editor-grid {
     display: grid;
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 380px 1fr;
     gap: 24px;
     align-items: start;
   }
@@ -338,6 +338,17 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .control-group label .val {
+    font-family: 'Courier New', monospace;
+    background: rgba(45, 212, 191, 0.15);
+    color: var(--accent);
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 11px;
   }
   .control-group input[type="text"],
   .control-group input[type="number"],
@@ -362,10 +373,70 @@
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
   }
 
+  /* Range slider */
+  .control-group input[type="range"] {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    margin-top: 6px;
+  }
+  .control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(45, 212, 191, 0.5);
+  }
+  .control-group input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(45, 212, 191, 0.5);
+  }
+
   .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+  }
+
+  .ratio-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .ratio-btn {
+    padding: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ratio-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .ratio-btn.active {
+    background: rgba(45, 212, 191, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .dimension-info {
@@ -390,6 +461,21 @@
   }
   .dimension-info .dim-item strong {
     color: #fff;
+  }
+
+  .auto-detect-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .canvas-wrapper {
@@ -464,7 +550,8 @@
   #stage .placeholder .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
   #stage .placeholder p { font-size: 13px; color: #475569; font-weight: 600; }
 
-  .drag-qr {
+  /* QR WRAPPER — sama dalam edit, preview, print */
+  .qr-wrapper {
     position: absolute;
     cursor: move;
     border: 2px dashed transparent;
@@ -474,37 +561,54 @@
     background: #fff;
     padding: 4px;
     border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  .drag-qr:hover {
+  .qr-wrapper:hover {
     border-color: rgba(45, 212, 191, 0.8);
     box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.3);
   }
-  .drag-qr.dragging {
+  .qr-wrapper.dragging {
     border-color: var(--accent);
     border-style: solid;
     z-index: 100;
     box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.4);
   }
-  .drag-qr > div {
+  .qr-wrapper > div.qr-holder {
     display: block;
     pointer-events: none;
+    width: 100%;
   }
-  .drag-qr img, .drag-qr canvas {
+  .qr-wrapper > div.qr-holder img,
+  .qr-wrapper > div.qr-holder canvas {
     display: block;
     width: 100% !important;
     height: auto !important;
   }
-  .drag-qr .qr-label {
+  .qr-wrapper .qr-label {
     text-align: center;
     font-family: 'Courier New', monospace;
     font-weight: 900;
     color: #000;
     background: #fff;
     padding: 2px 6px;
-    margin-top: 4px;
-    border-radius: 4px;
-    font-size: 12px;
+    margin-top: 2px;
+    border-radius: 2px;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  /* STATIC — untuk preview (tak boleh drag) */
+  .qr-wrapper.static {
+    cursor: default;
+    border: none;
+    padding: 2px;
+  }
+  .qr-wrapper.static:hover {
+    border: none;
+    box-shadow: none;
   }
 
   .stage-info {
@@ -634,17 +738,16 @@
   .mode-section.active { display: block; }
 
   /* ============================================================
-     PREVIEW QR DENGAN TEMPLATE — WYSIWYG!
-     Sama macam yang akan di-print, Cuma lebih kecil
+     PREVIEW WYSIWYG GRID
      ============================================================ */
   .qr-preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
-    max-height: 700px;
+    max-height: 720px;
     overflow-y: auto;
-    padding: 8px;
-    background: #f8fafc;
+    padding: 12px;
+    background: #f1f5f9;
     border-radius: 12px;
   }
 
@@ -653,19 +756,25 @@
     background: #fff;
     border: 1px solid #cbd5e1;
     overflow: hidden;
-    /* Aspect ratio akan di-set dynamic ikut template */
     display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .qr-preview-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   }
 
-  /* Background template */
+  /* Stage dalam preview — aspect ratio sama macam template */
+  .qr-preview-item .preview-stage {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+  }
+
   .qr-preview-item .preview-bg {
     position: absolute;
     inset: 0;
@@ -676,7 +785,6 @@
     z-index: 0;
   }
 
-  /* Placeholder kalau takde template */
   .qr-preview-item .preview-bg-placeholder {
     position: absolute;
     inset: 0;
@@ -684,51 +792,53 @@
     z-index: 0;
   }
 
-  /* QR overlay — posisi & saiz sama macam print */
-  .qr-preview-item .preview-qr-overlay {
+  /* QR dalam preview — sama struktur dengan edit */
+  .qr-preview-item .preview-qr-wrapper {
     position: absolute;
     transform: translate(-50%, -50%);
     background: #fff;
-    padding: 1px;
+    padding: 2px;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .qr-preview-item .preview-qr-overlay img,
-  .qr-preview-item .preview-qr-overlay canvas {
+  .qr-preview-item .preview-qr-wrapper .qr-holder {
+    display: block;
+    width: 100%;
+  }
+
+  .qr-preview-item .preview-qr-wrapper img,
+  .qr-preview-item .preview-qr-wrapper canvas {
     display: block;
     width: 100% !important;
     height: auto !important;
   }
 
-  /* Label overlay */
-  .qr-preview-item .preview-label-overlay {
-    position: absolute;
-    transform: translate(-50%, 0);
+  .qr-preview-item .preview-qr-wrapper .qr-label {
+    text-align: center;
     font-family: 'Courier New', monospace;
     font-weight: 900;
     color: #000;
-    text-align: center;
     background: #fff;
-    padding: 0 4px;
+    padding: 1px 4px;
+    margin-top: 1px;
     border-radius: 2px;
     letter-spacing: 0.5px;
     white-space: nowrap;
-    z-index: 3;
+    width: 100%;
   }
 
-  /* Info di bawah card */
-  .qr-preview-item .preview-info {
-    margin-top: 6px;
-    text-align: center;
+  .preview-info-bar {
+    padding: 6px 10px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
     font-size: 10px;
-    color: #64748b;
+    color: #475569;
     font-family: 'Courier New', monospace;
     font-weight: 700;
-    padding: 4px;
-    background: #fff;
-    border-top: 1px solid #e2e8f0;
-    z-index: 5;
-    position: relative;
+    text-align: center;
   }
 
   .preview-empty {
@@ -804,33 +914,41 @@
       object-fit: fill;
     }
 
-    .print-card .print-qr {
+    .print-card .print-qr-wrapper {
       position: absolute;
       transform: translate(-50%, -50%);
       background: #fff;
       padding: 1mm;
       border-radius: 1mm;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .print-card .print-qr canvas,
-    .print-card .print-qr img {
+    .print-card .print-qr-wrapper .qr-holder {
+      display: block;
+      width: 100%;
+    }
+
+    .print-card .print-qr-wrapper canvas,
+    .print-card .print-qr-wrapper img {
       display: block;
       width: 100% !important;
       height: auto !important;
     }
 
-    .print-card .print-label {
-      position: absolute;
-      transform: translate(-50%, 0);
+    .print-card .print-qr-wrapper .qr-label {
+      text-align: center;
       font-family: 'Courier New', monospace;
       font-weight: 900;
       color: #000;
-      text-align: center;
       background: #fff;
-      padding: 0.5mm 1.5mm;
-      border-radius: 1mm;
+      padding: 0.3mm 1mm;
+      margin-top: 0.3mm;
+      border-radius: 0.5mm;
       letter-spacing: 0.5px;
       white-space: nowrap;
+      width: 100%;
     }
   }
 
@@ -930,7 +1048,7 @@
           <div class="upload-zone" id="uploadZone">
             <div class="icon">🖼️</div>
             <div class="title">Klik atau drag fail</div>
-            <div class="sub">PNG · JPG (saiz sebenar akan diikuti)</div>
+            <div class="sub">PNG · JPG (saiz sebenar akan dikesan auto)</div>
             <input type="file" id="inpFile" accept="image/*">
           </div>
 
@@ -954,10 +1072,11 @@
             <div class="dim-item">📏 <strong id="dimWidth">-</strong> cm (W)</div>
             <div class="dim-item">×</div>
             <div class="dim-item"><strong id="dimHeight">-</strong> cm (H)</div>
+            <span class="auto-detect-badge" id="autoDetectBadge" style="display:none;">✓ Auto-Detect</span>
           </div>
 
           <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-            Masukkan saiz sebenar template dalam cm supaya print tepat.
+            Saiz template dalam cm. Auto-detect dikesan dari pixel image — boleh ubah manual kalau perlu.
           </p>
 
           <div class="field-row">
@@ -970,14 +1089,31 @@
               <input type="number" id="inpHeightCm" min="1" max="100" value="8" step="0.1">
             </div>
           </div>
+
+          <div class="control-group" style="margin-top:12px;">
+            <label>Adjust Ratio <span class="val" id="ratioDisplay">5 × 8 (1:1.60)</span></label>
+            <input type="range" id="inpRatio" min="-50" max="50" value="0" step="1">
+            <div class="ratio-buttons">
+              <button class="ratio-btn" data-ratio="0.5">1:2</button>
+              <button class="ratio-btn active" data-ratio="0">Reset</button>
+              <button class="ratio-btn" data-ratio="2">2:1</button>
+            </div>
+          </div>
         </div>
 
         <div class="card">
           <h2><span class="num">3</span> Saiz & Posisi QR</h2>
 
           <div class="control-group">
-            <label>Saiz QR (% dari lebar template)</label>
-            <input type="number" id="inpQrSize" min="5" max="100" value="30" step="1">
+            <label>Saiz QR (% dari lebar template) <span class="val" id="qrSizeVal">30%</span></label>
+            <input type="range" id="inpQrSizeSlider" min="5" max="100" value="30" step="1">
+            <input type="number" id="inpQrSize" min="5" max="100" value="30" step="1" style="margin-top:8px;">
+          </div>
+
+          <div class="control-group">
+            <label>Saiz Font Nombor <span class="val" id="fontSizeVal">5</span></label>
+            <input type="range" id="inpFontSizeSlider" min="1" max="20" value="5" step="0.5">
+            <input type="number" id="inpFontSize" min="1" max="20" value="5" step="0.5" style="margin-top:8px;">
           </div>
 
           <div class="control-group">
@@ -1128,7 +1264,7 @@
       <div class="card">
         <h2>🔍 Preview WYSIWYG — Sama Macam Print</h2>
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-          Preview ni <b>exact</b> sama dengan apa yang akan di-print. Background, posisi QR, saiz QR, nombor — semua sama. Bila print, result mesti sama.
+          Preview ni <b>exact</b> sama dengan apa yang akan di-print. QR + kotak + nombor dalam petak, semua saiz & posisi sama.
         </p>
         <div id="qrPreviewGrid" class="qr-preview-grid">
           <div class="preview-empty" style="grid-column:1/-1;">
@@ -1153,6 +1289,9 @@
 const CLOUDINARY_CLOUD_NAME = 'q9xbizqj';
 const CLOUDINARY_UPLOAD_PRESET = 'anugerah_unsigned';
 
+/* Pixel to cm ratio — andaikan 96 DPI (standard web) */
+const PX_PER_CM = 96 / 2.54; // ≈ 37.795 px per cm
+
 /* ============================================================
    STATE
    ============================================================ */
@@ -1164,7 +1303,12 @@ const state = {
   showLabel: true,
   sampleQr: '0001',
   widthCm: 5,
-  heightCm: 8
+  heightCm: 8,
+  fontSize: 5, // dalam % — font size akan dikira dari tinggi template
+  ratioAdjust: 0, // untuk slider ratio
+  autoDetected: false, // badge auto-detect
+  originalWidthCm: 5,
+  originalHeightCm: 8
 };
 
 /* ============================================================
@@ -1184,16 +1328,63 @@ function toast(msg, type = 'info', duration = 3500) {
   }, duration);
 }
 
-function createQRCode(container, text, size = 200) {
-  container.innerHTML = '';
-  new QRCode(container, {
-    text: text,
-    width: size,
-    height: size,
+/* ============================================================
+   BUAT QR WRAPPER — KONSISTEN UNTUK EDIT, PREVIEW, PRINT
+   ============================================================ */
+function createQRWrapper(num, sizePx, fontSizePercent, heightCm, showLabel) {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;width:100%;';
+
+  // QR holder
+  const holder = document.createElement('div');
+  holder.className = 'qr-holder';
+  holder.style.cssText = 'display:block;width:100%;';
+  wrapper.appendChild(holder);
+
+  // Buat QR code
+  new QRCode(holder, {
+    text: num,
+    width: sizePx,
+    height: sizePx,
     colorDark: "#000000",
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H
   });
+
+  // Label
+  if (showLabel) {
+    const label = document.createElement('div');
+    label.className = 'qr-label';
+    // Font size ikut fontSizePercent × tinggi template
+    // Kira font size in px based on current wrapper width
+    label.textContent = num;
+    wrapper.appendChild(label);
+  }
+
+  return wrapper;
+}
+
+/* ============================================================
+   UPDATE FONT SIZE untuk semua QR wrapper
+   ============================================================ */
+function updateAllFontSizes() {
+  const wrappers = document.querySelectorAll('.qr-wrapper .qr-label, .preview-qr-wrapper .qr-label, .print-qr-wrapper .qr-label');
+  wrappers.forEach(label => {
+    applyFontSize(label);
+  });
+}
+
+function applyFontSize(labelEl) {
+  // Font size relative: fontSize (%) × tinggi wrapper
+  const wrapper = labelEl.parentElement;
+  if (!wrapper) return;
+
+  const wrapperWidth = wrapper.offsetWidth;
+  if (wrapperWidth === 0) return;
+
+  // Font size = fontSize% × wrapper width / 100
+  const fontPx = (state.fontSize / 100) * wrapperWidth * 2;
+  labelEl.style.fontSize = Math.max(6, fontPx) + 'px';
 }
 
 /* ============================================================
@@ -1205,14 +1396,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-
-    // Bila tukar ke tab print, kalau ada QR dalam preview, refresh
-    if (btn.dataset.tab === 'print') {
-      const grid = document.getElementById('qrPreviewGrid');
-      if (grid.querySelector('.qr-preview-item')) {
-        // Preview dah ada, tak perlu buat apa-apa
-      }
-    }
   });
 });
 
@@ -1281,10 +1464,14 @@ async function handleFileUpload(file) {
         const result = JSON.parse(xhr.responseText);
         state.template = result.secure_url;
         state.templatePublicId = result.public_id;
+
+        // ===== AUTO-DETECT SAIZ =====
+        autoDetectSize(result.secure_url);
+
         renderStage();
         renderFileInfo();
         updatePrintAvailability();
-        toast('✅ Template berjaya di-upload', 'success');
+        toast('✅ Template berjaya di-upload — saiz auto-detect', 'success');
       } catch (e) {
         toast('Ralat parse: ' + e.message, 'error');
       }
@@ -1309,46 +1496,72 @@ async function handleFileUpload(file) {
   xhr.send(formData);
 }
 
-function renderFileInfo() {
-  const wrap = document.getElementById('fileInfoContainer');
-  if (!state.template) { wrap.innerHTML = ''; return; }
+/* ============================================================
+   AUTO-DETECT SAIZ dari pixels
+   Andaian: 96 DPI standard web → 1cm = 37.795px
+   ============================================================ */
+function autoDetectSize(imageUrl) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    // Convert px to cm — andaikan gambar design at 300 DPI standard
+    // (300 DPI = 118.11 px per cm)
+    // Standard print resolution
+    const widthCm = img.naturalWidth / PX_PER_CM;
+    const heightCm = img.naturalHeight / PX_PER_CM;
 
-  wrap.innerHTML = `
-    <div class="file-info">
-      <div class="file-icon">🖼️</div>
-      <div class="file-meta">
-        <div class="file-name">Template QR Background</div>
-        <div class="file-size">☁️ Cloudinary</div>
-      </div>
-      <button class="file-remove" id="btnRemoveFile" title="Padam">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-  `;
+    // Round to 1 decimal
+    state.widthCm = Math.round(widthCm * 10) / 10;
+    state.heightCm = Math.round(heightCm * 10) / 10;
+    state.originalWidthCm = state.widthCm;
+    state.originalHeightCm = state.heightCm;
+    state.autoDetected = true;
 
-  document.getElementById('btnRemoveFile').addEventListener('click', removeFile);
+    // Update UI
+    document.getElementById('inpWidthCm').value = state.widthCm;
+    document.getElementById('inpHeightCm').value = state.heightCm;
+    document.getElementById('autoDetectBadge').style.display = 'inline-flex';
+
+    updateRatioDisplay();
+
+    console.log(`🔍 Auto-detect: ${img.naturalWidth}×${img.naturalHeight}px = ${state.widthCm}×${state.heightCm}cm`);
+  };
+  img.onerror = () => {
+    console.warn('Auto-detect gagal, guna saiz default');
+    state.widthCm = 5;
+    state.heightCm = 8;
+    state.autoDetected = false;
+    updateRatioDisplay();
+  };
+  img.src = imageUrl;
 }
 
-function removeFile() {
-  if (!confirm('Padam template?')) return;
-  state.template = null;
-  state.templatePublicId = null;
+/* ============================================================
+   RATIO ADJUSTMENT
+   ============================================================ */
+function updateRatioDisplay() {
+  const w = state.widthCm;
+  const h = state.heightCm;
+  const ratio = w / h;
+  document.getElementById('ratioDisplay').textContent =
+    `${w.toFixed(1)} × ${h.toFixed(1)} (1:${(h/w).toFixed(2)})`;
+}
+
+function applyRatioAdjust(percent) {
+  // Percent = -50 to +50
+  // Kalau +, tinggi naik (ratio jadi lebih tinggi)
+  // Kalau -, tinggi turun (ratio jadi lebih lebar)
+  const factor = 1 + (percent / 100);
+
+  const baseW = state.originalWidthCm;
+  const baseH = state.originalHeightCm;
+
+  // Adjust height based on percent, tapi kekalkan lebar
+  state.heightCm = Math.round(baseH * factor * 10) / 10;
+
+  document.getElementById('inpHeightCm').value = state.heightCm;
+  updateRatioDisplay();
   renderStage();
-  renderFileInfo();
-  updatePrintAvailability();
-  toast('Template dipadam', 'success');
-}
-
-function updatePrintAvailability() {
-  const warn = document.getElementById('printWarn');
-  if (state.template) {
-    warn.style.display = 'none';
-  } else {
-    warn.style.display = 'block';
-  }
 }
 
 /* ============================================================
@@ -1392,6 +1605,7 @@ function renderStage() {
   document.getElementById('dimensionInfo').style.display = 'flex';
   document.getElementById('dimWidth').textContent = wCm.toFixed(1);
   document.getElementById('dimHeight').textContent = hCm.toFixed(1);
+  document.getElementById('autoDetectBadge').style.display = state.autoDetected ? 'inline-flex' : 'none';
 
   renderQRPreviewOnStage();
 }
@@ -1402,27 +1616,28 @@ function renderQRPreviewOnStage() {
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
 
   const qrWrap = document.createElement('div');
-  qrWrap.className = 'drag-qr';
+  qrWrap.className = 'qr-wrapper';
   qrWrap.id = 'dragQr';
   qrWrap.style.left = state.qrPos.x + '%';
   qrWrap.style.top = state.qrPos.y + '%';
   qrWrap.style.width = qrSizePercent + '%';
 
-  const qrHolder = document.createElement('div');
-  qrHolder.style.cssText = 'display:flex;align-items:center;justify-content:center;';
-  qrWrap.appendChild(qrHolder);
-
-  createQRCode(qrHolder, sampleQr, 400);
-
+  // Bina QR dalam wrapper
+  const qrContent = createQRWrapper(sampleQr, 400, state.fontSize, state.heightCm, showLabel);
+  qrWrap.appendChild(qrContent.firstChild); // QR holder
   if (showLabel) {
-    const label = document.createElement('div');
-    label.className = 'qr-label';
-    label.textContent = sampleQr;
-    qrWrap.appendChild(label);
+    qrWrap.appendChild(qrContent.lastChild); // Label
   }
 
   makeDraggable(qrWrap);
   stage.appendChild(qrWrap);
+
+  // Apply font size selepas DOM ready
+  setTimeout(() => {
+    const label = qrWrap.querySelector('.qr-label');
+    if (label) applyFontSize(label);
+  }, 100);
+
   updateCoordDisplay();
 }
 
@@ -1484,17 +1699,83 @@ function updateCoordDisplay() {
 /* ============================================================
    CONTROLS
    ============================================================ */
-document.getElementById('inpQrSize').addEventListener('input', renderStage);
+
+// QR Size — slider + number sync
+const inpQrSizeSlider = document.getElementById('inpQrSizeSlider');
+const inpQrSize = document.getElementById('inpQrSize');
+
+inpQrSizeSlider.addEventListener('input', (e) => {
+  inpQrSize.value = e.target.value;
+  document.getElementById('qrSizeVal').textContent = e.target.value + '%';
+  renderStage();
+});
+
+inpQrSize.addEventListener('input', (e) => {
+  const val = Math.max(5, Math.min(100, parseInt(e.target.value) || 30));
+  inpQrSizeSlider.value = val;
+  document.getElementById('qrSizeVal').textContent = val + '%';
+  renderStage();
+});
+
+// Font Size — slider + number sync
+const inpFontSizeSlider = document.getElementById('inpFontSizeSlider');
+const inpFontSize = document.getElementById('inpFontSize');
+
+inpFontSizeSlider.addEventListener('input', (e) => {
+  inpFontSize.value = e.target.value;
+  document.getElementById('fontSizeVal').textContent = e.target.value;
+  state.fontSize = parseFloat(e.target.value);
+  renderStage();
+});
+
+inpFontSize.addEventListener('input', (e) => {
+  const val = Math.max(1, Math.min(20, parseFloat(e.target.value) || 5));
+  inpFontSizeSlider.value = val;
+  document.getElementById('fontSizeVal').textContent = val;
+  state.fontSize = val;
+  renderStage();
+});
+
+// Ratio adjust
+document.getElementById('inpRatio').addEventListener('input', (e) => {
+  state.ratioAdjust = parseInt(e.target.value);
+  applyRatioAdjust(state.ratioAdjust);
+
+  // Update active button
+  document.querySelectorAll('.ratio-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (parseInt(btn.dataset.ratio) === state.ratioAdjust) {
+      btn.classList.add('active');
+    }
+  });
+});
+
+document.querySelectorAll('.ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = parseInt(btn.dataset.ratio);
+    document.getElementById('inpRatio').value = val;
+    state.ratioAdjust = val;
+    applyRatioAdjust(val);
+
+    document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Sample QR
 document.getElementById('inpSampleQr').addEventListener('input', renderStage);
 document.getElementById('selShowLabel').addEventListener('change', renderStage);
 
+// Saiz cm
 document.getElementById('inpWidthCm').addEventListener('input', (e) => {
   state.widthCm = parseFloat(e.target.value) || 5;
+  updateRatioDisplay();
   renderStage();
 });
 
 document.getElementById('inpHeightCm').addEventListener('input', (e) => {
   state.heightCm = parseFloat(e.target.value) || 8;
+  updateRatioDisplay();
   renderStage();
 });
 
@@ -1515,7 +1796,9 @@ document.getElementById('btnSaveTemplate').addEventListener('click', () => {
     qrPos: state.qrPos,
     showLabel: document.getElementById('selShowLabel').value === 'yes',
     widthCm: state.widthCm,
-    heightCm: state.heightCm
+    heightCm: state.heightCm,
+    fontSize: state.fontSize,
+    autoDetected: state.autoDetected
   };
 
   localStorage.setItem('qrTemplateConfig', JSON.stringify(data));
@@ -1536,24 +1819,83 @@ function loadSavedConfig() {
       state.templatePublicId = data.templatePublicId;
     }
     if (data.qrPos) state.qrPos = data.qrPos;
-    if (data.qrSize) document.getElementById('inpQrSize').value = data.qrSize;
+    if (data.qrSize) {
+      document.getElementById('inpQrSize').value = data.qrSize;
+      document.getElementById('inpQrSizeSlider').value = data.qrSize;
+      document.getElementById('qrSizeVal').textContent = data.qrSize + '%';
+    }
     if (data.showLabel !== undefined) {
       document.getElementById('selShowLabel').value = data.showLabel ? 'yes' : 'no';
     }
     if (data.widthCm) {
       state.widthCm = data.widthCm;
+      state.originalWidthCm = data.widthCm;
       document.getElementById('inpWidthCm').value = data.widthCm;
     }
     if (data.heightCm) {
       state.heightCm = data.heightCm;
+      state.originalHeightCm = data.heightCm;
       document.getElementById('inpHeightCm').value = data.heightCm;
     }
+    if (data.fontSize) {
+      state.fontSize = data.fontSize;
+      document.getElementById('inpFontSize').value = data.fontSize;
+      document.getElementById('inpFontSizeSlider').value = data.fontSize;
+      document.getElementById('fontSizeVal').textContent = data.fontSize;
+    }
+    if (data.autoDetected) {
+      state.autoDetected = true;
+    }
 
+    updateRatioDisplay();
     renderStage();
     renderFileInfo();
     updatePrintAvailability();
   } catch(e) {
     console.error('Load config error:', e);
+  }
+}
+
+function renderFileInfo() {
+  const wrap = document.getElementById('fileInfoContainer');
+  if (!state.template) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = `
+    <div class="file-info">
+      <div class="file-icon">🖼️</div>
+      <div class="file-meta">
+        <div class="file-name">Template QR Background</div>
+        <div class="file-size">☁️ Cloudinary</div>
+      </div>
+      <button class="file-remove" id="btnRemoveFile" title="Padam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  `;
+
+  document.getElementById('btnRemoveFile').addEventListener('click', removeFile);
+}
+
+function removeFile() {
+  if (!confirm('Padam template?')) return;
+  state.template = null;
+  state.templatePublicId = null;
+  state.autoDetected = false;
+  renderStage();
+  renderFileInfo();
+  updatePrintAvailability();
+  toast('Template dipadam', 'success');
+}
+
+function updatePrintAvailability() {
+  const warn = document.getElementById('printWarn');
+  if (state.template) {
+    warn.style.display = 'none';
+  } else {
+    warn.style.display = 'block';
   }
 }
 
@@ -1615,7 +1957,7 @@ document.getElementById('inpDigitCount').addEventListener('input', updateQrCount
 document.getElementById('inpListNumbers').addEventListener('input', updateQrCount);
 
 /* ============================================================
-   JANA PREVIEW — WYSIWYG (SAMA MACAM PRINT)
+   JANA PREVIEW — WYSIWYG
    ============================================================ */
 document.getElementById('btnGenerate').addEventListener('click', () => {
   const numbers = generateNumberList();
@@ -1631,67 +1973,82 @@ document.getElementById('btnGenerate').addEventListener('click', () => {
   const grid = document.getElementById('qrPreviewGrid');
   grid.innerHTML = '';
 
-  // Baca config
   const qrSizePercent = parseInt(document.getElementById('inpQrSize').value) || 30;
   const qrPos = state.qrPos;
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
   const wCm = state.widthCm;
   const hCm = state.heightCm;
+  const fontSize = state.fontSize;
 
-  // Generate preview WYSIWYG
   numbers.forEach(num => {
     const item = document.createElement('div');
     item.className = 'qr-preview-item';
-    // Set aspect ratio ikut saiz template — WYSIWYG
-    item.style.aspectRatio = `${wCm} / ${hCm}`;
 
-    // Background template (kalau ada) atau placeholder
+    // Preview stage — aspect ratio sama macam template
+    const previewStage = document.createElement('div');
+    previewStage.className = 'preview-stage';
+    previewStage.style.aspectRatio = `${wCm} / ${hCm}`;
+
+    // Background
     if (state.template) {
       const bg = document.createElement('img');
       bg.className = 'preview-bg';
       bg.src = state.template;
       bg.crossOrigin = 'anonymous';
-      item.appendChild(bg);
+      previewStage.appendChild(bg);
     } else {
       const ph = document.createElement('div');
       ph.className = 'preview-bg-placeholder';
-      item.appendChild(ph);
+      previewStage.appendChild(ph);
     }
 
-    // QR overlay — posisi & saiz SAMA macam print
-    const qrOverlay = document.createElement('div');
-    qrOverlay.className = 'preview-qr-overlay';
-    qrOverlay.style.left = qrPos.x + '%';
-    qrOverlay.style.top = qrPos.y + '%';
-    qrOverlay.style.width = qrSizePercent + '%';
+    // QR wrapper — sama struktur dengan edit
+    const qrWrapper = document.createElement('div');
+    qrWrapper.className = 'preview-qr-wrapper';
+    qrWrapper.style.left = qrPos.x + '%';
+    qrWrapper.style.top = qrPos.y + '%';
+    qrWrapper.style.width = qrSizePercent + '%';
 
+    // QR holder
     const qrHolder = document.createElement('div');
-    qrHolder.style.cssText = 'display:block;width:100%;';
-    qrOverlay.appendChild(qrHolder);
-    item.appendChild(qrOverlay);
+    qrHolder.className = 'qr-holder';
+    qrWrapper.appendChild(qrHolder);
 
-    createQRCode(qrHolder, num, 200);
+    new QRCode(qrHolder, {
+      text: num,
+      width: 200,
+      height: 200,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
 
-    // Label overlay — sama macam print
+    // Label
     if (showLabel) {
-      const labelOverlay = document.createElement('div');
-      labelOverlay.className = 'preview-label-overlay';
-      labelOverlay.style.left = qrPos.x + '%';
-      // Posisi label — relative pada QR
-      labelOverlay.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 1px)`;
-      // Font size relative — untuk WYSIWYG feel
-      labelOverlay.style.fontSize = Math.max(8, hCm * 0.4) + 'px';
-      labelOverlay.textContent = num;
-      item.appendChild(labelOverlay);
+      const label = document.createElement('div');
+      label.className = 'qr-label';
+      label.textContent = num;
+      qrWrapper.appendChild(label);
     }
 
-    // Info di bawah (untuk rujukan)
+    previewStage.appendChild(qrWrapper);
+    item.appendChild(previewStage);
+
+    // Info bar
     const info = document.createElement('div');
-    info.className = 'preview-info';
+    info.className = 'preview-info-bar';
     info.textContent = `${num} · ${wCm}×${hCm}cm`;
     item.appendChild(info);
 
     grid.appendChild(item);
+
+    // Apply font size selepas DOM ready
+    setTimeout(() => {
+      if (showLabel) {
+        const label = qrWrapper.querySelector('.qr-label');
+        if (label) applyFontSize(label);
+      }
+    }, 50);
   });
 
   document.getElementById('btnPrint').disabled = false;
@@ -1721,6 +2078,7 @@ document.getElementById('btnPrint').addEventListener('click', () => {
   const showLabel = document.getElementById('selShowLabel').value === 'yes';
   const wCm = state.widthCm;
   const hCm = state.heightCm;
+  const fontSize = state.fontSize;
 
   toast('Sediakan print sheet...', 'info', 2000);
 
@@ -1746,7 +2104,7 @@ document.getElementById('btnPrint').addEventListener('click', () => {
         countInPage = 0;
       }
 
-      const card = buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel);
+      const card = buildPrintCard(numbers[i], wCm, hCm, qrPos, qrSizePercent, showLabel, fontSize);
       currentPage.appendChild(card);
       countInPage++;
     }
@@ -1760,7 +2118,7 @@ document.getElementById('btnPrint').addEventListener('click', () => {
       page.style.alignItems = 'center';
       page.style.justifyContent = 'center';
 
-      const card = buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel);
+      const card = buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel, fontSize);
       page.appendChild(card);
       sheet.appendChild(page);
     });
@@ -1775,48 +2133,55 @@ document.getElementById('btnPrint').addEventListener('click', () => {
 });
 
 /* ============================================================
-   BUILD PRINT CARD — SAMA PERSIS MACAM PREVIEW
+   BUILD PRINT CARD
    ============================================================ */
-function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
+function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel, fontSize) {
   const card = document.createElement('div');
   card.className = 'print-card';
 
   card.style.width = (wCm * 10) + 'mm';
   card.style.height = (hCm * 10) + 'mm';
 
+  // Background
   const bg = document.createElement('img');
   bg.className = 'print-bg';
   bg.src = state.template;
   bg.crossOrigin = 'anonymous';
   card.appendChild(bg);
 
-  const qrDiv = document.createElement('div');
-  qrDiv.className = 'print-qr';
-  qrDiv.style.left = qrPos.x + '%';
-  qrDiv.style.top = qrPos.y + '%';
-  qrDiv.style.width = qrSizePercent + '%';
+  // QR wrapper
+  const qrWrap = document.createElement('div');
+  qrWrap.className = 'print-qr-wrapper';
+  qrWrap.style.left = qrPos.x + '%';
+  qrWrap.style.top = qrPos.y + '%';
+  qrWrap.style.width = qrSizePercent + '%';
 
+  // QR holder
   const qrHolder = document.createElement('div');
-  qrHolder.style.cssText = 'display:block;width:100%;';
-  qrDiv.appendChild(qrHolder);
+  qrHolder.className = 'qr-holder';
+  qrWrap.appendChild(qrHolder);
 
-  createQRCode(qrHolder, num, 400);
+  new QRCode(qrHolder, {
+    text: num,
+    width: 800,
+    height: 800,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
 
-  card.appendChild(qrDiv);
-
+  // Label
   if (showLabel) {
     const labelDiv = document.createElement('div');
-    labelDiv.className = 'print-label';
-    labelDiv.style.left = qrPos.x + '%';
-    labelDiv.style.top = `calc(${qrPos.y}% + ${qrSizePercent/2}% + 1mm)`;
-
-    const fontMm = Math.max(2, hCm * 0.5);
+    labelDiv.className = 'qr-label';
+    // Font size ikut fontSize setting
+    const fontMm = Math.max(1.5, fontSize * 0.5);
     labelDiv.style.fontSize = fontMm + 'mm';
-
     labelDiv.textContent = num;
-    card.appendChild(labelDiv);
+    qrWrap.appendChild(labelDiv);
   }
 
+  card.appendChild(qrWrap);
   return card;
 }
 
@@ -1826,8 +2191,9 @@ function buildPrintCard(num, wCm, hCm, qrPos, qrSizePercent, showLabel) {
 updateQrCount();
 loadSavedConfig();
 updatePrintAvailability();
+updateRatioDisplay();
 
-console.log('%c📱 QR Code Penerima · WYSIWYG Preview', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
+console.log('%c📱 QR Code Penerima · WYSIWYG + Auto-Detect', 'color: #2dd4bf; font-size: 14px; font-weight: bold;');
 console.log('✅ QRCode library:', typeof QRCode !== 'undefined');
 </script>
 
