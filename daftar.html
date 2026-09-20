@@ -201,6 +201,18 @@
     line-height: 1;
   }
 
+  .field label .opt {
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(148, 163, 184, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+
   .field input,
   .field select {
     width: 100%;
@@ -232,7 +244,6 @@
     padding-right: 40px;
   }
 
-  /* ===== FIX: dropdown option warna ===== */
   .field select option {
     background-color: #131a2e;
     color: #e2e8f0;
@@ -253,7 +264,6 @@
     color: #38bdf8;
   }
 
-  /* Firefox fix */
   @-moz-document url-prefix() {
     .field select option {
       background-color: #131a2e !important;
@@ -297,6 +307,11 @@
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+
+  /* Hideable field */
+  .field.hidden-field {
+    display: none;
   }
 
   /* Kategori colored hint */
@@ -1009,9 +1024,10 @@
           <div class="field-hint">Nama akan dipaparkan dalam slaid anugerah</div>
         </div>
 
-        <div class="field">
+        <!-- MATRIK — HANYA untuk Penerima Anugerah -->
+        <div class="field" id="fieldMatrik">
           <label for="inpMatrik">Nombor Matriks <span class="req">*</span></label>
-          <input type="text" id="inpMatrik" name="matrik" placeholder="Contoh: 18DIT21F1001" maxlength="30" required>
+          <input type="text" id="inpMatrik" name="matrik" placeholder="Contoh: 18DIT21F1001" maxlength="30">
           <div class="field-hint">Contoh format: 18DIT21F1001</div>
         </div>
 
@@ -1183,25 +1199,49 @@ function kategoriBadge(kategori) {
   });
 });
 
-/* ============ KATEGORI HINT ============ */
+/* ============ KATEGORI HINT + MATRIK FIELD TOGGLE ============ */
 const inpKategori = document.getElementById('inpKategori');
 const kategoriHint = document.getElementById('kategoriHint');
+const fieldMatrik = document.getElementById('fieldMatrik');
+const inpMatrik = document.getElementById('inpMatrik');
 
-inpKategori.addEventListener('change', () => {
+function updateKategoriUI() {
   const val = inpKategori.value;
   kategoriHint.className = 'kategori-hint';
 
   if (val === 'PENERIMA ANUGERAH') {
     kategoriHint.classList.add('show', 'penerima');
     kategoriHint.innerHTML = '🎓 Penerima akan naik atas pentas terima anugerah';
+    // Matrik WAJIB
+    fieldMatrik.classList.remove('hidden-field');
+    inpMatrik.required = true;
+    inpMatrik.placeholder = 'Contoh: 18DIT21F1001';
+
   } else if (val === 'AHLI JAWATANKUASA') {
     kategoriHint.classList.add('show', 'ajk');
-    kategoriHint.innerHTML = '👥 Ahli jawatankuasa majlis — pengurus acara';
+    kategoriHint.innerHTML = '👥 Ahli jawatankuasa majlis — tak perlu nombor matriks';
+    // Matrik TAK PERLU
+    fieldMatrik.classList.add('hidden-field');
+    inpMatrik.required = false;
+    inpMatrik.value = '';
+
   } else if (val === 'TETAMU') {
     kategoriHint.classList.add('show', 'tetamu');
-    kategoriHint.innerHTML = '🤝 Tetamu kehormat / jemputan khas';
+    kategoriHint.innerHTML = '🤝 Tetamu kehormat / jemputan khas — tak perlu nombor matriks';
+    // Matrik TAK PERLU
+    fieldMatrik.classList.add('hidden-field');
+    inpMatrik.required = false;
+    inpMatrik.value = '';
+
+  } else {
+    // Belum pilih — tunjuk field matrik dengan required
+    fieldMatrik.classList.remove('hidden-field');
+    inpMatrik.required = true;
   }
-});
+}
+
+inpKategori.addEventListener('change', updateKategoriUI);
+updateKategoriUI();
 
 /* ============ AUTO-SUGGEST QR NUMBER ============ */
 async function suggestNextBarcode() {
@@ -1419,10 +1459,18 @@ form.addEventListener('submit', async (e) => {
     document.getElementById('inpKategori').focus();
     return;
   }
-  if (!nama || !matrik || !barcode) {
+  if (!nama || !barcode) {
     toast('Sila isi semua medan yang bertanda *', 'error');
     return;
   }
+
+  // Matrik WAJIB hanya untuk Penerima Anugerah
+  if (kategori === 'PENERIMA ANUGERAH' && !matrik) {
+    toast('Penerima Anugerah wajib isi nombor matriks', 'error');
+    document.getElementById('inpMatrik').focus();
+    return;
+  }
+
   if (nama.length < 3) {
     toast('Nama terlalu pendek', 'error');
     document.getElementById('inpNama').focus();
@@ -1451,7 +1499,10 @@ form.addEventListener('submit', async (e) => {
     }
 
     await addDoc(collection(db, 'recipients'), {
-      kategori, nama, matrik, barcode,
+      kategori,
+      nama,
+      matrik: matrik || '-',   // AJK & Tetamu tak ada matrik
+      barcode,
       hadir: false,
       createdAt: serverTimestamp()
     });
@@ -1459,6 +1510,7 @@ form.addEventListener('submit', async (e) => {
     toast('✅ ' + nama + ' (' + kategori + ') berjaya didaftarkan', 'success');
     form.reset();
     kategoriHint.className = 'kategori-hint';
+    updateKategoriUI(); // reset matrik field visibility
     document.getElementById('inpNama').focus();
     document.getElementById('inpBarcode').classList.remove('error');
 
