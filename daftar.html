@@ -224,10 +224,41 @@
     text-transform: uppercase;
     cursor: pointer;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
     padding-right: 40px;
+  }
+
+  /* ===== FIX: dropdown option warna ===== */
+  .field select option {
+    background-color: #131a2e;
+    color: #e2e8f0;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .field select option:checked,
+  .field select option:focus {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #0a0e1a;
+    font-weight: 800;
+  }
+
+  .field select option:hover {
+    background-color: #1f2b47;
+    color: #38bdf8;
+  }
+
+  /* Firefox fix */
+  @-moz-document url-prefix() {
+    .field select option {
+      background-color: #131a2e !important;
+      color: #e2e8f0 !important;
+    }
   }
 
   .field input::placeholder {
@@ -964,7 +995,7 @@
         <div class="field">
           <label for="inpKategori">Kategori <span class="req">*</span></label>
           <select id="inpKategori" name="kategori" required>
-            <option value="">-- Pilih Kategori --</option>
+            <option value="" disabled selected>-- Pilih Kategori --</option>
             <option value="PENERIMA ANUGERAH">🎓 Penerima Anugerah</option>
             <option value="AHLI JAWATANKUASA">👥 Ahli Jawatankuasa</option>
             <option value="TETAMU">🤝 Tetamu</option>
