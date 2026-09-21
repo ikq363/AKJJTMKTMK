@@ -134,11 +134,11 @@
   .container {
     position: relative;
     z-index: 1;
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 32px;
     display: grid;
-    grid-template-columns: 320px 1fr 300px;
+    grid-template-columns: 340px 1fr 300px;
     gap: 24px;
     align-items: start;
   }
@@ -180,10 +180,124 @@
     color: var(--accent);
   }
 
+  /* ============ TEMPLATE LIST ============ */
+  .template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 12px;
+  }
+  .template-list::-webkit-scrollbar { width: 5px; }
+  .template-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .template-item {
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .template-item:hover {
+    border-color: rgba(167, 139, 250, 0.5);
+    background: rgba(167, 139, 250, 0.04);
+  }
+  .template-item.active {
+    border-color: var(--accent);
+    background: rgba(167, 139, 250, 0.1);
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
+  }
+
+  .template-thumb {
+    width: 56px;
+    height: 32px;
+    border-radius: 6px;
+    background: #000;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .template-thumb img,
+  .template-thumb video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .template-thumb .icon-fallback {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .template-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .template-info .name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .template-info .meta {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .template-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .tpl-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+  }
+  .tpl-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .tpl-btn svg { width: 12px; height: 12px; }
+
+  .empty-templates {
+    text-align: center;
+    padding: 20px 12px;
+    color: var(--text-muted);
+    font-size: 12px;
+    background: var(--bg-input);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+  }
+
+  /* ============ UPLOAD ZONE ============ */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
-    padding: 28px 16px;
+    padding: 20px 16px;
     text-align: center;
     cursor: pointer;
     transition: all 0.25s;
@@ -197,9 +311,9 @@
     opacity: 0.6;
     pointer-events: none;
   }
-  .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
-  .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .upload-zone .sub { font-size: 11.5px; color: var(--text-muted); }
+  .upload-zone .icon { font-size: 26px; margin-bottom: 6px; opacity: 0.7; }
+  .upload-zone .title { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .upload-zone .sub { font-size: 11px; color: var(--text-muted); }
   .upload-zone input[type="file"] { display: none; }
 
   .upload-progress {
@@ -226,56 +340,7 @@
     transition: width 0.3s;
   }
 
-  .file-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-top: 12px;
-  }
-  .file-info .file-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    background: rgba(167, 139, 250, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .file-info .file-meta { flex: 1; min-width: 0; }
-  .file-info .file-name {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .file-info .file-size { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  .file-remove {
-    width: 30px; height: 30px;
-    border-radius: 6px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .file-remove:hover {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: var(--red);
-    color: var(--red);
-  }
-  .file-remove svg { width: 14px; height: 14px; }
-
+  /* ============ CONTROL GROUP ============ */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
   .control-group label {
@@ -572,7 +637,6 @@
     z-index: 100;
   }
 
-  /* PUDAR - supaya nampak template belakang */
   .drag-tag.name-tag { background: rgba(56, 189, 248, 0.35); color: rgba(255,255,255,0.85); }
   .drag-tag.matrik-tag { background: rgba(52, 211, 153, 0.35); color: rgba(255,255,255,0.85); }
 
@@ -802,6 +866,29 @@
     animation: spin 0.6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .active-template-name {
+    font-size: 11.5px;
+    color: var(--accent);
+    font-weight: 700;
+    text-align: center;
+    padding: 6px 10px;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .active-template-name .dot-active {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
 </style>
 </head>
 <body>
@@ -818,7 +905,7 @@
   </a>
   <div class="topbar-title">
     <span class="dot"></span>
-    EDIT TEMPLATE · CLOUDINARY
+    EDIT TEMPLATE · MULTI-TEMPLATE
   </div>
   <div class="status-badge">
     <span class="status-dot"></span>
@@ -831,14 +918,19 @@
   <!-- LEFT -->
   <div class="left-panel fade-up">
 
+    <!-- SENARAI TEMPLATE -->
     <div class="card">
-      <h2><span class="num">1</span> Upload Template</h2>
+      <h2><span class="num">1</span> Senarai Template</h2>
+
+      <div id="templateList" class="template-list">
+        <div class="empty-templates">Belum ada template</div>
+      </div>
 
       <div class="upload-zone" id="uploadZone">
         <div class="icon">📁</div>
-        <div class="title">Klik atau drag fail</div>
+        <div class="title">+ Tambah Template Baru</div>
         <div class="sub">PNG · JPG · MP4 · WebM (max 100MB)</div>
-        <input type="file" id="inpFile" accept="image/*,video/mp4,video/webm">
+        <input type="file" id="inpFile" accept="image/*,video/mp4,video/webm" multiple>
       </div>
 
       <div class="upload-progress" id="uploadProgress">
@@ -850,12 +942,21 @@
           <div class="progress-bar-fill" id="progressFill"></div>
         </div>
       </div>
-
-      <div id="fileInfoContainer"></div>
     </div>
 
-    <div class="card">
-      <h2><span class="num">2</span> Posisi Text</h2>
+    <!-- SETTING TEMPLATE AKTIF -->
+    <div class="card" id="settingsCard" style="display:none;">
+      <h2><span class="num">2</span> Setting Template Aktif</h2>
+
+      <div class="active-template-name" id="activeTemplateName">
+        <span class="dot-active"></span>
+        <span>—</span>
+      </div>
+
+      <div class="control-group">
+        <label>Nama Template</label>
+        <input type="text" id="inpTemplateName" placeholder="cth: Background Emas" maxlength="50">
+      </div>
 
       <div class="pos-grid">
         <div class="pos-item name-pos">
@@ -928,10 +1029,6 @@
           <option value="900">Extra Bold</option>
         </select>
       </div>
-    </div>
-
-    <div class="card">
-      <h2><span class="num">3</span> Setting Video</h2>
 
       <div class="toggle-row">
         <div>
@@ -989,7 +1086,7 @@
         <polyline points="17 21 17 13 7 13 7 21"></polyline>
         <polyline points="7 3 7 8 15 8"></polyline>
       </svg>
-      <span>Simpan Setting</span>
+      <span>Simpan Semua Setting</span>
     </button>
 
   </div>
@@ -1011,7 +1108,7 @@
       <div id="stage">
         <div class="placeholder">
           <div class="icon">🖼️</div>
-          <p>Upload template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
+          <p>Pilih atau tambah template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
         </div>
       </div>
 
@@ -1028,7 +1125,7 @@
     <div class="card">
       <h2>👥 Preview Bulk</h2>
       <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">
-        Setiap penerima akan dapat slaid sendiri.
+        Preview ikut template yang dipilih.
       </p>
 
       <div id="previewList" class="preview-grid">
@@ -1079,11 +1176,11 @@ const db = getFirestore(app);
 /* ============================================================
    STATE
    ============================================================ */
-let state = {
-  template: null,
-  templateType: null,
-  templateSource: null,
-  templatePublicId: null,
+let templates = []; // Array of { id, name, url, type, source, publicId, positions, styles, video, overlay }
+let activeTemplateId = null;
+let recipients = [];
+
+const DEFAULT_TEMPLATE_SETTINGS = {
   positions: {
     name:   { x: 50, y: 40 },
     matrik: { x: 50, y: 60 }
@@ -1092,13 +1189,31 @@ let state = {
     nameSize: 32, matrikSize: 22,
     color: '#ffffff',
     font: "'Segoe UI', system-ui, sans-serif",
-    weight: 700, align: 'center'
+    weight: 700
   },
   video: { loop: true, autoplay: true, muted: true },
   overlay: { enabled: false, opacity: 30 }
 };
 
-let recipients = [];
+function makeNewTemplate(name = 'Template Baru') {
+  return {
+    id: 'tpl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    name: name,
+    url: null,
+    type: null,
+    source: null,
+    publicId: null,
+    positions: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.positions)),
+    styles: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.styles)),
+    video: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.video)),
+    overlay: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.overlay)),
+    createdAt: Date.now()
+  };
+}
+
+function getActiveTemplate() {
+  return templates.find(t => t.id === activeTemplateId) || null;
+}
 
 /* ============================================================
    HELPERS
@@ -1132,26 +1247,29 @@ function showSaveStatus(text) {
 /* ============================================================
    FIREBASE LISTENERS
    ============================================================ */
-const configDoc = doc(db, 'config', 'main');
+const templatesDoc = doc(db, 'config', 'templates');
 
-onSnapshot(configDoc, (snap) => {
-  if (!snap.exists()) return;
+onSnapshot(templatesDoc, (snap) => {
+  if (!snap.exists()) {
+    templates = [];
+    activeTemplateId = null;
+    renderTemplateList();
+    renderStage();
+    renderPreview();
+    updateSettingsVisibility();
+    return;
+  }
+
   const data = snap.data();
+  templates = Array.isArray(data.list) ? data.list : [];
+  activeTemplateId = data.activeId || (templates[0]?.id || null);
 
-  state.template = data.template || null;
-  state.templateType = data.templateType || null;
-  state.templateSource = data.templateSource || null;
-  state.templatePublicId = data.templatePublicId || null;
-
-  if (data.positions) state.positions = { ...state.positions, ...data.positions };
-  if (data.styles) state.styles = { ...state.styles, ...data.styles };
-  if (data.video) state.video = { ...state.video, ...data.video };
-  if (data.overlay) state.overlay = { ...state.overlay, ...data.overlay };
-
-  applyUIFromState();
+  renderTemplateList();
+  applyActiveToUI();
   renderStage();
   renderPreview();
-}, (err) => console.error('config:', err));
+  updateSettingsVisibility();
+}, (err) => console.error('templates:', err));
 
 const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
 
@@ -1161,55 +1279,156 @@ onSnapshot(recipientsQ, (snap) => {
 }, (err) => console.error('recipients:', err));
 
 /* ============================================================
-   APPLY UI
+   TEMPLATE LIST RENDER
    ============================================================ */
-function applyUIFromState() {
-  document.getElementById('inpSizeNama').value = state.styles.nameSize;
-  document.getElementById('inpSizeMatrik').value = state.styles.matrikSize;
-  document.getElementById('inpColor').value = state.styles.color;
-  document.getElementById('inpFont').value = state.styles.font;
-  document.getElementById('inpWeight').value = String(state.styles.weight);
+function renderTemplateList() {
+  const list = document.getElementById('templateList');
 
-  document.getElementById('posNameX').value = state.positions.name.x.toFixed(1);
-  document.getElementById('posNameY').value = state.positions.name.y.toFixed(1);
-  document.getElementById('posMatrikX').value = state.positions.matrik.x.toFixed(1);
-  document.getElementById('posMatrikY').value = state.positions.matrik.y.toFixed(1);
+  if (templates.length === 0) {
+    list.innerHTML = '<div class="empty-templates">Belum ada template</div>';
+    return;
+  }
 
-  document.getElementById('toggleLoop').checked = state.video.loop;
-  document.getElementById('toggleAutoplay').checked = state.video.autoplay;
-  document.getElementById('toggleMuted').checked = state.video.muted;
+  list.innerHTML = templates.map(t => {
+    const isActive = t.id === activeTemplateId;
+    const isVideo = t.type === 'video';
 
-  document.getElementById('toggleOverlay').checked = state.overlay.enabled;
-  document.getElementById('inpOverlayOpacity').value = state.overlay.opacity;
-  document.getElementById('overlayOpacityGroup').style.display = state.overlay.enabled ? 'block' : 'none';
+    let thumbHTML = '';
+    if (t.url && t.type === 'image') {
+      thumbHTML = `<img src="${t.url}" alt="">`;
+    } else if (t.url && t.type === 'video') {
+      thumbHTML = `<video src="${t.url}" muted preload="metadata"></video>`;
+    } else {
+      thumbHTML = `<span class="icon-fallback">📄</span>`;
+    }
 
-  renderFileInfo();
+    const meta = t.url
+      ? (isVideo ? '🎬 Video' : '🖼️ Gambar')
+      : 'Kosong';
+
+    return `
+      <div class="template-item ${isActive ? 'active' : ''}" data-id="${t.id}">
+        <div class="template-thumb">${thumbHTML}</div>
+        <div class="template-info">
+          <div class="name">${escapeHtml(t.name || 'Tanpa Nama')}</div>
+          <div class="meta">${meta}</div>
+        </div>
+        <div class="template-actions">
+          <button class="tpl-btn" data-action="delete" title="Padam">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Click handlers
+  list.querySelectorAll('.template-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('[data-action="delete"]')) return;
+      const id = item.dataset.id;
+      if (id !== activeTemplateId) {
+        activeTemplateId = id;
+        saveTemplates();
+        renderTemplateList();
+        applyActiveToUI();
+        renderStage();
+        renderPreview();
+        updateSettingsVisibility();
+      }
+    });
+  });
+
+  list.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.closest('.template-item').dataset.id;
+      deleteTemplate(id);
+    });
+  });
 }
 
-function renderFileInfo() {
-  const wrap = document.getElementById('fileInfoContainer');
-  if (!state.template) { wrap.innerHTML = ''; return; }
+function updateSettingsVisibility() {
+  const card = document.getElementById('settingsCard');
+  card.style.display = templates.length > 0 ? 'block' : 'none';
+}
 
-  const isVideo = state.templateType === 'video';
-  const isCloudinary = state.templateSource === 'cloudinary';
+/* ============================================================
+   APPLY ACTIVE TEMPLATE KE UI
+   ============================================================ */
+function applyActiveToUI() {
+  const t = getActiveTemplate();
+  if (!t) return;
 
-  wrap.innerHTML = `
-    <div class="file-info">
-      <div class="file-icon">${isVideo ? '🎬' : '🖼️'}</div>
-      <div class="file-meta">
-        <div class="file-name">${isVideo ? 'Video Template' : 'Gambar Template'}</div>
-        <div class="file-size">${isCloudinary ? '☁️ Cloudinary' : '📁 Legacy'} · ${isVideo ? 'MP4' : 'Image'}</div>
-      </div>
-      <button class="file-remove" id="btnRemoveFile" title="Padam">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
+  // Active name badge
+  document.getElementById('activeTemplateName').innerHTML = `
+    <span class="dot-active"></span>
+    <span>${escapeHtml(t.name || 'Tanpa Nama')}</span>
   `;
 
-  document.getElementById('btnRemoveFile').addEventListener('click', removeFile);
+  // Name input
+  document.getElementById('inpTemplateName').value = t.name || '';
+
+  // Positions
+  document.getElementById('posNameX').value = t.positions.name.x.toFixed(1);
+  document.getElementById('posNameY').value = t.positions.name.y.toFixed(1);
+  document.getElementById('posMatrikX').value = t.positions.matrik.x.toFixed(1);
+  document.getElementById('posMatrikY').value = t.positions.matrik.y.toFixed(1);
+
+  // Styles
+  document.getElementById('inpSizeNama').value = t.styles.nameSize;
+  document.getElementById('inpSizeMatrik').value = t.styles.matrikSize;
+  document.getElementById('inpColor').value = t.styles.color;
+  document.getElementById('inpFont').value = t.styles.font;
+  document.getElementById('inpWeight').value = String(t.styles.weight);
+
+  // Video
+  document.getElementById('toggleLoop').checked = t.video.loop;
+  document.getElementById('toggleAutoplay').checked = t.video.autoplay;
+  document.getElementById('toggleMuted').checked = t.video.muted;
+
+  // Overlay
+  document.getElementById('toggleOverlay').checked = t.overlay.enabled;
+  document.getElementById('inpOverlayOpacity').value = t.overlay.opacity;
+  document.getElementById('overlayOpacityGroup').style.display = t.overlay.enabled ? 'block' : 'none';
+}
+
+/* ============================================================
+   SAVE TEMPLATES
+   ============================================================ */
+async function saveTemplates() {
+  try {
+    await setDoc(templatesDoc, {
+      list: templates,
+      activeId: activeTemplateId,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    showSaveStatus('Setting disimpan');
+  } catch (e) {
+    console.error(e);
+    toast('Gagal simpan: ' + e.message, 'error');
+  }
+}
+
+const debounceSave = (() => {
+  let timer;
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(saveTemplates, 800);
+  };
+})();
+
+/* ============================================================
+   UPDATE ACTIVE TEMPLATE FIELD
+   ============================================================ */
+function updateActiveTemplate(updates) {
+  const t = getActiveTemplate();
+  if (!t) return;
+  Object.assign(t, updates);
+  debounceSave();
 }
 
 /* ============================================================
@@ -1230,13 +1449,13 @@ uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag
 uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFileUpload(file);
+  const files = Array.from(e.dataTransfer.files);
+  files.forEach(f => handleFileUpload(f));
 });
 
 inpFile.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) handleFileUpload(file);
+  const files = Array.from(e.target.files);
+  files.forEach(f => handleFileUpload(f));
   e.target.value = '';
 });
 
@@ -1248,10 +1467,22 @@ async function handleFileUpload(file) {
   const isImage = file.type.startsWith('image/');
   const isVideo = file.type.startsWith('video/');
   if (!isImage && !isVideo) {
-    return toast('Format tak disokong', 'error');
+    return toast('Format tak disokong: ' + file.name, 'error');
   }
 
-  console.log('📤 Uploading:', file.name, file.type, (file.size / 1024 / 1024).toFixed(2) + 'MB');
+  console.log('📤 Uploading:', file.name, file.type);
+
+  // Create template entry dulu (kosong)
+  const newTpl = makeNewTemplate(file.name.replace(/\.[^.]+$/, ''));
+  newTpl.type = isVideo ? 'video' : 'image';
+  templates.push(newTpl);
+
+  // Set as active supaya user nampak progress
+  activeTemplateId = newTpl.id;
+  renderTemplateList();
+  applyActiveToUI();
+  renderStage();
+  updateSettingsVisibility();
 
   uploadZone.classList.add('uploading');
   const progressEl = document.getElementById('uploadProgress');
@@ -1260,7 +1491,7 @@ async function handleFileUpload(file) {
   const uploadPct = document.getElementById('uploadPct');
   progressEl.classList.add('show');
   progressFill.style.width = '0%';
-  uploadText.textContent = 'Uploading ke Cloudinary...';
+  uploadText.textContent = 'Uploading: ' + file.name;
 
   const resourceType = isVideo ? 'video' : 'image';
 
@@ -1286,25 +1517,34 @@ async function handleFileUpload(file) {
     if (xhr.status >= 200 && xhr.status < 300) {
       try {
         const result = JSON.parse(xhr.responseText);
-        console.log('✅ Upload result:', result);
-
         const secureUrl = result.secure_url;
         const publicId = result.public_id;
 
         if (!secureUrl) throw new Error('Tiada secure_url');
 
-        await setDoc(configDoc, {
-          template: secureUrl,
-          templateType: isVideo ? 'video' : 'image',
-          templateSource: 'cloudinary',
-          templatePublicId: publicId,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+        // Update template
+        const idx = templates.findIndex(t => t.id === newTpl.id);
+        if (idx >= 0) {
+          templates[idx].url = secureUrl;
+          templates[idx].source = 'cloudinary';
+          templates[idx].publicId = publicId;
+        }
 
-        toast('✅ Template berjaya di-upload!', 'success');
+        await saveTemplates();
+        renderTemplateList();
+        renderStage();
+        renderPreview();
+        toast('✅ ' + file.name + ' berjaya di-upload!', 'success');
       } catch (e) {
         console.error('Parse error:', e);
         toast('Ralat parse: ' + e.message, 'error');
+        // Remove template yang gagal
+        templates = templates.filter(t => t.id !== newTpl.id);
+        if (activeTemplateId === newTpl.id) {
+          activeTemplateId = templates[0]?.id || null;
+        }
+        renderTemplateList();
+        updateSettingsVisibility();
       }
     } else {
       let errMsg = 'Status ' + xhr.status;
@@ -1314,6 +1554,13 @@ async function handleFileUpload(file) {
       } catch(e) {}
       console.error('Upload error:', errMsg);
       toast('❌ Upload gagal: ' + errMsg, 'error', 6000);
+      // Remove template yang gagal
+      templates = templates.filter(t => t.id !== newTpl.id);
+      if (activeTemplateId === newTpl.id) {
+        activeTemplateId = templates[0]?.id || null;
+      }
+      renderTemplateList();
+      updateSettingsVisibility();
     }
   });
 
@@ -1321,6 +1568,12 @@ async function handleFileUpload(file) {
     uploadZone.classList.remove('uploading');
     progressEl.classList.remove('show');
     toast('❌ Ralat sambungan', 'error');
+    templates = templates.filter(t => t.id !== newTpl.id);
+    if (activeTemplateId === newTpl.id) {
+      activeTemplateId = templates[0]?.id || null;
+    }
+    renderTemplateList();
+    updateSettingsVisibility();
   });
 
   const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
@@ -1328,23 +1581,23 @@ async function handleFileUpload(file) {
   xhr.send(formData);
 }
 
-async function removeFile() {
-  if (!confirm('Padam template ni?')) return;
+async function deleteTemplate(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  if (!confirm('Padam template "' + (t.name || 'Tanpa Nama') + '"?')) return;
 
-  try {
-    await setDoc(configDoc, {
-      template: null,
-      templateType: null,
-      templateSource: null,
-      templatePublicId: null,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-
-    toast('Template dipadam', 'success');
-  } catch (e) {
-    console.error(e);
-    toast('Gagal padam: ' + e.message, 'error');
+  templates = templates.filter(x => x.id !== id);
+  if (activeTemplateId === id) {
+    activeTemplateId = templates[0]?.id || null;
   }
+
+  await saveTemplates();
+  renderTemplateList();
+  applyActiveToUI();
+  renderStage();
+  renderPreview();
+  updateSettingsVisibility();
+  toast('Template dipadam', 'success');
 }
 
 /* ============================================================
@@ -1354,25 +1607,26 @@ const stage = document.getElementById('stage');
 let gridVisible = false;
 
 function renderStage() {
+  const t = getActiveTemplate();
   stage.innerHTML = '';
 
-  if (!state.template) {
+  if (!t || !t.url) {
     stage.innerHTML = `
       <div class="placeholder">
         <div class="icon">🖼️</div>
-        <p>Upload template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
+        <p>${!t ? 'Pilih atau tambah template untuk mula' : 'Template belum di-upload'}<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
       </div>`;
-    document.getElementById('stageMeta').textContent = 'Tiada template';
+    document.getElementById('stageMeta').textContent = !t ? 'Tiada template' : 'Belum upload';
     return;
   }
 
-  if (state.templateType === 'video') {
+  if (t.type === 'video') {
     const video = document.createElement('video');
     video.id = 'stageMedia';
-    video.src = state.template;
-    video.loop = state.video.loop;
-    video.autoplay = state.video.autoplay;
-    video.muted = state.video.muted;
+    video.src = t.url;
+    video.loop = t.video.loop;
+    video.autoplay = t.video.autoplay;
+    video.muted = t.video.muted;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
@@ -1385,7 +1639,7 @@ function renderStage() {
   } else {
     const img = document.createElement('img');
     img.id = 'stageMedia';
-    img.src = state.template;
+    img.src = t.url;
     img.draggable = false;
     img.addEventListener('load', () => {
       document.getElementById('stageMeta').textContent =
@@ -1394,10 +1648,10 @@ function renderStage() {
     stage.appendChild(img);
   }
 
-  if (state.overlay.enabled) {
+  if (t.overlay.enabled) {
     const overlay = document.createElement('div');
     overlay.style.cssText = `
-      position:absolute; inset:0; background:rgba(0,0,0,${state.overlay.opacity/100});
+      position:absolute; inset:0; background:rgba(0,0,0,${t.overlay.opacity/100});
       pointer-events:none; z-index:5;
     `;
     stage.appendChild(overlay);
@@ -1418,23 +1672,23 @@ function renderStage() {
   const sampleNama = recipients[0]?.nama || 'CONTOH NAMA PENUH';
   const sampleMatrik = recipients[0]?.matrik || '18DIT21F1001';
 
-  addDragTag('name', sampleNama, state.positions.name.x, state.positions.name.y);
-  addDragTag('matrik', sampleMatrik, state.positions.matrik.x, state.positions.matrik.y);
+  addDragTag('name', sampleNama, t.positions.name.x, t.positions.name.y, t);
+  addDragTag('matrik', sampleMatrik, t.positions.matrik.x, t.positions.matrik.y, t);
 }
 
-function addDragTag(type, text, xPct, yPct) {
+function addDragTag(type, text, xPct, yPct, t) {
   const tag = document.createElement('div');
   tag.className = 'drag-tag ' + type + '-tag';
   tag.dataset.type = type;
   tag.style.left = xPct + '%';
   tag.style.top = yPct + '%';
 
-  if (type === 'name') tag.style.fontSize = state.styles.nameSize + 'px';
-  else tag.style.fontSize = state.styles.matrikSize + 'px';
+  if (type === 'name') tag.style.fontSize = t.styles.nameSize + 'px';
+  else tag.style.fontSize = t.styles.matrikSize + 'px';
 
-  tag.style.color = state.styles.color;
-  tag.style.fontFamily = state.styles.font;
-  tag.style.fontWeight = state.styles.weight;
+  tag.style.color = t.styles.color;
+  tag.style.fontFamily = t.styles.font;
+  tag.style.fontWeight = t.styles.weight;
   tag.style.textShadow = '0 2px 8px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.9)';
 
   tag.innerHTML = `
@@ -1454,22 +1708,27 @@ function makeDraggable(el, type) {
     dragging = true;
     el.classList.add('dragging');
     startX = e.clientX; startY = e.clientY;
-    startLeftPct = state.positions[type].x;
-    startTopPct = state.positions[type].y;
+    const t = getActiveTemplate();
+    startLeftPct = t.positions[type].x;
+    startTopPct = t.positions[type].y;
     e.preventDefault();
   });
 
   el.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
+    const t2 = e.touches[0];
     dragging = true;
     el.classList.add('dragging');
-    startX = t.clientX; startY = t.clientY;
-    startLeftPct = state.positions[type].x;
-    startTopPct = state.positions[type].y;
+    startX = t2.clientX; startY = t2.clientY;
+    const t = getActiveTemplate();
+    startLeftPct = t.positions[type].x;
+    startTopPct = t.positions[type].y;
   }, { passive: true });
 
   function move(clientX, clientY) {
     if (!dragging) return;
+    const t = getActiveTemplate();
+    if (!t) return;
+
     const rect = stage.getBoundingClientRect();
     const dx = ((clientX - startX) / rect.width) * 100;
     const dy = ((clientY - startY) / rect.height) * 100;
@@ -1477,8 +1736,8 @@ function makeDraggable(el, type) {
     let newX = Math.max(0, Math.min(100, startLeftPct + dx));
     let newY = Math.max(0, Math.min(100, startTopPct + dy));
 
-    state.positions[type].x = newX;
-    state.positions[type].y = newY;
+    t.positions[type].x = newX;
+    t.positions[type].y = newY;
     el.style.left = newX + '%';
     el.style.top = newY + '%';
 
@@ -1506,156 +1765,185 @@ function makeDraggable(el, type) {
    POSITION INPUT SYNC
    ============================================================ */
 function syncPositionInputs() {
-  document.getElementById('posNameX').value = state.positions.name.x.toFixed(1);
-  document.getElementById('posNameY').value = state.positions.name.y.toFixed(1);
-  document.getElementById('posMatrikX').value = state.positions.matrik.x.toFixed(1);
-  document.getElementById('posMatrikY').value = state.positions.matrik.y.toFixed(1);
+  const t = getActiveTemplate();
+  if (!t) return;
+  document.getElementById('posNameX').value = t.positions.name.x.toFixed(1);
+  document.getElementById('posNameY').value = t.positions.name.y.toFixed(1);
+  document.getElementById('posMatrikX').value = t.positions.matrik.x.toFixed(1);
+  document.getElementById('posMatrikY').value = t.positions.matrik.y.toFixed(1);
 }
 
 function updateTagPosition(type) {
+  const t = getActiveTemplate();
+  if (!t) return;
   const tags = stage.querySelectorAll('.drag-tag');
   tags.forEach(tag => {
     if (tag.dataset.type === type) {
-      tag.style.left = state.positions[type].x + '%';
-      tag.style.top = state.positions[type].y + '%';
+      tag.style.left = t.positions[type].x + '%';
+      tag.style.top = t.positions[type].y + '%';
     }
   });
 }
 
-// Event listener untuk position inputs
 ['posNameX', 'posNameY', 'posMatrikX', 'posMatrikY'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
+    const t = getActiveTemplate();
+    if (!t) return;
+
     const val = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
-    if (id === 'posNameX') { state.positions.name.x = val; updateTagPosition('name'); }
-    if (id === 'posNameY') { state.positions.name.y = val; updateTagPosition('name'); }
-    if (id === 'posMatrikX') { state.positions.matrik.x = val; updateTagPosition('matrik'); }
-    if (id === 'posMatrikY') { state.positions.matrik.y = val; updateTagPosition('matrik'); }
+    if (id === 'posNameX') { t.positions.name.x = val; updateTagPosition('name'); }
+    if (id === 'posNameY') { t.positions.name.y = val; updateTagPosition('name'); }
+    if (id === 'posMatrikX') { t.positions.matrik.x = val; updateTagPosition('matrik'); }
+    if (id === 'posMatrikY') { t.positions.matrik.y = val; updateTagPosition('matrik'); }
+
+    const target = id.includes('Name') ? 'name' : 'matrik';
     document.getElementById('coordDisplay').textContent =
-      `${id.includes('Name') ? 'Nama' : 'Matriks'} · x: ${(id.includes('X') ? state.positions[id.includes('Name') ? 'name' : 'matrik'].x : state.positions[id.includes('Name') ? 'name' : 'matrik'].x).toFixed(1)}% , y: ${(id.includes('Y') ? state.positions[id.includes('Name') ? 'name' : 'matrik'].y : state.positions[id.includes('Name') ? 'name' : 'matrik'].y).toFixed(1)}%`;
+      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${t.positions[target].x.toFixed(1)}% , y: ${t.positions[target].y.toFixed(1)}%`;
     debounceSave();
   });
 });
 
-// Event listener untuk step buttons
 document.querySelectorAll('.step-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    const t = getActiveTemplate();
+    if (!t) return;
     const target = btn.dataset.target;
     const axis = btn.dataset.axis;
     const dir = parseInt(btn.dataset.dir);
     const step = 0.5;
 
-    let newVal = state.positions[target][axis] + (step * dir);
+    let newVal = t.positions[target][axis] + (step * dir);
     newVal = Math.max(0, Math.min(100, newVal));
-    state.positions[target][axis] = newVal;
+    t.positions[target][axis] = newVal;
 
     syncPositionInputs();
     updateTagPosition(target);
     document.getElementById('coordDisplay').textContent =
-      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${state.positions[target].x.toFixed(1)}% , y: ${state.positions[target].y.toFixed(1)}%`;
+      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${t.positions[target].x.toFixed(1)}% , y: ${t.positions[target].y.toFixed(1)}%`;
     debounceSave();
   });
 });
 
 /* ============================================================
-   SAVE
+   CONTROLS — SEMUA UBAH ACTIVE TEMPLATE
    ============================================================ */
-async function saveConfig() {
-  try {
-    await setDoc(configDoc, {
-      positions: state.positions,
-      styles: state.styles,
-      video: state.video,
-      overlay: state.overlay,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-    showSaveStatus('Setting disimpan');
-  } catch (e) {
-    console.error(e);
-    toast('Gagal simpan: ' + e.message, 'error');
-  }
-}
+document.getElementById('inpTemplateName').addEventListener('input', (e) => {
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.name = e.target.value;
+  debounceSave();
+  // Update list name je (tanpa re-render penuh)
+  const item = document.querySelector(`.template-item[data-id="${t.id}"] .name`);
+  if (item) item.textContent = t.name || 'Tanpa Nama';
+  document.getElementById('activeTemplateName').innerHTML = `
+    <span class="dot-active"></span>
+    <span>${escapeHtml(t.name || 'Tanpa Nama')}</span>
+  `;
+});
 
-const debounceSave = (() => {
-  let timer;
-  return () => {
-    clearTimeout(timer);
-    timer = setTimeout(saveConfig, 800);
-  };
-})();
-
-/* ============================================================
-   CONTROLS
-   ============================================================ */
 document.getElementById('inpSizeNama').addEventListener('input', (e) => {
-  state.styles.nameSize = parseInt(e.target.value) || 32;
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.styles.nameSize = parseInt(e.target.value) || 32;
   updateTagStyles(); debounceSave();
 });
 
 document.getElementById('inpSizeMatrik').addEventListener('input', (e) => {
-  state.styles.matrikSize = parseInt(e.target.value) || 22;
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.styles.matrikSize = parseInt(e.target.value) || 22;
   updateTagStyles(); debounceSave();
 });
 
 document.getElementById('inpColor').addEventListener('input', (e) => {
-  state.styles.color = e.target.value;
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.styles.color = e.target.value;
   updateTagStyles(); debounceSave();
 });
 
 document.getElementById('inpFont').addEventListener('change', (e) => {
-  state.styles.font = e.target.value;
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.styles.font = e.target.value;
   updateTagStyles(); debounceSave();
 });
 
 document.getElementById('inpWeight').addEventListener('change', (e) => {
-  state.styles.weight = parseInt(e.target.value);
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.styles.weight = parseInt(e.target.value);
   updateTagStyles(); debounceSave();
 });
 
 document.getElementById('toggleLoop').addEventListener('change', (e) => {
-  state.video.loop = e.target.checked; debounceSave();
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.video.loop = e.target.checked;
+  const v = stage.querySelector('video');
+  if (v) v.loop = e.target.checked;
+  debounceSave();
 });
 
 document.getElementById('toggleAutoplay').addEventListener('change', (e) => {
-  state.video.autoplay = e.target.checked; debounceSave();
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.video.autoplay = e.target.checked;
+  debounceSave();
 });
 
 document.getElementById('toggleMuted').addEventListener('change', (e) => {
-  state.video.muted = e.target.checked; debounceSave();
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.video.muted = e.target.checked;
+  const v = stage.querySelector('video');
+  if (v) v.muted = e.target.checked;
+  debounceSave();
 });
 
 document.getElementById('toggleOverlay').addEventListener('change', (e) => {
-  state.overlay.enabled = e.target.checked;
-  document.getElementById('overlayOpacityGroup').style.display = state.overlay.enabled ? 'block' : 'none';
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.overlay.enabled = e.target.checked;
+  document.getElementById('overlayOpacityGroup').style.display = t.overlay.enabled ? 'block' : 'none';
   renderStage(); debounceSave();
 });
 
 document.getElementById('inpOverlayOpacity').addEventListener('input', (e) => {
-  state.overlay.opacity = parseInt(e.target.value) || 0;
+  const t = getActiveTemplate();
+  if (!t) return;
+  t.overlay.opacity = parseInt(e.target.value) || 0;
   const ov = stage.querySelector('div[style*="background:rgba(0,0,0"]');
-  if (ov) ov.style.background = `rgba(0,0,0,${state.overlay.opacity/100})`;
+  if (ov) ov.style.background = `rgba(0,0,0,${t.overlay.opacity/100})`;
   debounceSave();
 });
 
 function updateTagStyles() {
+  const t = getActiveTemplate();
+  if (!t) return;
   document.querySelectorAll('.drag-tag').forEach(tag => {
     const type = tag.dataset.type;
-    tag.style.fontSize = (type === 'name' ? state.styles.nameSize : state.styles.matrikSize) + 'px';
-    tag.style.color = state.styles.color;
-    tag.style.fontFamily = state.styles.font;
-    tag.style.fontWeight = state.styles.weight;
+    tag.style.fontSize = (type === 'name' ? t.styles.nameSize : t.styles.matrikSize) + 'px';
+    tag.style.color = t.styles.color;
+    tag.style.fontFamily = t.styles.font;
+    tag.style.fontWeight = t.styles.weight;
   });
 }
 
 document.getElementById('btnAddNama').addEventListener('click', () => {
-  state.positions.name = { x: 50, y: 40 };
+  const t = getActiveTemplate();
+  if (!t) return toast('Pilih template dulu', 'warn');
+  t.positions.name = { x: 50, y: 40 };
   syncPositionInputs();
-  renderStage(); saveConfig();
+  renderStage(); saveTemplates();
 });
 
 document.getElementById('btnAddMatrik').addEventListener('click', () => {
-  state.positions.matrik = { x: 50, y: 60 };
+  const t = getActiveTemplate();
+  if (!t) return toast('Pilih template dulu', 'warn');
+  t.positions.matrik = { x: 50, y: 60 };
   syncPositionInputs();
-  renderStage(); saveConfig();
+  renderStage(); saveTemplates();
 });
 
 document.getElementById('btnGrid').addEventListener('click', () => {
@@ -1665,11 +1953,13 @@ document.getElementById('btnGrid').addEventListener('click', () => {
 });
 
 document.getElementById('btnResetPos').addEventListener('click', () => {
+  const t = getActiveTemplate();
+  if (!t) return;
   if (!confirm('Reset posisi ke tengah?')) return;
-  state.positions.name = { x: 50, y: 40 };
-  state.positions.matrik = { x: 50, y: 60 };
+  t.positions.name = { x: 50, y: 40 };
+  t.positions.matrik = { x: 50, y: 60 };
   syncPositionInputs();
-  renderStage(); saveConfig();
+  renderStage(); saveTemplates();
 });
 
 document.getElementById('btnSave').addEventListener('click', async () => {
@@ -1677,17 +1967,18 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const orig = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div><span>Menyimpan...</span>';
-  await saveConfig();
+  await saveTemplates();
   btn.disabled = false;
   btn.innerHTML = orig;
-  toast('✅ Setting disimpan', 'success');
+  toast('✅ Semua setting disimpan', 'success');
 });
 
 /* ============================================================
-   PREVIEW BULK
+   PREVIEW BULK — guna template aktif
    ============================================================ */
 function renderPreview() {
   const list = document.getElementById('previewList');
+  const t = getActiveTemplate();
   document.getElementById('previewCount').textContent = recipients.length;
 
   if (recipients.length === 0) {
@@ -1696,41 +1987,46 @@ function renderPreview() {
   }
 
   list.innerHTML = recipients.slice(0, 20).map(r => {
-    // Skala preview: thumb 16/9 dengan min-width ~140px
     const previewWidth = 140;
     const stageWidth = 800;
     const scale = previewWidth / stageWidth;
 
-    const nameFS = Math.max(5, state.styles.nameSize * scale);
-    const matrikFS = Math.max(4, state.styles.matrikSize * scale);
+    const nameFS = Math.max(5, (t?.styles.nameSize || 32) * scale);
+    const matrikFS = Math.max(4, (t?.styles.matrikSize || 22) * scale);
+
+    const positions = t?.positions || DEFAULT_TEMPLATE_SETTINGS.positions;
+    const styles = t?.styles || DEFAULT_TEMPLATE_SETTINGS.styles;
+    const overlay = t?.overlay || DEFAULT_TEMPLATE_SETTINGS.overlay;
 
     let mediaHTML = '';
-    if (state.template && state.templateType === 'image') {
-      mediaHTML = `<img src="${state.template}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;">`;
-    } else if (state.template) {
+    if (t?.url && t.type === 'image') {
+      mediaHTML = `<img src="${t.url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;">`;
+    } else if (t?.url) {
       mediaHTML = `<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:24px;">🎬</div>`;
+    } else {
+      mediaHTML = `<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:20px;">🖼️</div>`;
     }
 
     let overlayHTML = '';
-    if (state.overlay.enabled) {
-      overlayHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,${state.overlay.opacity/100});"></div>`;
+    if (overlay.enabled) {
+      overlayHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay.opacity/100});"></div>`;
     }
 
     const nameStyle = `
-      left: ${state.positions.name.x}%;
-      top: ${state.positions.name.y}%;
-      color: ${state.styles.color};
-      font-family: ${state.styles.font};
-      font-weight: ${state.styles.weight};
+      left: ${positions.name.x}%;
+      top: ${positions.name.y}%;
+      color: ${styles.color};
+      font-family: ${styles.font};
+      font-weight: ${styles.weight};
       font-size: ${nameFS}px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.7);
     `;
     const matrikStyle = `
-      left: ${state.positions.matrik.x}%;
-      top: ${state.positions.matrik.y}%;
-      color: ${state.styles.color};
-      font-family: ${state.styles.font};
-      font-weight: ${state.styles.weight};
+      left: ${positions.matrik.x}%;
+      top: ${positions.matrik.y}%;
+      color: ${styles.color};
+      font-family: ${styles.font};
+      font-weight: ${styles.weight};
       font-size: ${matrikFS}px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.7);
     `;
@@ -1752,7 +2048,7 @@ function renderPreview() {
 /* ============================================================
    INIT
    ============================================================ */
-console.log('%c☁️ Edit Template · Cloudinary', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
+console.log('%c☁️ Edit Template · Multi-Template', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
 console.log('Cloud:', CLOUDINARY_CLOUD_NAME);
 console.log('Preset:', CLOUDINARY_UPLOAD_PRESET);
 </script>
