@@ -317,6 +317,106 @@
     cursor: pointer;
   }
 
+  .pos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .pos-grid .pos-item {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .pos-grid .pos-item .pos-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pos-grid .pos-item .pos-label .badge {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+  }
+  .pos-grid .pos-item.name-pos .pos-label { color: var(--blue); }
+  .pos-grid .pos-item.name-pos .badge { background: rgba(56, 189, 248, 0.2); color: var(--blue); }
+  .pos-grid .pos-item.matrik-pos .pos-label { color: var(--green); }
+  .pos-grid .pos-item.matrik-pos .badge { background: rgba(52, 211, 153, 0.2); color: var(--green); }
+
+  .xy-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .xy-row:last-child { margin-bottom: 0; }
+  .xy-row .axis {
+    width: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .xy-row input[type="number"] {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .xy-row input[type="number"]::-webkit-outer-spin-button,
+  .xy-row input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .xy-row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+  }
+  .xy-row .step-btn {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+  }
+  .xy-row .step-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(167, 139, 250, 0.1);
+  }
+  .xy-row .step-btn:active {
+    transform: scale(0.9);
+  }
+
   .toggle-row {
     display: flex;
     align-items: center;
@@ -755,6 +855,40 @@
     <div class="card">
       <h2><span class="num">2</span> Posisi Text</h2>
 
+      <div class="pos-grid">
+        <div class="pos-item name-pos">
+          <div class="pos-label"><span class="badge">N</span> Nama</div>
+          <div class="xy-row">
+            <span class="axis">X</span>
+            <button class="step-btn" data-target="name" data-axis="x" data-dir="-1">−</button>
+            <input type="number" id="posNameX" min="0" max="100" step="0.5" value="50">
+            <button class="step-btn" data-target="name" data-axis="x" data-dir="1">+</button>
+          </div>
+          <div class="xy-row">
+            <span class="axis">Y</span>
+            <button class="step-btn" data-target="name" data-axis="y" data-dir="-1">−</button>
+            <input type="number" id="posNameY" min="0" max="100" step="0.5" value="40">
+            <button class="step-btn" data-target="name" data-axis="y" data-dir="1">+</button>
+          </div>
+        </div>
+
+        <div class="pos-item matrik-pos">
+          <div class="pos-label"><span class="badge">M</span> Matriks</div>
+          <div class="xy-row">
+            <span class="axis">X</span>
+            <button class="step-btn" data-target="matrik" data-axis="x" data-dir="-1">−</button>
+            <input type="number" id="posMatrikX" min="0" max="100" step="0.5" value="50">
+            <button class="step-btn" data-target="matrik" data-axis="x" data-dir="1">+</button>
+          </div>
+          <div class="xy-row">
+            <span class="axis">Y</span>
+            <button class="step-btn" data-target="matrik" data-axis="y" data-dir="-1">−</button>
+            <input type="number" id="posMatrikY" min="0" max="100" step="0.5" value="60">
+            <button class="step-btn" data-target="matrik" data-axis="y" data-dir="1">+</button>
+          </div>
+        </div>
+      </div>
+
       <div class="control-group">
         <label>Saiz Font (Nama)</label>
         <input type="number" id="inpSizeNama" min="8" max="200" value="32" step="2">
@@ -1033,6 +1167,11 @@ function applyUIFromState() {
   document.getElementById('inpColor').value = state.styles.color;
   document.getElementById('inpFont').value = state.styles.font;
   document.getElementById('inpWeight').value = String(state.styles.weight);
+
+  document.getElementById('posNameX').value = state.positions.name.x.toFixed(1);
+  document.getElementById('posNameY').value = state.positions.name.y.toFixed(1);
+  document.getElementById('posMatrikX').value = state.positions.matrik.x.toFixed(1);
+  document.getElementById('posMatrikY').value = state.positions.matrik.y.toFixed(1);
 
   document.getElementById('toggleLoop').checked = state.video.loop;
   document.getElementById('toggleAutoplay').checked = state.video.autoplay;
@@ -1341,6 +1480,7 @@ function makeDraggable(el, type) {
     el.style.left = newX + '%';
     el.style.top = newY + '%';
 
+    syncPositionInputs();
     document.getElementById('coordDisplay').textContent =
       `${type === 'name' ? 'Nama' : 'Matriks'} · x: ${newX.toFixed(1)}% , y: ${newY.toFixed(1)}%`;
   }
@@ -1359,6 +1499,60 @@ function makeDraggable(el, type) {
   }, { passive: true });
   document.addEventListener('touchend', end);
 }
+
+/* ============================================================
+   POSITION INPUT SYNC
+   ============================================================ */
+function syncPositionInputs() {
+  document.getElementById('posNameX').value = state.positions.name.x.toFixed(1);
+  document.getElementById('posNameY').value = state.positions.name.y.toFixed(1);
+  document.getElementById('posMatrikX').value = state.positions.matrik.x.toFixed(1);
+  document.getElementById('posMatrikY').value = state.positions.matrik.y.toFixed(1);
+}
+
+function updateTagPosition(type) {
+  const tags = stage.querySelectorAll('.drag-tag');
+  tags.forEach(tag => {
+    if (tag.dataset.type === type) {
+      tag.style.left = state.positions[type].x + '%';
+      tag.style.top = state.positions[type].y + '%';
+    }
+  });
+}
+
+// Event listener untuk position inputs
+['posNameX', 'posNameY', 'posMatrikX', 'posMatrikY'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    const val = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
+    if (id === 'posNameX') { state.positions.name.x = val; updateTagPosition('name'); }
+    if (id === 'posNameY') { state.positions.name.y = val; updateTagPosition('name'); }
+    if (id === 'posMatrikX') { state.positions.matrik.x = val; updateTagPosition('matrik'); }
+    if (id === 'posMatrikY') { state.positions.matrik.y = val; updateTagPosition('matrik'); }
+    document.getElementById('coordDisplay').textContent =
+      `${id.includes('Name') ? 'Nama' : 'Matriks'} · x: ${(id.includes('X') ? state.positions[id.includes('Name') ? 'name' : 'matrik'].x : state.positions[id.includes('Name') ? 'name' : 'matrik'].x).toFixed(1)}% , y: ${(id.includes('Y') ? state.positions[id.includes('Name') ? 'name' : 'matrik'].y : state.positions[id.includes('Name') ? 'name' : 'matrik'].y).toFixed(1)}%`;
+    debounceSave();
+  });
+});
+
+// Event listener untuk step buttons
+document.querySelectorAll('.step-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.target;
+    const axis = btn.dataset.axis;
+    const dir = parseInt(btn.dataset.dir);
+    const step = 0.5;
+
+    let newVal = state.positions[target][axis] + (step * dir);
+    newVal = Math.max(0, Math.min(100, newVal));
+    state.positions[target][axis] = newVal;
+
+    syncPositionInputs();
+    updateTagPosition(target);
+    document.getElementById('coordDisplay').textContent =
+      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${state.positions[target].x.toFixed(1)}% , y: ${state.positions[target].y.toFixed(1)}%`;
+    debounceSave();
+  });
+});
 
 /* ============================================================
    SAVE
@@ -1452,11 +1646,13 @@ function updateTagStyles() {
 
 document.getElementById('btnAddNama').addEventListener('click', () => {
   state.positions.name = { x: 50, y: 40 };
+  syncPositionInputs();
   renderStage(); saveConfig();
 });
 
 document.getElementById('btnAddMatrik').addEventListener('click', () => {
   state.positions.matrik = { x: 50, y: 60 };
+  syncPositionInputs();
   renderStage(); saveConfig();
 });
 
@@ -1470,6 +1666,7 @@ document.getElementById('btnResetPos').addEventListener('click', () => {
   if (!confirm('Reset posisi ke tengah?')) return;
   state.positions.name = { x: 50, y: 40 };
   state.positions.matrik = { x: 50, y: 60 };
+  syncPositionInputs();
   renderStage(); saveConfig();
 });
 
@@ -1497,9 +1694,15 @@ function renderPreview() {
   }
 
   list.innerHTML = recipients.slice(0, 20).map(r => {
-    const sizeScale = 0.14;
-    const nameFS = Math.max(6, state.styles.nameSize * sizeScale * 100 / 140 * 4);
-    const matrikFS = Math.max(5, state.styles.matrikSize * sizeScale * 100 / 140 * 4);
+    // Skala preview: thumb 16/9 dengan min-width ~140px
+    // Font size perlu di-scale mengikut nisbah lebar preview vs lebar stage sebenar
+    // Preview item lebar ~130px, stage lebar ~800px, jadi scale = 130/800 = 0.1625
+    const previewWidth = 140; // approximate
+    const stageWidth = 800;   // approximate base
+    const scale = previewWidth / stageWidth;
+
+    const nameFS = Math.max(5, state.styles.nameSize * scale);
+    const matrikFS = Math.max(4, state.styles.matrikSize * scale);
 
     let mediaHTML = '';
     if (state.template && state.templateType === 'image') {
