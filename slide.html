@@ -836,13 +836,19 @@ const settings = {
   loopVideo: true
 };
 
+/*
+  ⚠️ PENTING — DEFAULT_SETTINGS kena SAMA dengan template.html
+  Saiz: nameSize 32, matrikSize 22 (bukan 60/36)
+  Weight: 700 (bukan 800)
+  Ini supaya apa yang editor nampak = apa yang presentation nampak
+*/
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
   styles: {
-    nameSize: 60, matrikSize: 36,
+    nameSize: 32, matrikSize: 22,
     color: '#ffffff',
     font: "'Segoe UI', system-ui, sans-serif",
-    weight: 800
+    weight: 700
   },
   video: { loop: true, autoplay: true, muted: true },
   overlay: { enabled: false, opacity: 30 }
@@ -996,7 +1002,7 @@ function renderSlides() {
       const eff = getEffectiveSettings(r.id);
       const tags = slide.querySelectorAll('.slide-tag');
 
-      // Nama
+      // Nama — guna saiz sebenar (tak scale)
       if (tags[0]) {
         tags[0].textContent = r.nama || '-';
         tags[0].style.left = eff.positions.name.x + '%';
@@ -1007,7 +1013,7 @@ function renderSlides() {
         tags[0].style.fontSize = eff.styles.nameSize + 'px';
       }
 
-      // Matrik
+      // Matrik — guna saiz sebenar (tak scale)
       if (tags[1]) {
         tags[1].textContent = r.matrik || '-';
         tags[1].style.left = eff.positions.matrik.x + '%';
@@ -1114,6 +1120,20 @@ function renderSlides() {
       slide.appendChild(ov);
     }
 
+    /*
+      NAMA & MATRIK — guna saiz PIXEL SEBENAR (tak scale)
+      Ini penting supaya apa yang nampak dalam editor = apa yang nampak dalam slide.
+      Editor guna saiz px terus pada stage 16:9 dengan object-fit contain.
+      Slide pun sama — object-fit contain, saiz px sama.
+
+      Tapi ada satu isu: editor stage & slide stage mungkin berbeza saiz skrin.
+      Untuk pastikan SAMA, kita guna scaling berdasarkan lebar viewport vs lebar rujukan.
+      Rujukan = 1280px (16:9 standard). Kalau skrin lain, kita scale.
+    */
+    const REFERENCE_WIDTH = 1280;
+    const viewportWidth = window.innerWidth;
+    const stageScale = viewportWidth / REFERENCE_WIDTH;
+
     // NAMA
     const nameEl = document.createElement('div');
     nameEl.className = 'slide-tag';
@@ -1123,7 +1143,8 @@ function renderSlides() {
     nameEl.style.color = eff.styles.color;
     nameEl.style.fontFamily = eff.styles.font;
     nameEl.style.fontWeight = eff.styles.weight;
-    nameEl.style.fontSize = eff.styles.nameSize + 'px';
+    nameEl.style.fontSize = (eff.styles.nameSize * stageScale) + 'px';
+    nameEl.dataset.baseSize = eff.styles.nameSize;
     slide.appendChild(nameEl);
 
     // MATRIK
@@ -1135,7 +1156,8 @@ function renderSlides() {
     matrikEl.style.color = eff.styles.color;
     matrikEl.style.fontFamily = eff.styles.font;
     matrikEl.style.fontWeight = eff.styles.weight;
-    matrikEl.style.fontSize = eff.styles.matrikSize + 'px';
+    matrikEl.style.fontSize = (eff.styles.matrikSize * stageScale) + 'px';
+    matrikEl.dataset.baseSize = eff.styles.matrikSize;
     slide.appendChild(matrikEl);
 
     stage.appendChild(slide);
@@ -1143,6 +1165,25 @@ function renderSlides() {
 
   applyActiveSlide(true);
 }
+
+/* ============================================================
+   RESCALE TAGS bila resize window
+   ============================================================ */
+function rescaleAllTags() {
+  const REFERENCE_WIDTH = 1280;
+  const stageScale = window.innerWidth / REFERENCE_WIDTH;
+
+  stage.querySelectorAll('.slide-tag').forEach(tag => {
+    const baseSize = parseFloat(tag.dataset.baseSize);
+    if (baseSize) {
+      tag.style.fontSize = (baseSize * stageScale) + 'px';
+    }
+  });
+}
+
+window.addEventListener('resize', () => {
+  rescaleAllTags();
+});
 
 /* ============================================================
    APPLY ACTIVE SLIDE
@@ -1333,6 +1374,8 @@ function toggleFullscreen() {
 document.addEventListener('fullscreenchange', () => {
   const isFs = !!document.fullscreenElement;
   document.getElementById('fsLabel').textContent = isFs ? 'Keluar FS' : 'Fullscreen';
+  // Rescale tags bila masuk/keluar fullscreen
+  setTimeout(rescaleAllTags, 100);
 });
 
 /* ============================================================
@@ -1359,8 +1402,7 @@ document.getElementById('btnCloseJump').addEventListener('click', closeJumpPanel
 
 document.getElementById('selTransition').addEventListener('change', (e) => {
   settings.transition = e.target.value;
-  // Force full re-render sebab transition class perlu update
-  lastRenderedTemplate = ''; // reset cache
+  lastRenderedTemplate = '';
   renderSlides();
   toast('Transition: ' + e.target.value, 'success', 1500);
 });
