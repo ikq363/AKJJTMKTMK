@@ -334,7 +334,6 @@
     font-weight: 700;
   }
 
-  /* Info box */
   .info-box {
     margin-top: 12px;
     padding: 10px 12px;
@@ -844,8 +843,8 @@
     box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.3);
   }
 
-  .mini-drag-tag.name { background: rgba(56, 189, 248, 0.9); color: #0a0e1a; }
-  .mini-drag-tag.matrik { background: rgba(52, 211, 153, 0.9); color: #0a0e1a; }
+  .mini-drag-tag.name { background: rgba(56, 189, 248, 0.35); color: rgba(255,255,255,0.85); }
+  .mini-drag-tag.matrik { background: rgba(52, 211, 153, 0.35); color: rgba(255,255,255,0.85); }
 
   .mini-drag-tag .lbl {
     position: absolute;
@@ -950,6 +949,107 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+  }
+
+  /* XY POSITION GRID */
+  .pos-grid-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .pos-grid-mini .pos-item-mini {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .pos-grid-mini .pos-item-mini .pos-label-mini {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .pos-grid-mini .pos-item-mini .pos-label-mini .badge-mini {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+  }
+  .pos-grid-mini .pos-item-mini.name-pos-mini .pos-label-mini { color: var(--blue); }
+  .pos-grid-mini .pos-item-mini.name-pos-mini .badge-mini { background: rgba(56, 189, 248, 0.2); color: var(--blue); }
+  .pos-grid-mini .pos-item-mini.matrik-pos-mini .pos-label-mini { color: var(--green); }
+  .pos-grid-mini .pos-item-mini.matrik-pos-mini .badge-mini { background: rgba(52, 211, 153, 0.2); color: var(--green); }
+
+  .xy-row-mini {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+  .xy-row-mini:last-child { margin-bottom: 0; }
+  .xy-row-mini .axis-mini {
+    width: 16px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .xy-row-mini input[type="number"] {
+    width: 100%;
+    padding: 5px 6px;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .xy-row-mini input[type="number"]::-webkit-outer-spin-button,
+  .xy-row-mini input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .xy-row-mini input[type="number"]:focus {
+    outline: none;
+    border-color: var(--purple);
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+  }
+  .xy-row-mini .step-btn-mini {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+  }
+  .xy-row-mini .step-btn-mini:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: rgba(167, 139, 250, 0.1);
+  }
+  .xy-row-mini .step-btn-mini:active {
+    transform: scale(0.9);
   }
 
   .toggle-row-mini {
@@ -1365,13 +1465,48 @@
             <div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">
               🎨 Posisi Preview
             </div>
-            <div style="font-size:11px;color:var(--text-muted);" id="coordDisplayMini">Drag tag untuk ubah posisi</div>
+            <div style="font-size:11px;color:var(--text-muted);" id="coordDisplayMini">Drag tag atau guna input X/Y</div>
           </div>
 
           <div class="mini-stage" id="miniStage">
             <div class="placeholder">
               <div class="emoji">🖼️</div>
               <div>Tiada template</div>
+            </div>
+          </div>
+
+          <!-- XY POSITION INPUTS -->
+          <div class="pos-grid-mini">
+            <div class="pos-item-mini name-pos-mini">
+              <div class="pos-label-mini"><span class="badge-mini">N</span> Nama</div>
+              <div class="xy-row-mini">
+                <span class="axis-mini">X</span>
+                <button class="step-btn-mini" data-target="name" data-axis="x" data-dir="-1">−</button>
+                <input type="number" id="miniPosNameX" min="0" max="100" step="0.5" value="50">
+                <button class="step-btn-mini" data-target="name" data-axis="x" data-dir="1">+</button>
+              </div>
+              <div class="xy-row-mini">
+                <span class="axis-mini">Y</span>
+                <button class="step-btn-mini" data-target="name" data-axis="y" data-dir="-1">−</button>
+                <input type="number" id="miniPosNameY" min="0" max="100" step="0.5" value="40">
+                <button class="step-btn-mini" data-target="name" data-axis="y" data-dir="1">+</button>
+              </div>
+            </div>
+
+            <div class="pos-item-mini matrik-pos-mini">
+              <div class="pos-label-mini"><span class="badge-mini">M</span> Matriks</div>
+              <div class="xy-row-mini">
+                <span class="axis-mini">X</span>
+                <button class="step-btn-mini" data-target="matrik" data-axis="x" data-dir="-1">−</button>
+                <input type="number" id="miniPosMatrikX" min="0" max="100" step="0.5" value="50">
+                <button class="step-btn-mini" data-target="matrik" data-axis="x" data-dir="1">+</button>
+              </div>
+              <div class="xy-row-mini">
+                <span class="axis-mini">Y</span>
+                <button class="step-btn-mini" data-target="matrik" data-axis="y" data-dir="-1">−</button>
+                <input type="number" id="miniPosMatrikY" min="0" max="100" step="0.5" value="60">
+                <button class="step-btn-mini" data-target="matrik" data-axis="y" data-dir="1">+</button>
+              </div>
             </div>
           </div>
 
@@ -1709,13 +1844,18 @@ function renderSlideCard(r, idx, total) {
   const p = eff.positions;
   const s = eff.styles;
 
+  // Preview scale supaya saiz sama dengan template sebenar
+  const previewScale = 0.295;
+  const nameFS = Math.max(6, s.nameSize * previewScale);
+  const matrikFS = Math.max(5, s.matrikSize * previewScale);
+
   const nameOverlayStyle = `
     left:${p.name.x}%;
     top:${p.name.y}%;
     color:${s.color};
     font-family:${s.font};
     font-weight:${s.weight};
-    font-size:14px;
+    font-size:${nameFS}px;
     text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
   `;
   const matrikOverlayStyle = `
@@ -1724,7 +1864,7 @@ function renderSlideCard(r, idx, total) {
     color:${s.color};
     font-family:${s.font};
     font-weight:${s.weight};
-    font-size:11px;
+    font-size:${matrikFS}px;
     text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
   `;
 
@@ -1882,7 +2022,6 @@ function setupCardEvents(card) {
 }
 
 function updateStats() {
-  // Hanya kira Penerima Anugerah
   const penerimaAnugerah = recipients.filter(isPenerimaAnugerah);
 
   document.getElementById('statTotal').textContent = slideOrder.length;
@@ -1900,7 +2039,6 @@ inpBarcode.addEventListener('input', (e) => {
   const val = e.target.value.trim().toUpperCase();
   if (!val) { suggestionsEl.classList.remove('show'); return; }
 
-  // HANYA PENERIMA ANUGERAH
   const matches = recipients.filter(r => {
     if (!isPenerimaAnugerah(r)) return false;
 
@@ -1951,7 +2089,6 @@ async function addToOrder() {
 
   if (!found) return toast('QR ' + val + ' tidak dijumpai', 'error');
 
-  // ⚠️ HANYA PENERIMA ANUGERAH
   if (!isPenerimaAnugerah(found)) {
     const kat = found.kategori || 'Tak diketahui';
     return toast('❌ ' + found.nama + ' [' + kat + '] — bukan Penerima Anugerah, tak boleh masuk urutan', 'error', 5500);
@@ -2006,6 +2143,9 @@ function openEditModal(id) {
   document.getElementById('editOverlayOpacity').value = eff.overlay.opacity;
   document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
 
+  // Sync XY position inputs
+  syncMiniPositionInputs();
+
   const isCustom = hasOverride(id);
   document.getElementById('overrideBanner').style.display = isCustom ? 'flex' : 'none';
   document.getElementById('customBadge').style.display = isCustom ? 'inline-block' : 'none';
@@ -2022,6 +2162,81 @@ function closeEditModal() {
 document.getElementById('btnCloseEdit').addEventListener('click', closeEditModal);
 document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
 editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+
+/* ============================================================
+   SYNC MINI POSITION INPUTS
+   ============================================================ */
+function syncMiniPositionInputs() {
+  if (!editingId) return;
+  const eff = getEffectiveSettings(editingId);
+  document.getElementById('miniPosNameX').value = eff.positions.name.x.toFixed(1);
+  document.getElementById('miniPosNameY').value = eff.positions.name.y.toFixed(1);
+  document.getElementById('miniPosMatrikX').value = eff.positions.matrik.x.toFixed(1);
+  document.getElementById('miniPosMatrikY').value = eff.positions.matrik.y.toFixed(1);
+}
+
+function updateMiniTagPosition(type) {
+  if (!editingId) return;
+  const eff = getEffectiveSettings(editingId);
+  const tags = miniStage.querySelectorAll('.mini-drag-tag');
+  tags.forEach(tag => {
+    if (tag.dataset.type === type) {
+      tag.style.left = eff.positions[type].x + '%';
+      tag.style.top = eff.positions[type].y + '%';
+    }
+  });
+}
+
+// Position inputs
+['miniPosNameX', 'miniPosNameY', 'miniPosMatrikX', 'miniPosMatrikY'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    if (!editingId) return;
+    const val = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
+    const ov = ensureOverride(editingId);
+    const eff = getEffectiveSettings(editingId);
+
+    if (id === 'miniPosNameX') { ov.positions = ov.positions || {...eff.positions}; ov.positions.name = { ...(ov.positions.name || eff.positions.name), x: val }; }
+    if (id === 'miniPosNameY') { ov.positions = ov.positions || {...eff.positions}; ov.positions.name = { ...(ov.positions.name || eff.positions.name), y: val }; }
+    if (id === 'miniPosMatrikX') { ov.positions = ov.positions || {...eff.positions}; ov.positions.matrik = { ...(ov.positions.matrik || eff.positions.matrik), x: val }; }
+    if (id === 'miniPosMatrikY') { ov.positions = ov.positions || {...eff.positions}; ov.positions.matrik = { ...(ov.positions.matrik || eff.positions.matrik), y: val }; }
+
+    const target = id.includes('Name') ? 'name' : 'matrik';
+    updateMiniTagPosition(target);
+    markCustomized();
+
+    const effNow = getEffectiveSettings(editingId);
+    document.getElementById('coordDisplayMini').textContent =
+      `${target === 'name' ? 'Nama' : 'Matriks'}: x ${effNow.positions[target].x.toFixed(1)}% · y ${effNow.positions[target].y.toFixed(1)}%`;
+  });
+});
+
+// Step buttons
+document.querySelectorAll('.step-btn-mini').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!editingId) return;
+    const target = btn.dataset.target;
+    const axis = btn.dataset.axis;
+    const dir = parseInt(btn.dataset.dir);
+    const step = 0.5;
+
+    const ov = ensureOverride(editingId);
+    const eff = getEffectiveSettings(editingId);
+    ov.positions = ov.positions || {...eff.positions};
+    ov.positions[target] = { ...(ov.positions[target] || eff.positions[target]) };
+
+    let newVal = ov.positions[target][axis] + (step * dir);
+    newVal = Math.max(0, Math.min(100, newVal));
+    ov.positions[target][axis] = newVal;
+
+    syncMiniPositionInputs();
+    updateMiniTagPosition(target);
+    markCustomized();
+
+    const effNow = getEffectiveSettings(editingId);
+    document.getElementById('coordDisplayMini').textContent =
+      `${target === 'name' ? 'Nama' : 'Matriks'}: x ${effNow.positions[target].x.toFixed(1)}% · y ${effNow.positions[target].y.toFixed(1)}%`;
+  });
+});
 
 /* ============================================================
    RENDER MINI STAGE
@@ -2066,17 +2281,21 @@ function renderMiniStage() {
     miniStage.appendChild(ov);
   }
 
-  addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name');
-  addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik');
+  const miniScale = 0.6;
+  addMiniDragTag('name', r.nama || '-', eff.positions.name.x, eff.positions.name.y, eff.styles, 'name', miniScale);
+  addMiniDragTag('matrik', r.matrik || '-', eff.positions.matrik.x, eff.positions.matrik.y, eff.styles, 'matrik', miniScale);
+
+  // Sync inputs
+  syncMiniPositionInputs();
 }
 
-function addMiniDragTag(type, text, xPct, yPct, styles, tagClass) {
+function addMiniDragTag(type, text, xPct, yPct, styles, tagClass, scale = 1) {
   const tag = document.createElement('div');
   tag.className = `mini-drag-tag ${tagClass}`;
   tag.dataset.type = type;
   tag.style.left = xPct + '%';
   tag.style.top = yPct + '%';
-  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * 0.6 + 'px';
+  tag.style.fontSize = (type === 'name' ? styles.nameSize : styles.matrikSize) * scale + 'px';
   tag.style.color = styles.color;
   tag.style.fontFamily = styles.font;
   tag.style.fontWeight = styles.weight;
@@ -2137,6 +2356,9 @@ function makeMiniDraggable(el, type) {
       ov.video = ov.video || { ...eff.video };
       ov.overlay = ov.overlay || { ...eff.overlay };
       overrides[editingId] = ov;
+
+      // Sync inputs semasa drag
+      syncMiniPositionInputs();
     }
   }
 
@@ -2357,7 +2579,6 @@ async function openScanModal() {
   try {
     codeReader = new ZXing.BrowserMultiFormatReader();
 
-    // FOKUS QR CODE SAHAJA
     const hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
       ZXing.BarcodeFormat.QR_CODE
