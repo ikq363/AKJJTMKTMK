@@ -134,11 +134,11 @@
   .container {
     position: relative;
     z-index: 1;
-    max-width: 1500px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 32px;
     display: grid;
-    grid-template-columns: 340px 1fr 300px;
+    grid-template-columns: 380px 1fr 300px;
     gap: 24px;
     align-items: start;
   }
@@ -180,124 +180,10 @@
     color: var(--accent);
   }
 
-  /* ============ TEMPLATE LIST ============ */
-  .template-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 320px;
-    overflow-y: auto;
-    padding-right: 4px;
-    margin-bottom: 12px;
-  }
-  .template-list::-webkit-scrollbar { width: 5px; }
-  .template-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .template-item {
-    background: var(--bg-input);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .template-item:hover {
-    border-color: rgba(167, 139, 250, 0.5);
-    background: rgba(167, 139, 250, 0.04);
-  }
-  .template-item.active {
-    border-color: var(--accent);
-    background: rgba(167, 139, 250, 0.1);
-    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
-  }
-
-  .template-thumb {
-    width: 56px;
-    height: 32px;
-    border-radius: 6px;
-    background: #000;
-    overflow: hidden;
-    flex-shrink: 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .template-thumb img,
-  .template-thumb video {
-    width: 100%; height: 100%;
-    object-fit: cover;
-  }
-  .template-thumb .icon-fallback {
-    font-size: 16px;
-    color: var(--text-muted);
-  }
-
-  .template-info {
-    flex: 1;
-    min-width: 0;
-  }
-  .template-info .name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .template-info .meta {
-    font-size: 10.5px;
-    color: var(--text-muted);
-    margin-top: 2px;
-    font-family: 'Courier New', monospace;
-  }
-
-  .template-actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .tpl-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    padding: 0;
-  }
-  .tpl-btn:hover {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: var(--red);
-    color: var(--red);
-  }
-  .tpl-btn svg { width: 12px; height: 12px; }
-
-  .empty-templates {
-    text-align: center;
-    padding: 20px 12px;
-    color: var(--text-muted);
-    font-size: 12px;
-    background: var(--bg-input);
-    border: 1px dashed var(--border);
-    border-radius: 10px;
-  }
-
-  /* ============ UPLOAD ZONE ============ */
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
-    padding: 20px 16px;
+    padding: 28px 16px;
     text-align: center;
     cursor: pointer;
     transition: all 0.25s;
@@ -311,9 +197,9 @@
     opacity: 0.6;
     pointer-events: none;
   }
-  .upload-zone .icon { font-size: 26px; margin-bottom: 6px; opacity: 0.7; }
-  .upload-zone .title { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .upload-zone .sub { font-size: 11px; color: var(--text-muted); }
+  .upload-zone .icon { font-size: 32px; margin-bottom: 8px; opacity: 0.7; }
+  .upload-zone .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .upload-zone .sub { font-size: 11.5px; color: var(--text-muted); }
   .upload-zone input[type="file"] { display: none; }
 
   .upload-progress {
@@ -340,7 +226,196 @@
     transition: width 0.3s;
   }
 
-  /* ============ CONTROL GROUP ============ */
+  /* ============================================
+     TEMPLATE CARD (dengan setting dalam)
+     ============================================ */
+  .template-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .template-card {
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+  .template-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.2);
+  }
+
+  /* Header template */
+  .tpl-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .tpl-header:hover {
+    background: rgba(167, 139, 250, 0.05);
+  }
+
+  .tpl-thumb {
+    width: 56px; height: 32px;
+    background: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tpl-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .tpl-thumb .tpl-icon {
+    font-size: 16px;
+  }
+
+  .tpl-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .tpl-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tpl-badge-active {
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    color: var(--green);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .tpl-sub {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .tpl-header-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .tpl-btn {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .tpl-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.12);
+  }
+  .tpl-btn.star:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(251, 191, 36, 0.12);
+  }
+  .tpl-btn.star.active {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(251, 191, 36, 0.12);
+  }
+  .tpl-btn.expand {
+    border-color: var(--border);
+  }
+  .tpl-btn.expand:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(167, 139, 250, 0.12);
+  }
+  .tpl-btn svg {
+    width: 14px; height: 14px;
+    transition: transform 0.3s;
+  }
+  .template-card.expanded .tpl-btn.expand svg {
+    transform: rotate(180deg);
+  }
+
+  /* Body template (collapsible setting) */
+  .tpl-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 1px solid transparent;
+  }
+  .template-card.expanded .tpl-body {
+    max-height: 2500px;
+    border-top-color: var(--border);
+  }
+
+  .tpl-body-inner {
+    padding: 16px;
+  }
+
+  .tpl-section {
+    margin-bottom: 16px;
+  }
+  .tpl-section:last-child {
+    margin-bottom: 0;
+  }
+  .tpl-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tpl-section-title .num {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(56, 189, 248, 0.2));
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--accent);
+  }
+
+  /* ============================================
+     CONTROL GROUPS (dari kod asal, tak ubah)
+     ============================================ */
   .control-group { margin-bottom: 14px; }
   .control-group:last-child { margin-bottom: 0; }
   .control-group label {
@@ -357,7 +432,7 @@
   .control-group select {
     width: 100%;
     padding: 10px 12px;
-    background: var(--bg-input);
+    background: var(--bg);
     border: 1.5px solid var(--border);
     border-radius: 8px;
     color: var(--text);
@@ -376,7 +451,7 @@
     width: 100%;
     height: 42px;
     padding: 4px;
-    background: var(--bg-input);
+    background: var(--bg);
     border: 1.5px solid var(--border);
     border-radius: 8px;
     cursor: pointer;
@@ -389,7 +464,7 @@
     margin-bottom: 14px;
   }
   .pos-grid .pos-item {
-    background: var(--bg-input);
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 10px;
@@ -435,7 +510,7 @@
   .xy-row input[type="number"] {
     width: 100%;
     padding: 6px 8px;
-    background: var(--bg);
+    background: var(--bg-card);
     border: 1.5px solid var(--border);
     border-radius: 6px;
     color: var(--text);
@@ -459,7 +534,7 @@
   .xy-row .step-btn {
     width: 26px; height: 26px;
     border-radius: 6px;
-    background: var(--bg);
+    background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-dim);
     font-size: 14px;
@@ -523,6 +598,52 @@
     background: #fff;
   }
 
+  .btn-primary {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 6px 20px -6px rgba(167, 139, 250, 0.5);
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(167, 139, 250, 0.6);
+  }
+  .btn-primary:disabled {
+    background: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn-primary svg { width: 16px; height: 16px; }
+
+  .template-empty {
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-input);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    margin-top: 16px;
+  }
+
+  /* ============================================
+     EDITOR PANEL (tengah)
+     ============================================ */
   .editor-panel { grid-column: 2; position: sticky; top: 20px; }
   @media (max-width: 1200px) {
     .editor-panel { grid-column: 1; position: relative; }
@@ -749,38 +870,6 @@
     font-size: 12px;
   }
 
-  .btn-primary {
-    width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 6px 20px -6px rgba(167, 139, 250, 0.5);
-  }
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px -6px rgba(167, 139, 250, 0.6);
-  }
-  .btn-primary:disabled {
-    background: #334155;
-    color: #94a3b8;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  .btn-primary svg { width: 16px; height: 16px; }
-
   .toast-container {
     position: fixed;
     top: 24px;
@@ -866,29 +955,6 @@
     animation: spin 0.6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .active-template-name {
-    font-size: 11.5px;
-    color: var(--accent);
-    font-weight: 700;
-    text-align: center;
-    padding: 6px 10px;
-    background: rgba(167, 139, 250, 0.1);
-    border: 1px solid rgba(167, 139, 250, 0.3);
-    border-radius: 8px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .active-template-name .dot-active {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2s infinite;
-  }
 </style>
 </head>
 <body>
@@ -905,7 +971,7 @@
   </a>
   <div class="topbar-title">
     <span class="dot"></span>
-    EDIT TEMPLATE · MULTI-TEMPLATE
+    EDIT TEMPLATE · CLOUDINARY
   </div>
   <div class="status-badge">
     <span class="status-dot"></span>
@@ -918,18 +984,14 @@
   <!-- LEFT -->
   <div class="left-panel fade-up">
 
-    <!-- SENARAI TEMPLATE -->
     <div class="card">
-      <h2><span class="num">1</span> Senarai Template</h2>
-
-      <div id="templateList" class="template-list">
-        <div class="empty-templates">Belum ada template</div>
-      </div>
+      <h2><span class="num">1</span> Upload Template</h2>
 
       <div class="upload-zone" id="uploadZone">
         <div class="icon">📁</div>
-        <div class="title">+ Tambah Template Baru</div>
+        <div class="title">Klik atau drag fail</div>
         <div class="sub">PNG · JPG · MP4 · WebM (max 100MB)</div>
+        <div class="sub" style="margin-top:6px;color:var(--accent);font-weight:700;">Boleh upload banyak template sekali</div>
         <input type="file" id="inpFile" accept="image/*,video/mp4,video/webm" multiple>
       </div>
 
@@ -942,142 +1004,8 @@
           <div class="progress-bar-fill" id="progressFill"></div>
         </div>
       </div>
-    </div>
 
-    <!-- SETTING TEMPLATE AKTIF -->
-    <div class="card" id="settingsCard" style="display:none;">
-      <h2><span class="num">2</span> Setting Template Aktif</h2>
-
-      <div class="active-template-name" id="activeTemplateName">
-        <span class="dot-active"></span>
-        <span>—</span>
-      </div>
-
-      <div class="control-group">
-        <label>Nama Template</label>
-        <input type="text" id="inpTemplateName" placeholder="cth: Background Emas" maxlength="50">
-      </div>
-
-      <div class="pos-grid">
-        <div class="pos-item name-pos">
-          <div class="pos-label"><span class="badge">N</span> Nama</div>
-          <div class="xy-row">
-            <span class="axis">X</span>
-            <button class="step-btn" data-target="name" data-axis="x" data-dir="-1">−</button>
-            <input type="number" id="posNameX" min="0" max="100" step="0.5" value="50">
-            <button class="step-btn" data-target="name" data-axis="x" data-dir="1">+</button>
-          </div>
-          <div class="xy-row">
-            <span class="axis">Y</span>
-            <button class="step-btn" data-target="name" data-axis="y" data-dir="-1">−</button>
-            <input type="number" id="posNameY" min="0" max="100" step="0.5" value="40">
-            <button class="step-btn" data-target="name" data-axis="y" data-dir="1">+</button>
-          </div>
-        </div>
-
-        <div class="pos-item matrik-pos">
-          <div class="pos-label"><span class="badge">M</span> Matriks</div>
-          <div class="xy-row">
-            <span class="axis">X</span>
-            <button class="step-btn" data-target="matrik" data-axis="x" data-dir="-1">−</button>
-            <input type="number" id="posMatrikX" min="0" max="100" step="0.5" value="50">
-            <button class="step-btn" data-target="matrik" data-axis="x" data-dir="1">+</button>
-          </div>
-          <div class="xy-row">
-            <span class="axis">Y</span>
-            <button class="step-btn" data-target="matrik" data-axis="y" data-dir="-1">−</button>
-            <input type="number" id="posMatrikY" min="0" max="100" step="0.5" value="60">
-            <button class="step-btn" data-target="matrik" data-axis="y" data-dir="1">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>Saiz Font (Nama)</label>
-        <input type="number" id="inpSizeNama" min="8" max="200" value="32" step="2">
-      </div>
-
-      <div class="control-group">
-        <label>Saiz Font (Matriks)</label>
-        <input type="number" id="inpSizeMatrik" min="8" max="200" value="22" step="2">
-      </div>
-
-      <div class="control-group">
-        <label>Warna Text</label>
-        <input type="color" id="inpColor" value="#ffffff">
-      </div>
-
-      <div class="control-group">
-        <label>Font Family</label>
-        <select id="inpFont">
-          <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
-          <option value="Arial, sans-serif">Arial</option>
-          <option value="'Times New Roman', serif">Times New Roman</option>
-          <option value="Georgia, serif">Georgia</option>
-          <option value="'Courier New', monospace">Courier New</option>
-          <option value="Impact, sans-serif">Impact</option>
-          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label>Font Weight</label>
-        <select id="inpWeight">
-          <option value="400">Normal</option>
-          <option value="600">Semi Bold</option>
-          <option value="700" selected>Bold</option>
-          <option value="900">Extra Bold</option>
-        </select>
-      </div>
-
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Loop Video</div>
-          <div class="toggle-sub">Ulang main untuk MP4</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggleLoop" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Auto Play</div>
-          <div class="toggle-sub">Mula main automatik</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggleAutoplay" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Muted</div>
-          <div class="toggle-sub">Kunci audio</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggleMuted" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">Overlay Gelap</div>
-          <div class="toggle-sub">Untuk text lebih jelas</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggleOverlay">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="control-group" id="overlayOpacityGroup" style="display:none;margin-top:12px;">
-        <label>Kepekatan Overlay (%)</label>
-        <input type="number" id="inpOverlayOpacity" min="0" max="100" value="30" step="5">
-      </div>
+      <div id="templateListContainer"></div>
     </div>
 
     <button class="btn-primary" id="btnSave">
@@ -1086,7 +1014,7 @@
         <polyline points="17 21 17 13 7 13 7 21"></polyline>
         <polyline points="7 3 7 8 15 8"></polyline>
       </svg>
-      <span>Simpan Semua Setting</span>
+      <span>Simpan Semua</span>
     </button>
 
   </div>
@@ -1108,7 +1036,7 @@
       <div id="stage">
         <div class="placeholder">
           <div class="icon">🖼️</div>
-          <p>Pilih atau tambah template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
+          <p>Upload template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
         </div>
       </div>
 
@@ -1125,7 +1053,7 @@
     <div class="card">
       <h2>👥 Preview Bulk</h2>
       <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">
-        Preview ikut template yang dipilih.
+        Setiap penerima akan dapat slaid sendiri.
       </p>
 
       <div id="previewList" class="preview-grid">
@@ -1176,43 +1104,49 @@ const db = getFirestore(app);
 /* ============================================================
    STATE
    ============================================================ */
-let templates = []; // Array of { id, name, url, type, source, publicId, positions, styles, video, overlay }
-let activeTemplateId = null;
-let recipients = [];
-
-const DEFAULT_TEMPLATE_SETTINGS = {
-  positions: {
-    name:   { x: 50, y: 40 },
-    matrik: { x: 50, y: 60 }
-  },
-  styles: {
-    nameSize: 32, matrikSize: 22,
-    color: '#ffffff',
-    font: "'Segoe UI', system-ui, sans-serif",
-    weight: 700
-  },
-  video: { loop: true, autoplay: true, muted: true },
-  overlay: { enabled: false, opacity: 30 }
+let state = {
+  templates: [],
+  activeTemplateId: null
 };
 
-function makeNewTemplate(name = 'Template Baru') {
+let recipients = [];
+let expandedTemplateId = null; // template mana sedang expand
+
+function getActiveTemplate() {
+  return state.templates.find(t => t.id === state.activeTemplateId) || null;
+}
+
+function getTemplateById(id) {
+  return state.templates.find(t => t.id === id) || null;
+}
+
+function defaultTemplateSettings() {
   return {
-    id: 'tpl_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-    name: name,
-    url: null,
-    type: null,
-    source: null,
-    publicId: null,
-    positions: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.positions)),
-    styles: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.styles)),
-    video: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.video)),
-    overlay: JSON.parse(JSON.stringify(DEFAULT_TEMPLATE_SETTINGS.overlay)),
-    createdAt: Date.now()
+    positions: {
+      name:   { x: 50, y: 40 },
+      matrik: { x: 50, y: 60 }
+    },
+    styles: {
+      nameSize: 32,
+      matrikSize: 22,
+      color: '#ffffff',
+      font: "'Segoe UI', system-ui, sans-serif",
+      weight: 700
+    },
+    video: { loop: true, autoplay: true, muted: true },
+    overlay: { enabled: false, opacity: 30 }
   };
 }
 
-function getActiveTemplate() {
-  return templates.find(t => t.id === activeTemplateId) || null;
+function getSettings(id) {
+  const t = getTemplateById(id);
+  if (!t) return defaultTemplateSettings();
+  if (!t.settings) t.settings = defaultTemplateSettings();
+  return t.settings;
+}
+
+function generateTemplateId() {
+  return 'tpl_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
 }
 
 /* ============================================================
@@ -1247,192 +1181,504 @@ function showSaveStatus(text) {
 /* ============================================================
    FIREBASE LISTENERS
    ============================================================ */
-const templatesDoc = doc(db, 'config', 'templates');
+const configDoc = doc(db, 'config', 'main');
 
-onSnapshot(templatesDoc, (snap) => {
+onSnapshot(configDoc, (snap) => {
   if (!snap.exists()) {
-    templates = [];
-    activeTemplateId = null;
+    state.templates = [];
+    state.activeTemplateId = null;
     renderTemplateList();
     renderStage();
     renderPreview();
-    updateSettingsVisibility();
     return;
   }
-
   const data = snap.data();
-  templates = Array.isArray(data.list) ? data.list : [];
-  activeTemplateId = data.activeId || (templates[0]?.id || null);
+
+  /* MIGRATE legacy */
+  if (Array.isArray(data.templates)) {
+    state.templates = data.templates.map(t => ({
+      id: t.id || generateTemplateId(),
+      url: t.url,
+      type: t.type || 'image',
+      source: t.source || 'cloudinary',
+      publicId: t.publicId || null,
+      label: t.label || 'Template',
+      settings: t.settings || defaultTemplateSettings()
+    }));
+    state.activeTemplateId = data.activeTemplateId || (state.templates[0]?.id || null);
+  } else if (data.template) {
+    const legacyId = 'tpl_legacy';
+    state.templates = [{
+      id: legacyId,
+      url: data.template,
+      type: data.templateType || 'image',
+      source: data.templateSource || 'cloudinary',
+      publicId: data.templatePublicId || null,
+      label: 'Template 1',
+      settings: {
+        positions: data.positions || defaultTemplateSettings().positions,
+        styles: data.styles || defaultTemplateSettings().styles,
+        video: data.video || defaultTemplateSettings().video,
+        overlay: data.overlay || defaultTemplateSettings().overlay
+      }
+    }];
+    state.activeTemplateId = legacyId;
+  } else {
+    state.templates = [];
+    state.activeTemplateId = null;
+  }
+
+  if (!state.templates.find(t => t.id === state.activeTemplateId)) {
+    state.activeTemplateId = state.templates[0]?.id || null;
+  }
+
+  // Kalau expandedTemplateId dah tak wujud, reset
+  if (expandedTemplateId && !state.templates.find(t => t.id === expandedTemplateId)) {
+    expandedTemplateId = null;
+  }
+  // Kalau tiada expanded, auto expand yang aktif
+  if (!expandedTemplateId && state.activeTemplateId) {
+    expandedTemplateId = state.activeTemplateId;
+  }
 
   renderTemplateList();
-  applyActiveToUI();
   renderStage();
   renderPreview();
-  updateSettingsVisibility();
-}, (err) => console.error('templates:', err));
+}, (err) => console.error('config:', err));
 
 const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
 
 onSnapshot(recipientsQ, (snap) => {
   recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderPreview();
+  renderStage();
 }, (err) => console.error('recipients:', err));
 
 /* ============================================================
-   TEMPLATE LIST RENDER
+   RENDER TEMPLATE LIST — setiap template ada setting sendiri
    ============================================================ */
 function renderTemplateList() {
-  const list = document.getElementById('templateList');
+  const wrap = document.getElementById('templateListContainer');
 
-  if (templates.length === 0) {
-    list.innerHTML = '<div class="empty-templates">Belum ada template</div>';
+  if (state.templates.length === 0) {
+    wrap.innerHTML = `<div class="template-empty">Belum ada template. Upload di atas.</div>`;
     return;
   }
 
-  list.innerHTML = templates.map(t => {
-    const isActive = t.id === activeTemplateId;
-    const isVideo = t.type === 'video';
+  wrap.innerHTML = `
+    <div class="template-cards">
+      ${state.templates.map((t, i) => renderTemplateCard(t, i)).join('')}
+    </div>
+  `;
 
-    let thumbHTML = '';
-    if (t.url && t.type === 'image') {
-      thumbHTML = `<img src="${t.url}" alt="">`;
-    } else if (t.url && t.type === 'video') {
-      thumbHTML = `<video src="${t.url}" muted preload="metadata"></video>`;
-    } else {
-      thumbHTML = `<span class="icon-fallback">📄</span>`;
-    }
+  bindTemplateCardEvents();
+}
 
-    const meta = t.url
-      ? (isVideo ? '🎬 Video' : '🖼️ Gambar')
-      : 'Kosong';
+function renderTemplateCard(t, i) {
+  const isActive = t.id === state.activeTemplateId;
+  const isExpanded = t.id === expandedTemplateId;
+  const isVideo = t.type === 'video';
+  const s = t.settings || defaultTemplateSettings();
 
-    return `
-      <div class="template-item ${isActive ? 'active' : ''}" data-id="${t.id}">
-        <div class="template-thumb">${thumbHTML}</div>
-        <div class="template-info">
-          <div class="name">${escapeHtml(t.name || 'Tanpa Nama')}</div>
-          <div class="meta">${meta}</div>
+  const thumb = isVideo
+    ? `<div class="tpl-icon">🎬</div>`
+    : `<img src="${t.url}" alt="">`;
+
+  return `
+    <div class="template-card ${isActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}" data-id="${t.id}">
+
+      <!-- HEADER -->
+      <div class="tpl-header" data-action="toggle-expand" data-id="${t.id}">
+        <div class="tpl-thumb">${thumb}</div>
+        <div class="tpl-meta">
+          <div class="tpl-name">
+            ${escapeHtml(t.label || ('Template ' + (i + 1)))}
+            ${isActive ? '<span class="tpl-badge-active">Aktif</span>' : ''}
+          </div>
+          <div class="tpl-sub">${isVideo ? '🎬 Video' : '🖼️ Gambar'}</div>
         </div>
-        <div class="template-actions">
-          <button class="tpl-btn" data-action="delete" title="Padam">
+        <div class="tpl-header-actions">
+          <button class="tpl-btn star ${isActive ? 'active' : ''}" data-action="set-active" data-id="${t.id}" title="Set aktif">
+            <svg viewBox="0 0 24 24" fill="${isActive ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button class="tpl-btn" data-action="delete" data-id="${t.id}" title="Padam">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
             </svg>
           </button>
+          <button class="tpl-btn expand" data-action="toggle-expand" data-id="${t.id}" title="Buka/Tutup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
         </div>
       </div>
-    `;
-  }).join('');
 
-  // Click handlers
-  list.querySelectorAll('.template-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action="delete"]')) return;
-      const id = item.dataset.id;
-      if (id !== activeTemplateId) {
-        activeTemplateId = id;
-        saveTemplates();
-        renderTemplateList();
-        applyActiveToUI();
-        renderStage();
-        renderPreview();
-        updateSettingsVisibility();
+      <!-- BODY: setting untuk template ini -->
+      <div class="tpl-body">
+        <div class="tpl-body-inner">
+
+          <!-- SECTION: Posisi -->
+          <div class="tpl-section">
+            <div class="tpl-section-title"><span class="num">1</span> Posisi Text</div>
+
+            <div class="pos-grid">
+              <div class="pos-item name-pos">
+                <div class="pos-label"><span class="badge">N</span> Nama</div>
+                <div class="xy-row">
+                  <span class="axis">X</span>
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="name" data-axis="x" data-dir="-1">−</button>
+                  <input type="number" data-tpl-id="${t.id}" data-field="posNameX" min="0" max="100" step="0.5" value="${s.positions.name.x}">
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="name" data-axis="x" data-dir="1">+</button>
+                </div>
+                <div class="xy-row">
+                  <span class="axis">Y</span>
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="name" data-axis="y" data-dir="-1">−</button>
+                  <input type="number" data-tpl-id="${t.id}" data-field="posNameY" min="0" max="100" step="0.5" value="${s.positions.name.y}">
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="name" data-axis="y" data-dir="1">+</button>
+                </div>
+              </div>
+
+              <div class="pos-item matrik-pos">
+                <div class="pos-label"><span class="badge">M</span> Matriks</div>
+                <div class="xy-row">
+                  <span class="axis">X</span>
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="matrik" data-axis="x" data-dir="-1">−</button>
+                  <input type="number" data-tpl-id="${t.id}" data-field="posMatrikX" min="0" max="100" step="0.5" value="${s.positions.matrik.x}">
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="matrik" data-axis="x" data-dir="1">+</button>
+                </div>
+                <div class="xy-row">
+                  <span class="axis">Y</span>
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="matrik" data-axis="y" data-dir="-1">−</button>
+                  <input type="number" data-tpl-id="${t.id}" data-field="posMatrikY" min="0" max="100" step="0.5" value="${s.positions.matrik.y}">
+                  <button class="step-btn" data-tpl-id="${t.id}" data-target="matrik" data-axis="y" data-dir="1">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: Saiz & Font -->
+          <div class="tpl-section">
+            <div class="tpl-section-title"><span class="num">2</span> Saiz & Font</div>
+
+            <div class="control-group">
+              <label>Saiz Font (Nama)</label>
+              <input type="number" data-tpl-id="${t.id}" data-field="sizeNama" min="8" max="200" value="${s.styles.nameSize}" step="2">
+            </div>
+
+            <div class="control-group">
+              <label>Saiz Font (Matriks)</label>
+              <input type="number" data-tpl-id="${t.id}" data-field="sizeMatrik" min="8" max="200" value="${s.styles.matrikSize}" step="2">
+            </div>
+
+            <div class="control-group">
+              <label>Warna Text</label>
+              <input type="color" data-tpl-id="${t.id}" data-field="color" value="${s.styles.color}">
+            </div>
+
+            <div class="control-group">
+              <label>Font Family</label>
+              <select data-tpl-id="${t.id}" data-field="font">
+                <option value="'Segoe UI', system-ui, sans-serif" ${s.styles.font === "'Segoe UI', system-ui, sans-serif" ? 'selected' : ''}>Segoe UI</option>
+                <option value="Arial, sans-serif" ${s.styles.font === "Arial, sans-serif" ? 'selected' : ''}>Arial</option>
+                <option value="'Times New Roman', serif" ${s.styles.font === "'Times New Roman', serif" ? 'selected' : ''}>Times New Roman</option>
+                <option value="Georgia, serif" ${s.styles.font === "Georgia, serif" ? 'selected' : ''}>Georgia</option>
+                <option value="'Courier New', monospace" ${s.styles.font === "'Courier New', monospace" ? 'selected' : ''}>Courier New</option>
+                <option value="Impact, sans-serif" ${s.styles.font === "Impact, sans-serif" ? 'selected' : ''}>Impact</option>
+                <option value="'Trebuchet MS', sans-serif" ${s.styles.font === "'Trebuchet MS', sans-serif" ? 'selected' : ''}>Trebuchet MS</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Font Weight</label>
+              <select data-tpl-id="${t.id}" data-field="weight">
+                <option value="400" ${s.styles.weight == 400 ? 'selected' : ''}>Normal</option>
+                <option value="600" ${s.styles.weight == 600 ? 'selected' : ''}>Semi Bold</option>
+                <option value="700" ${s.styles.weight == 700 ? 'selected' : ''}>Bold</option>
+                <option value="900" ${s.styles.weight == 900 ? 'selected' : ''}>Extra Bold</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SECTION: Video & Overlay -->
+          <div class="tpl-section">
+            <div class="tpl-section-title"><span class="num">3</span> Video & Overlay</div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Loop Video</div>
+                <div class="toggle-sub">Ulang main untuk MP4</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-tpl-id="${t.id}" data-field="loop" ${s.video.loop ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Auto Play</div>
+                <div class="toggle-sub">Mula main automatik</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-tpl-id="${t.id}" data-field="autoplay" ${s.video.autoplay ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Muted</div>
+                <div class="toggle-sub">Kunci audio</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-tpl-id="${t.id}" data-field="muted" ${s.video.muted ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Overlay Gelap</div>
+                <div class="toggle-sub">Untuk text lebih jelas</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" data-tpl-id="${t.id}" data-field="overlayEnabled" ${s.overlay.enabled ? 'checked' : ''}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="control-group" style="${s.overlay.enabled ? '' : 'display:none;'} margin-top:12px;">
+              <label>Kepekatan Overlay (%)</label>
+              <input type="number" data-tpl-id="${t.id}" data-field="overlayOpacity" min="0" max="100" value="${s.overlay.opacity}" step="5">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+function bindTemplateCardEvents() {
+  const wrap = document.getElementById('templateListContainer');
+
+  // Butang header
+  wrap.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = el.dataset.action;
+      const id = el.dataset.id;
+      if (action === 'set-active') {
+        setActiveTemplate(id);
+      } else if (action === 'delete') {
+        deleteTemplate(id);
+      } else if (action === 'toggle-expand') {
+        toggleExpand(id);
       }
     });
   });
 
-  list.querySelectorAll('[data-action="delete"]').forEach(btn => {
+  // Input: posisi X/Y
+  ['posNameX', 'posNameY', 'posMatrikX', 'posMatrikY'].forEach(field => {
+    wrap.querySelectorAll(`[data-field="${field}"]`).forEach(input => {
+      input.addEventListener('input', (e) => {
+        const tplId = input.dataset.tplId;
+        const val = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
+        const s = getSettings(tplId);
+
+        let type, axis;
+        if (field === 'posNameX') { type = 'name'; axis = 'x'; }
+        if (field === 'posNameY') { type = 'name'; axis = 'y'; }
+        if (field === 'posMatrikX') { type = 'matrik'; axis = 'x'; }
+        if (field === 'posMatrikY') { type = 'matrik'; axis = 'y'; }
+        s.positions[type][axis] = val;
+
+        if (tplId === state.activeTemplateId) {
+          updateTagPosition(type);
+          updateCoordDisplay(type);
+        }
+        debounceSave();
+      });
+    });
+  });
+
+  // Step buttons
+  wrap.querySelectorAll('.step-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const id = btn.closest('.template-item').dataset.id;
-      deleteTemplate(id);
+      const tplId = btn.dataset.tplId;
+      const target = btn.dataset.target;
+      const axis = btn.dataset.axis;
+      const dir = parseInt(btn.dataset.dir);
+      const step = 0.5;
+
+      const s = getSettings(tplId);
+      let newVal = s.positions[target][axis] + (step * dir);
+      newVal = Math.max(0, Math.min(100, newVal));
+      s.positions[target][axis] = newVal;
+
+      // Update input yang sepadan
+      const inputField = 'pos' + (target === 'name' ? 'Name' : 'Matrik') + axis.toUpperCase();
+      const input = wrap.querySelector(`[data-tpl-id="${tplId}"][data-field="${inputField}"]`);
+      if (input) input.value = newVal.toFixed(1);
+
+      if (tplId === state.activeTemplateId) {
+        updateTagPosition(target);
+        updateCoordDisplay(target);
+      }
+      debounceSave();
+    });
+  });
+
+  // Saiz nama
+  wrap.querySelectorAll('[data-field="sizeNama"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).styles.nameSize = parseInt(e.target.value) || 32;
+      if (tplId === state.activeTemplateId) updateTagStyles();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="sizeMatrik"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).styles.matrikSize = parseInt(e.target.value) || 22;
+      if (tplId === state.activeTemplateId) updateTagStyles();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="color"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).styles.color = e.target.value;
+      if (tplId === state.activeTemplateId) updateTagStyles();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="font"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).styles.font = e.target.value;
+      if (tplId === state.activeTemplateId) updateTagStyles();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="weight"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).styles.weight = parseInt(e.target.value);
+      if (tplId === state.activeTemplateId) updateTagStyles();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="loop"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).video.loop = e.target.checked;
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="autoplay"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).video.autoplay = e.target.checked;
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="muted"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).video.muted = e.target.checked;
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="overlayEnabled"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).overlay.enabled = e.target.checked;
+      // Toggle visibility group overlay opacity
+      const card = input.closest('.template-card');
+      const opGroup = card.querySelector('[data-field="overlayOpacity"]').closest('.control-group');
+      opGroup.style.display = e.target.checked ? '' : 'none';
+      if (tplId === state.activeTemplateId) renderStage();
+      debounceSave();
+    });
+  });
+
+  wrap.querySelectorAll('[data-field="overlayOpacity"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const tplId = input.dataset.tplId;
+      getSettings(tplId).overlay.opacity = parseInt(e.target.value) || 0;
+      if (tplId === state.activeTemplateId) renderStage();
+      debounceSave();
     });
   });
 }
 
-function updateSettingsVisibility() {
-  const card = document.getElementById('settingsCard');
-  card.style.display = templates.length > 0 ? 'block' : 'none';
+function updateCoordDisplay(type) {
+  const s = getActiveSettings();
+  document.getElementById('coordDisplay').textContent =
+    `${type === 'name' ? 'Nama' : 'Matriks'} · x: ${s.positions[type].x.toFixed(1)}% , y: ${s.positions[type].y.toFixed(1)}%`;
 }
 
 /* ============================================================
-   APPLY ACTIVE TEMPLATE KE UI
+   TEMPLATE ACTIONS
    ============================================================ */
-function applyActiveToUI() {
-  const t = getActiveTemplate();
+function setActiveTemplate(id) {
+  if (state.activeTemplateId === id) return;
+  state.activeTemplateId = id;
+  setDoc(configDoc, { activeTemplateId: id, updatedAt: serverTimestamp() }, { merge: true }).catch(console.error);
+  renderTemplateList();
+  renderStage();
+  toast('Template aktif ditukar', 'success', 1500);
+}
+
+function toggleExpand(id) {
+  expandedTemplateId = (expandedTemplateId === id) ? null : id;
+  renderTemplateList();
+}
+
+async function deleteTemplate(id) {
+  const t = state.templates.find(x => x.id === id);
   if (!t) return;
+  if (!confirm('Padam template "' + (t.label || id) + '"?')) return;
 
-  // Active name badge
-  document.getElementById('activeTemplateName').innerHTML = `
-    <span class="dot-active"></span>
-    <span>${escapeHtml(t.name || 'Tanpa Nama')}</span>
-  `;
+  state.templates = state.templates.filter(x => x.id !== id);
+  if (state.activeTemplateId === id) {
+    state.activeTemplateId = state.templates[0]?.id || null;
+  }
+  if (expandedTemplateId === id) {
+    expandedTemplateId = state.activeTemplateId;
+  }
 
-  // Name input
-  document.getElementById('inpTemplateName').value = t.name || '';
-
-  // Positions
-  document.getElementById('posNameX').value = t.positions.name.x.toFixed(1);
-  document.getElementById('posNameY').value = t.positions.name.y.toFixed(1);
-  document.getElementById('posMatrikX').value = t.positions.matrik.x.toFixed(1);
-  document.getElementById('posMatrikY').value = t.positions.matrik.y.toFixed(1);
-
-  // Styles
-  document.getElementById('inpSizeNama').value = t.styles.nameSize;
-  document.getElementById('inpSizeMatrik').value = t.styles.matrikSize;
-  document.getElementById('inpColor').value = t.styles.color;
-  document.getElementById('inpFont').value = t.styles.font;
-  document.getElementById('inpWeight').value = String(t.styles.weight);
-
-  // Video
-  document.getElementById('toggleLoop').checked = t.video.loop;
-  document.getElementById('toggleAutoplay').checked = t.video.autoplay;
-  document.getElementById('toggleMuted').checked = t.video.muted;
-
-  // Overlay
-  document.getElementById('toggleOverlay').checked = t.overlay.enabled;
-  document.getElementById('inpOverlayOpacity').value = t.overlay.opacity;
-  document.getElementById('overlayOpacityGroup').style.display = t.overlay.enabled ? 'block' : 'none';
-}
-
-/* ============================================================
-   SAVE TEMPLATES
-   ============================================================ */
-async function saveTemplates() {
   try {
-    await setDoc(templatesDoc, {
-      list: templates,
-      activeId: activeTemplateId,
+    await setDoc(configDoc, {
+      templates: state.templates,
+      activeTemplateId: state.activeTemplateId,
       updatedAt: serverTimestamp()
     }, { merge: true });
-    showSaveStatus('Setting disimpan');
+    toast('Template dipadam', 'success');
   } catch (e) {
     console.error(e);
-    toast('Gagal simpan: ' + e.message, 'error');
+    toast('Gagal padam: ' + e.message, 'error');
   }
 }
 
-const debounceSave = (() => {
-  let timer;
-  return () => {
-    clearTimeout(timer);
-    timer = setTimeout(saveTemplates, 800);
-  };
-})();
-
 /* ============================================================
-   UPDATE ACTIVE TEMPLATE FIELD
-   ============================================================ */
-function updateActiveTemplate(updates) {
-  const t = getActiveTemplate();
-  if (!t) return;
-  Object.assign(t, updates);
-  debounceSave();
-}
-
-/* ============================================================
-   UPLOAD
+   UPLOAD (MULTIPLE)
    ============================================================ */
 const uploadZone = document.getElementById('uploadZone');
 const inpFile = document.getElementById('inpFile');
@@ -1450,39 +1696,25 @@ uploadZone.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
   const files = Array.from(e.dataTransfer.files);
-  files.forEach(f => handleFileUpload(f));
+  if (files.length) handleFilesUpload(files);
 });
 
 inpFile.addEventListener('change', (e) => {
   const files = Array.from(e.target.files);
-  files.forEach(f => handleFileUpload(f));
+  if (files.length) handleFilesUpload(files);
   e.target.value = '';
 });
 
-async function handleFileUpload(file) {
-  if (file.size > 100 * 1024 * 1024) {
-    return toast('Fail terlalu besar (max 100MB)', 'error');
-  }
+async function handleFilesUpload(files) {
+  const valid = files.filter(f => {
+    if (f.size > 100 * 1024 * 1024) { toast('"' + f.name + '" terlalu besar (max 100MB)', 'error'); return false; }
+    const isImg = f.type.startsWith('image/');
+    const isVid = f.type.startsWith('video/');
+    if (!isImg && !isVid) { toast('"' + f.name + '" format tak disokong', 'error'); return false; }
+    return true;
+  });
 
-  const isImage = file.type.startsWith('image/');
-  const isVideo = file.type.startsWith('video/');
-  if (!isImage && !isVideo) {
-    return toast('Format tak disokong: ' + file.name, 'error');
-  }
-
-  console.log('📤 Uploading:', file.name, file.type);
-
-  // Create template entry dulu (kosong)
-  const newTpl = makeNewTemplate(file.name.replace(/\.[^.]+$/, ''));
-  newTpl.type = isVideo ? 'video' : 'image';
-  templates.push(newTpl);
-
-  // Set as active supaya user nampak progress
-  activeTemplateId = newTpl.id;
-  renderTemplateList();
-  applyActiveToUI();
-  renderStage();
-  updateSettingsVisibility();
+  if (valid.length === 0) return;
 
   uploadZone.classList.add('uploading');
   const progressEl = document.getElementById('uploadProgress');
@@ -1490,143 +1722,136 @@ async function handleFileUpload(file) {
   const uploadText = document.getElementById('uploadText');
   const uploadPct = document.getElementById('uploadPct');
   progressEl.classList.add('show');
-  progressFill.style.width = '0%';
-  uploadText.textContent = 'Uploading: ' + file.name;
 
-  const resourceType = isVideo ? 'video' : 'image';
+  const newTemplates = [];
 
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  formData.append('folder', 'anugerah_templates');
+  for (let i = 0; i < valid.length; i++) {
+    const file = valid[i];
+    const isVideo = file.type.startsWith('video/');
+    uploadText.textContent = `Uploading ${i + 1}/${valid.length}: ${file.name}`;
+    progressFill.style.width = '0%';
+    uploadPct.textContent = '0%';
 
-  const xhr = new XMLHttpRequest();
+    try {
+      const result = await uploadSingleFile(file, isVideo, (pct) => {
+        progressFill.style.width = pct + '%';
+        uploadPct.textContent = pct + '%';
+      });
 
-  xhr.upload.addEventListener('progress', (e) => {
-    if (e.lengthComputable) {
-      const pct = Math.round((e.loaded / e.total) * 100);
-      progressFill.style.width = pct + '%';
-      uploadPct.textContent = pct + '%';
+      const tpl = {
+        id: generateTemplateId(),
+        url: result.secure_url,
+        type: isVideo ? 'video' : 'image',
+        source: 'cloudinary',
+        publicId: result.public_id,
+        label: file.name.replace(/\.[^.]+$/, '') || ('Template ' + (state.templates.length + newTemplates.length + 1)),
+        settings: defaultTemplateSettings()
+      };
+      newTemplates.push(tpl);
+    } catch (e) {
+      console.error('Upload fail:', file.name, e);
+      toast('❌ "' + file.name + '" gagal: ' + e.message, 'error', 5000);
     }
-  });
-
-  xhr.addEventListener('load', async () => {
-    uploadZone.classList.remove('uploading');
-    progressEl.classList.remove('show');
-
-    if (xhr.status >= 200 && xhr.status < 300) {
-      try {
-        const result = JSON.parse(xhr.responseText);
-        const secureUrl = result.secure_url;
-        const publicId = result.public_id;
-
-        if (!secureUrl) throw new Error('Tiada secure_url');
-
-        // Update template
-        const idx = templates.findIndex(t => t.id === newTpl.id);
-        if (idx >= 0) {
-          templates[idx].url = secureUrl;
-          templates[idx].source = 'cloudinary';
-          templates[idx].publicId = publicId;
-        }
-
-        await saveTemplates();
-        renderTemplateList();
-        renderStage();
-        renderPreview();
-        toast('✅ ' + file.name + ' berjaya di-upload!', 'success');
-      } catch (e) {
-        console.error('Parse error:', e);
-        toast('Ralat parse: ' + e.message, 'error');
-        // Remove template yang gagal
-        templates = templates.filter(t => t.id !== newTpl.id);
-        if (activeTemplateId === newTpl.id) {
-          activeTemplateId = templates[0]?.id || null;
-        }
-        renderTemplateList();
-        updateSettingsVisibility();
-      }
-    } else {
-      let errMsg = 'Status ' + xhr.status;
-      try {
-        const errData = JSON.parse(xhr.responseText);
-        if (errData.error && errData.error.message) errMsg = errData.error.message;
-      } catch(e) {}
-      console.error('Upload error:', errMsg);
-      toast('❌ Upload gagal: ' + errMsg, 'error', 6000);
-      // Remove template yang gagal
-      templates = templates.filter(t => t.id !== newTpl.id);
-      if (activeTemplateId === newTpl.id) {
-        activeTemplateId = templates[0]?.id || null;
-      }
-      renderTemplateList();
-      updateSettingsVisibility();
-    }
-  });
-
-  xhr.addEventListener('error', () => {
-    uploadZone.classList.remove('uploading');
-    progressEl.classList.remove('show');
-    toast('❌ Ralat sambungan', 'error');
-    templates = templates.filter(t => t.id !== newTpl.id);
-    if (activeTemplateId === newTpl.id) {
-      activeTemplateId = templates[0]?.id || null;
-    }
-    renderTemplateList();
-    updateSettingsVisibility();
-  });
-
-  const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
-  xhr.open('POST', url, true);
-  xhr.send(formData);
-}
-
-async function deleteTemplate(id) {
-  const t = templates.find(x => x.id === id);
-  if (!t) return;
-  if (!confirm('Padam template "' + (t.name || 'Tanpa Nama') + '"?')) return;
-
-  templates = templates.filter(x => x.id !== id);
-  if (activeTemplateId === id) {
-    activeTemplateId = templates[0]?.id || null;
   }
 
-  await saveTemplates();
-  renderTemplateList();
-  applyActiveToUI();
-  renderStage();
-  renderPreview();
-  updateSettingsVisibility();
-  toast('Template dipadam', 'success');
+  uploadZone.classList.remove('uploading');
+  progressEl.classList.remove('show');
+
+  if (newTemplates.length === 0) return;
+
+  state.templates = [...state.templates, ...newTemplates];
+  if (!state.activeTemplateId) {
+    state.activeTemplateId = newTemplates[0].id;
+    expandedTemplateId = newTemplates[0].id;
+  }
+
+  try {
+    await setDoc(configDoc, {
+      templates: state.templates,
+      activeTemplateId: state.activeTemplateId,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    toast('✅ ' + newTemplates.length + ' template berjaya di-upload!', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Gagal simpan: ' + e.message, 'error');
+  }
+}
+
+function uploadSingleFile(file, isVideo, onProgress) {
+  return new Promise((resolve, reject) => {
+    const resourceType = isVideo ? 'video' : 'image';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'anugerah_templates');
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const result = JSON.parse(xhr.responseText);
+          if (!result.secure_url) return reject(new Error('Tiada secure_url'));
+          resolve(result);
+        } catch (e) {
+          reject(new Error('Ralat parse: ' + e.message));
+        }
+      } else {
+        let errMsg = 'Status ' + xhr.status;
+        try {
+          const errData = JSON.parse(xhr.responseText);
+          if (errData.error && errData.error.message) errMsg = errData.error.message;
+        } catch(e) {}
+        reject(new Error(errMsg));
+      }
+    });
+
+    xhr.addEventListener('error', () => reject(new Error('Ralat sambungan')));
+
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
+    xhr.open('POST', url, true);
+    xhr.send(formData);
+  });
 }
 
 /* ============================================================
-   RENDER STAGE
+   RENDER STAGE (untuk template aktif)
    ============================================================ */
 const stage = document.getElementById('stage');
 let gridVisible = false;
 
 function renderStage() {
-  const t = getActiveTemplate();
   stage.innerHTML = '';
 
-  if (!t || !t.url) {
+  const t = getActiveTemplate();
+
+  if (!t) {
     stage.innerHTML = `
       <div class="placeholder">
         <div class="icon">🖼️</div>
-        <p>${!t ? 'Pilih atau tambah template untuk mula' : 'Template belum di-upload'}<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
+        <p>Upload template untuk mula<br><span style="font-size:11px;opacity:0.7;">PNG · JPG · MP4</span></p>
       </div>`;
-    document.getElementById('stageMeta').textContent = !t ? 'Tiada template' : 'Belum upload';
+    document.getElementById('stageMeta').textContent = 'Tiada template';
     return;
   }
+
+  const s = t.settings || defaultTemplateSettings();
 
   if (t.type === 'video') {
     const video = document.createElement('video');
     video.id = 'stageMedia';
     video.src = t.url;
-    video.loop = t.video.loop;
-    video.autoplay = t.video.autoplay;
-    video.muted = t.video.muted;
+    video.loop = s.video.loop;
+    video.autoplay = s.video.autoplay;
+    video.muted = s.video.muted;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;';
@@ -1648,10 +1873,10 @@ function renderStage() {
     stage.appendChild(img);
   }
 
-  if (t.overlay.enabled) {
+  if (s.overlay.enabled) {
     const overlay = document.createElement('div');
     overlay.style.cssText = `
-      position:absolute; inset:0; background:rgba(0,0,0,${t.overlay.opacity/100});
+      position:absolute; inset:0; background:rgba(0,0,0,${s.overlay.opacity/100});
       pointer-events:none; z-index:5;
     `;
     stage.appendChild(overlay);
@@ -1672,23 +1897,27 @@ function renderStage() {
   const sampleNama = recipients[0]?.nama || 'CONTOH NAMA PENUH';
   const sampleMatrik = recipients[0]?.matrik || '18DIT21F1001';
 
-  addDragTag('name', sampleNama, t.positions.name.x, t.positions.name.y, t);
-  addDragTag('matrik', sampleMatrik, t.positions.matrik.x, t.positions.matrik.y, t);
+  addDragTag('name', sampleNama, s.positions.name.x, s.positions.name.y);
+  addDragTag('matrik', sampleMatrik, s.positions.matrik.x, s.positions.matrik.y);
 }
 
-function addDragTag(type, text, xPct, yPct, t) {
+function addDragTag(type, text, xPct, yPct) {
+  const t = getActiveTemplate();
+  if (!t) return;
+  const s = t.settings;
+
   const tag = document.createElement('div');
   tag.className = 'drag-tag ' + type + '-tag';
   tag.dataset.type = type;
   tag.style.left = xPct + '%';
   tag.style.top = yPct + '%';
 
-  if (type === 'name') tag.style.fontSize = t.styles.nameSize + 'px';
-  else tag.style.fontSize = t.styles.matrikSize + 'px';
+  if (type === 'name') tag.style.fontSize = s.styles.nameSize + 'px';
+  else tag.style.fontSize = s.styles.matrikSize + 'px';
 
-  tag.style.color = t.styles.color;
-  tag.style.fontFamily = t.styles.font;
-  tag.style.fontWeight = t.styles.weight;
+  tag.style.color = s.styles.color;
+  tag.style.fontFamily = s.styles.font;
+  tag.style.fontWeight = s.styles.weight;
   tag.style.textShadow = '0 2px 8px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.9)';
 
   tag.innerHTML = `
@@ -1708,27 +1937,24 @@ function makeDraggable(el, type) {
     dragging = true;
     el.classList.add('dragging');
     startX = e.clientX; startY = e.clientY;
-    const t = getActiveTemplate();
-    startLeftPct = t.positions[type].x;
-    startTopPct = t.positions[type].y;
+    const s = getActiveSettings();
+    startLeftPct = s.positions[type].x;
+    startTopPct = s.positions[type].y;
     e.preventDefault();
   });
 
   el.addEventListener('touchstart', (e) => {
-    const t2 = e.touches[0];
+    const t = e.touches[0];
     dragging = true;
     el.classList.add('dragging');
-    startX = t2.clientX; startY = t2.clientY;
-    const t = getActiveTemplate();
-    startLeftPct = t.positions[type].x;
-    startTopPct = t.positions[type].y;
+    startX = t.clientX; startY = t.clientY;
+    const s = getActiveSettings();
+    startLeftPct = s.positions[type].x;
+    startTopPct = s.positions[type].y;
   }, { passive: true });
 
   function move(clientX, clientY) {
     if (!dragging) return;
-    const t = getActiveTemplate();
-    if (!t) return;
-
     const rect = stage.getBoundingClientRect();
     const dx = ((clientX - startX) / rect.width) * 100;
     const dy = ((clientY - startY) / rect.height) * 100;
@@ -1736,14 +1962,24 @@ function makeDraggable(el, type) {
     let newX = Math.max(0, Math.min(100, startLeftPct + dx));
     let newY = Math.max(0, Math.min(100, startTopPct + dy));
 
-    t.positions[type].x = newX;
-    t.positions[type].y = newY;
+    const s = getActiveSettings();
+    s.positions[type].x = newX;
+    s.positions[type].y = newY;
     el.style.left = newX + '%';
     el.style.top = newY + '%';
 
-    syncPositionInputs();
-    document.getElementById('coordDisplay').textContent =
-      `${type === 'name' ? 'Nama' : 'Matriks'} · x: ${newX.toFixed(1)}% , y: ${newY.toFixed(1)}%`;
+    // Update input dalam template card yang aktif
+    const card = document.querySelector(`.template-card[data-id="${state.activeTemplateId}"]`);
+    if (card) {
+      const fieldX = 'pos' + (type === 'name' ? 'Name' : 'Matrik') + 'X';
+      const fieldY = 'pos' + (type === 'name' ? 'Name' : 'Matrik') + 'Y';
+      const inputX = card.querySelector(`[data-field="${fieldX}"]`);
+      const inputY = card.querySelector(`[data-field="${fieldY}"]`);
+      if (inputX) inputX.value = newX.toFixed(1);
+      if (inputY) inputY.value = newY.toFixed(1);
+    }
+
+    updateCoordDisplay(type);
   }
 
   function end() {
@@ -1761,189 +1997,72 @@ function makeDraggable(el, type) {
   document.addEventListener('touchend', end);
 }
 
-/* ============================================================
-   POSITION INPUT SYNC
-   ============================================================ */
-function syncPositionInputs() {
-  const t = getActiveTemplate();
-  if (!t) return;
-  document.getElementById('posNameX').value = t.positions.name.x.toFixed(1);
-  document.getElementById('posNameY').value = t.positions.name.y.toFixed(1);
-  document.getElementById('posMatrikX').value = t.positions.matrik.x.toFixed(1);
-  document.getElementById('posMatrikY').value = t.positions.matrik.y.toFixed(1);
+function getActiveSettings() {
+  return getSettings(state.activeTemplateId);
 }
 
 function updateTagPosition(type) {
-  const t = getActiveTemplate();
-  if (!t) return;
+  const s = getActiveSettings();
   const tags = stage.querySelectorAll('.drag-tag');
   tags.forEach(tag => {
     if (tag.dataset.type === type) {
-      tag.style.left = t.positions[type].x + '%';
-      tag.style.top = t.positions[type].y + '%';
+      tag.style.left = s.positions[type].x + '%';
+      tag.style.top = s.positions[type].y + '%';
     }
   });
 }
 
-['posNameX', 'posNameY', 'posMatrikX', 'posMatrikY'].forEach(id => {
-  document.getElementById(id).addEventListener('input', (e) => {
-    const t = getActiveTemplate();
-    if (!t) return;
-
-    const val = Math.max(0, Math.min(100, parseFloat(e.target.value) || 0));
-    if (id === 'posNameX') { t.positions.name.x = val; updateTagPosition('name'); }
-    if (id === 'posNameY') { t.positions.name.y = val; updateTagPosition('name'); }
-    if (id === 'posMatrikX') { t.positions.matrik.x = val; updateTagPosition('matrik'); }
-    if (id === 'posMatrikY') { t.positions.matrik.y = val; updateTagPosition('matrik'); }
-
-    const target = id.includes('Name') ? 'name' : 'matrik';
-    document.getElementById('coordDisplay').textContent =
-      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${t.positions[target].x.toFixed(1)}% , y: ${t.positions[target].y.toFixed(1)}%`;
-    debounceSave();
-  });
-});
-
-document.querySelectorAll('.step-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const t = getActiveTemplate();
-    if (!t) return;
-    const target = btn.dataset.target;
-    const axis = btn.dataset.axis;
-    const dir = parseInt(btn.dataset.dir);
-    const step = 0.5;
-
-    let newVal = t.positions[target][axis] + (step * dir);
-    newVal = Math.max(0, Math.min(100, newVal));
-    t.positions[target][axis] = newVal;
-
-    syncPositionInputs();
-    updateTagPosition(target);
-    document.getElementById('coordDisplay').textContent =
-      `${target === 'name' ? 'Nama' : 'Matriks'} · x: ${t.positions[target].x.toFixed(1)}% , y: ${t.positions[target].y.toFixed(1)}%`;
-    debounceSave();
-  });
-});
-
-/* ============================================================
-   CONTROLS — SEMUA UBAH ACTIVE TEMPLATE
-   ============================================================ */
-document.getElementById('inpTemplateName').addEventListener('input', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.name = e.target.value;
-  debounceSave();
-  // Update list name je (tanpa re-render penuh)
-  const item = document.querySelector(`.template-item[data-id="${t.id}"] .name`);
-  if (item) item.textContent = t.name || 'Tanpa Nama';
-  document.getElementById('activeTemplateName').innerHTML = `
-    <span class="dot-active"></span>
-    <span>${escapeHtml(t.name || 'Tanpa Nama')}</span>
-  `;
-});
-
-document.getElementById('inpSizeNama').addEventListener('input', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.styles.nameSize = parseInt(e.target.value) || 32;
-  updateTagStyles(); debounceSave();
-});
-
-document.getElementById('inpSizeMatrik').addEventListener('input', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.styles.matrikSize = parseInt(e.target.value) || 22;
-  updateTagStyles(); debounceSave();
-});
-
-document.getElementById('inpColor').addEventListener('input', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.styles.color = e.target.value;
-  updateTagStyles(); debounceSave();
-});
-
-document.getElementById('inpFont').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.styles.font = e.target.value;
-  updateTagStyles(); debounceSave();
-});
-
-document.getElementById('inpWeight').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.styles.weight = parseInt(e.target.value);
-  updateTagStyles(); debounceSave();
-});
-
-document.getElementById('toggleLoop').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.video.loop = e.target.checked;
-  const v = stage.querySelector('video');
-  if (v) v.loop = e.target.checked;
-  debounceSave();
-});
-
-document.getElementById('toggleAutoplay').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.video.autoplay = e.target.checked;
-  debounceSave();
-});
-
-document.getElementById('toggleMuted').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.video.muted = e.target.checked;
-  const v = stage.querySelector('video');
-  if (v) v.muted = e.target.checked;
-  debounceSave();
-});
-
-document.getElementById('toggleOverlay').addEventListener('change', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.overlay.enabled = e.target.checked;
-  document.getElementById('overlayOpacityGroup').style.display = t.overlay.enabled ? 'block' : 'none';
-  renderStage(); debounceSave();
-});
-
-document.getElementById('inpOverlayOpacity').addEventListener('input', (e) => {
-  const t = getActiveTemplate();
-  if (!t) return;
-  t.overlay.opacity = parseInt(e.target.value) || 0;
-  const ov = stage.querySelector('div[style*="background:rgba(0,0,0"]');
-  if (ov) ov.style.background = `rgba(0,0,0,${t.overlay.opacity/100})`;
-  debounceSave();
-});
-
 function updateTagStyles() {
-  const t = getActiveTemplate();
-  if (!t) return;
+  const s = getActiveSettings();
   document.querySelectorAll('.drag-tag').forEach(tag => {
     const type = tag.dataset.type;
-    tag.style.fontSize = (type === 'name' ? t.styles.nameSize : t.styles.matrikSize) + 'px';
-    tag.style.color = t.styles.color;
-    tag.style.fontFamily = t.styles.font;
-    tag.style.fontWeight = t.styles.weight;
+    tag.style.fontSize = (type === 'name' ? s.styles.nameSize : s.styles.matrikSize) + 'px';
+    tag.style.color = s.styles.color;
+    tag.style.fontFamily = s.styles.font;
+    tag.style.fontWeight = s.styles.weight;
   });
 }
 
+/* ============================================================
+   SAVE
+   ============================================================ */
+async function saveConfig() {
+  try {
+    await setDoc(configDoc, {
+      templates: state.templates,
+      activeTemplateId: state.activeTemplateId,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    showSaveStatus('Setting disimpan');
+  } catch (e) {
+    console.error(e);
+    toast('Gagal simpan: ' + e.message, 'error');
+  }
+}
+
+const debounceSave = (() => {
+  let timer;
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(saveConfig, 800);
+  };
+})();
+
+/* ============================================================
+   CANVAS CONTROLS
+   ============================================================ */
 document.getElementById('btnAddNama').addEventListener('click', () => {
-  const t = getActiveTemplate();
-  if (!t) return toast('Pilih template dulu', 'warn');
-  t.positions.name = { x: 50, y: 40 };
-  syncPositionInputs();
-  renderStage(); saveTemplates();
+  if (!getActiveTemplate()) return toast('Upload template dulu', 'warn');
+  getActiveSettings().positions.name = { x: 50, y: 40 };
+  renderTemplateList();
+  renderStage(); saveConfig();
 });
 
 document.getElementById('btnAddMatrik').addEventListener('click', () => {
-  const t = getActiveTemplate();
-  if (!t) return toast('Pilih template dulu', 'warn');
-  t.positions.matrik = { x: 50, y: 60 };
-  syncPositionInputs();
-  renderStage(); saveTemplates();
+  if (!getActiveTemplate()) return toast('Upload template dulu', 'warn');
+  getActiveSettings().positions.matrik = { x: 50, y: 60 };
+  renderTemplateList();
+  renderStage(); saveConfig();
 });
 
 document.getElementById('btnGrid').addEventListener('click', () => {
@@ -1953,13 +2072,13 @@ document.getElementById('btnGrid').addEventListener('click', () => {
 });
 
 document.getElementById('btnResetPos').addEventListener('click', () => {
-  const t = getActiveTemplate();
-  if (!t) return;
+  if (!getActiveTemplate()) return;
   if (!confirm('Reset posisi ke tengah?')) return;
-  t.positions.name = { x: 50, y: 40 };
-  t.positions.matrik = { x: 50, y: 60 };
-  syncPositionInputs();
-  renderStage(); saveTemplates();
+  const s = getActiveSettings();
+  s.positions.name = { x: 50, y: 40 };
+  s.positions.matrik = { x: 50, y: 60 };
+  renderTemplateList();
+  renderStage(); saveConfig();
 });
 
 document.getElementById('btnSave').addEventListener('click', async () => {
@@ -1967,66 +2086,77 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const orig = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div><span>Menyimpan...</span>';
-  await saveTemplates();
+  await saveConfig();
   btn.disabled = false;
   btn.innerHTML = orig;
-  toast('✅ Semua setting disimpan', 'success');
+  toast('✅ Semua template disimpan', 'success');
 });
 
 /* ============================================================
-   PREVIEW BULK — guna template aktif
+   PREVIEW BULK
    ============================================================ */
 function renderPreview() {
   const list = document.getElementById('previewList');
-  const t = getActiveTemplate();
-  document.getElementById('previewCount').textContent = recipients.length;
+  const totalSlides = recipients.length * state.templates.length;
+  document.getElementById('previewCount').textContent = totalSlides;
 
   if (recipients.length === 0) {
     list.innerHTML = '<div class="empty">Belum ada penerima</div>';
     return;
   }
 
-  list.innerHTML = recipients.slice(0, 20).map(r => {
+  if (state.templates.length === 0) {
+    list.innerHTML = '<div class="empty">Belum ada template</div>';
+    return;
+  }
+
+  const items = [];
+  const maxShow = 20;
+  outer:
+  for (let ri = 0; ri < recipients.length; ri++) {
+    const r = recipients[ri];
+    for (let ti = 0; ti < state.templates.length; ti++) {
+      if (items.length >= maxShow) break outer;
+      items.push({ r, t: state.templates[ti] });
+    }
+  }
+
+  list.innerHTML = items.map(({ r, t }) => {
+    const s = t.settings || defaultTemplateSettings();
     const previewWidth = 140;
     const stageWidth = 800;
     const scale = previewWidth / stageWidth;
 
-    const nameFS = Math.max(5, (t?.styles.nameSize || 32) * scale);
-    const matrikFS = Math.max(4, (t?.styles.matrikSize || 22) * scale);
-
-    const positions = t?.positions || DEFAULT_TEMPLATE_SETTINGS.positions;
-    const styles = t?.styles || DEFAULT_TEMPLATE_SETTINGS.styles;
-    const overlay = t?.overlay || DEFAULT_TEMPLATE_SETTINGS.overlay;
+    const nameFS = Math.max(5, s.styles.nameSize * scale);
+    const matrikFS = Math.max(4, s.styles.matrikSize * scale);
 
     let mediaHTML = '';
-    if (t?.url && t.type === 'image') {
+    if (t.type === 'image') {
       mediaHTML = `<img src="${t.url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;">`;
-    } else if (t?.url) {
-      mediaHTML = `<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:24px;">🎬</div>`;
     } else {
-      mediaHTML = `<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:20px;">🖼️</div>`;
+      mediaHTML = `<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:24px;">🎬</div>`;
     }
 
     let overlayHTML = '';
-    if (overlay.enabled) {
-      overlayHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay.opacity/100});"></div>`;
+    if (s.overlay.enabled) {
+      overlayHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,${s.overlay.opacity/100});"></div>`;
     }
 
     const nameStyle = `
-      left: ${positions.name.x}%;
-      top: ${positions.name.y}%;
-      color: ${styles.color};
-      font-family: ${styles.font};
-      font-weight: ${styles.weight};
+      left: ${s.positions.name.x}%;
+      top: ${s.positions.name.y}%;
+      color: ${s.styles.color};
+      font-family: ${s.styles.font};
+      font-weight: ${s.styles.weight};
       font-size: ${nameFS}px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.7);
     `;
     const matrikStyle = `
-      left: ${positions.matrik.x}%;
-      top: ${positions.matrik.y}%;
-      color: ${styles.color};
-      font-family: ${styles.font};
-      font-weight: ${styles.weight};
+      left: ${s.positions.matrik.x}%;
+      top: ${s.positions.matrik.y}%;
+      color: ${s.styles.color};
+      font-family: ${s.styles.font};
+      font-weight: ${s.styles.weight};
       font-size: ${matrikFS}px;
       text-shadow: 0 1px 3px rgba(0,0,0,0.7);
     `;
@@ -2036,10 +2166,10 @@ function renderPreview() {
         <div class="preview-thumb">
           ${mediaHTML}
           ${overlayHTML}
-          <span class="mini-name" style="${nameStyle}">${escapeHtml(r.nama)}</span>
-          <span class="mini-matrik" style="${matrikStyle}">${escapeHtml(r.matrik)}</span>
+          <span class="mini-name" style="${nameStyle}">${escapeHtml(r.nama || '-')}</span>
+          <span class="mini-matrik" style="${matrikStyle}">${escapeHtml(r.matrik || '-')}</span>
         </div>
-        <div class="label">#${escapeHtml(r.barcode)}</div>
+        <div class="label">${escapeHtml(t.label || 'Tpl')} · #${escapeHtml(r.barcode || '----')}</div>
       </div>
     `;
   }).join('');
@@ -2048,7 +2178,7 @@ function renderPreview() {
 /* ============================================================
    INIT
    ============================================================ */
-console.log('%c☁️ Edit Template · Multi-Template', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
+console.log('%c☁️ Edit Template · Cloudinary (Multi)', 'color: #a78bfa; font-size: 14px; font-weight: bold;');
 console.log('Cloud:', CLOUDINARY_CLOUD_NAME);
 console.log('Preset:', CLOUDINARY_UPLOAD_PRESET);
 </script>
