@@ -571,8 +571,10 @@
     box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.3), 0 8px 24px rgba(0,0,0,0.5);
     z-index: 100;
   }
-  .drag-tag.name-tag { background: rgba(56, 189, 248, 0.9); color: #0a0e1a; }
-  .drag-tag.matrik-tag { background: rgba(52, 211, 153, 0.9); color: #0a0e1a; }
+
+  /* PUDAR - supaya nampak template belakang */
+  .drag-tag.name-tag { background: rgba(56, 189, 248, 0.35); color: rgba(255,255,255,0.85); }
+  .drag-tag.matrik-tag { background: rgba(52, 211, 153, 0.35); color: rgba(255,255,255,0.85); }
 
   .drag-tag .tag-label {
     position: absolute;
@@ -1695,10 +1697,8 @@ function renderPreview() {
 
   list.innerHTML = recipients.slice(0, 20).map(r => {
     // Skala preview: thumb 16/9 dengan min-width ~140px
-    // Font size perlu di-scale mengikut nisbah lebar preview vs lebar stage sebenar
-    // Preview item lebar ~130px, stage lebar ~800px, jadi scale = 130/800 = 0.1625
-    const previewWidth = 140; // approximate
-    const stageWidth = 800;   // approximate base
+    const previewWidth = 140;
+    const stageWidth = 800;
     const scale = previewWidth / stageWidth;
 
     const nameFS = Math.max(5, state.styles.nameSize * scale);
