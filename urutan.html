@@ -391,7 +391,6 @@
   }
   .btn-clear-part svg { width: 13px; height: 13px; }
 
-  /* Input row dalam partition */
   .part-input-row {
     display: flex;
     gap: 8px;
@@ -458,7 +457,6 @@
     font-weight: 700;
   }
 
-  /* Gallery dalam partition */
   .part-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -478,7 +476,6 @@
   }
   .part-empty .icon { font-size: 36px; opacity: 0.4; margin-bottom: 6px; }
 
-  /* Slide card (sama macam asal) */
   .slide-card {
     background: var(--bg-card);
     border: 1.5px solid var(--border);
@@ -746,7 +743,7 @@
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   }
-  .modal.large { max-width: 1100px; }
+  .modal.large { max-width: 1200px; }
   .modal-overlay.active .modal { transform: scale(1); }
 
   .modal-header {
@@ -904,6 +901,113 @@
   .mini-drag-tag:hover .lbl { opacity: 1; }
   .mini-drag-tag.name .lbl { background: var(--blue); color: #0a0e1a; }
   .mini-drag-tag.matrik .lbl { background: var(--green); color: #0a0e1a; }
+
+  /* ============================================================
+     LIVE PREVIEW BESAR (baru)
+     ============================================================ */
+  .live-preview-section {
+    margin-top: 20px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .live-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .live-preview-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-preview-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .live-preview-scale {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .live-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .live-preview img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .live-preview video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    background: #000;
+  }
+
+  .live-preview .lp-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    gap: 8px;
+  }
+  .live-preview .lp-placeholder .emoji { font-size: 48px; opacity: 0.4; }
+
+  .live-preview .lp-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .live-preview .lp-tag {
+    position: absolute;
+    font-weight: 800;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    line-height: 1.1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.8);
+    z-index: 10;
+    pointer-events: none;
+  }
 
   .edit-section {
     background: var(--bg-input);
@@ -1516,6 +1620,26 @@
               Salin dari Default
             </button>
           </div>
+
+          <!-- ============================================
+               LIVE PREVIEW BESAR
+               ============================================ -->
+          <div class="live-preview-section">
+            <div class="live-preview-header">
+              <div class="live-preview-title">
+                <span class="dot"></span>
+                Live Preview
+              </div>
+              <div class="live-preview-scale" id="livePreviewScale">Loading...</div>
+            </div>
+            <div class="live-preview" id="livePreview">
+              <div class="lp-placeholder">
+                <div class="emoji">🖼️</div>
+                <div>Tiada template</div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div>
@@ -1658,14 +1782,14 @@ const ALLOWED_KATEGORI = 'PENERIMA ANUGERAH';
    STATE
    ============================================================ */
 let recipients = [];
-let configState = {};             // config/main (templates)
-let templates = [];               // [{ id, url, type, label, settings }]
-let ordersByTemplate = {};        // { tplId: [recipientId, ...] }
-let overridesByTemplate = {};     // { tplId: { recipientId: {...} } }
-let editingId = null;             // recipient id yang tengah di-edit
-let editingTemplateId = null;     // template partition yang tengah di-edit
-let draggedId = null;             // recipient id yang tengah di-drag
-let draggedTemplateId = null;     // template partition dragger
+let configState = {};
+let templates = [];
+let ordersByTemplate = {};
+let overridesByTemplate = {};
+let editingId = null;
+let editingTemplateId = null;
+let draggedId = null;
+let draggedTemplateId = null;
 
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
@@ -1710,7 +1834,6 @@ function isPenerimaAnugerah(r) {
   return String(r.kategori || '').toUpperCase() === ALLOWED_KATEGORI;
 }
 
-/* Ambil setting untuk recipient dalam template tertentu */
 function getEffectiveSettings(templateId, recipientId) {
   const tpl = templates.find(t => t.id === templateId);
   const base = {
@@ -1745,7 +1868,6 @@ const configDoc = doc(db, 'config', 'main');
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
 
-  // Load templates array (atau migrate legacy)
   if (Array.isArray(configState.templates)) {
     templates = configState.templates.map(t => ({
       id: t.id,
@@ -1755,7 +1877,6 @@ onSnapshot(configDoc, (snap) => {
       settings: t.settings || null
     }));
   } else if (configState.template) {
-    // Legacy single template
     templates = [{
       id: 'tpl_legacy',
       url: configState.template,
@@ -1797,21 +1918,13 @@ onSnapshot(ordersDoc, (snap) => {
     ordersByTemplate = data.orders || {};
     overridesByTemplate = data.overrides || {};
   } else {
-    // Migration dari format lama (slideOrder single)
     ordersByTemplate = {};
     overridesByTemplate = {};
   }
-
-  // Fallback: kalau ada slideOrder lama, migrate
-  const legacyDoc = doc(db, 'config', 'slideOrder');
-  // Kita handle legacy sekali sahaja dengan cara check existing.
-  // Untuk kekal backward-compatible, kita boleh tambah listener sekali je.
-
   renderPartitions();
   updateStats();
 }, (err) => console.error('orders:', err));
 
-/* Listener legacy (sekali sahaja untuk migrate) */
 let legacyMigrated = false;
 onSnapshot(doc(db, 'config', 'slideOrder'), (snap) => {
   if (legacyMigrated || !snap.exists()) return;
@@ -1862,7 +1975,6 @@ function renderPartitions() {
 
   partitionsContainer.innerHTML = templates.map(tpl => renderPartition(tpl)).join('');
 
-  // Bind events untuk setiap partition
   partitionsContainer.querySelectorAll('.partition').forEach(part => {
     setupPartitionEvents(part);
   });
@@ -1951,7 +2063,6 @@ function renderSlideCard(templateId, r, idx, total) {
   const p = eff.positions;
   const s = eff.styles;
 
-  // Preview scale supaya saiz sama dengan template sebenar
   const previewScale = 0.295;
   const nameFS = Math.max(6, s.nameSize * previewScale);
   const matrikFS = Math.max(5, s.matrikSize * previewScale);
@@ -2071,7 +2182,6 @@ function setupPartitionEvents(part) {
   const scanBtn = part.querySelector('[data-action="scan"]');
   const clearBtn = part.querySelector('[data-action="clear"]');
 
-  /* Input suggestions */
   input.addEventListener('input', (e) => {
     const val = e.target.value.trim().toUpperCase();
     if (!val) { suggestionsEl.classList.remove('show'); return; }
@@ -2079,7 +2189,7 @@ function setupPartitionEvents(part) {
     const order = getOrder(tplId);
     const matches = recipients.filter(r => {
       if (!isPenerimaAnugerah(r)) return false;
-      if (order.includes(r.id)) return false; // dah ada dalam partition ni
+      if (order.includes(r.id)) return false;
       return (
         String(r.barcode || '').toUpperCase().includes(val) ||
         String(r.nama || '').toUpperCase().includes(val) ||
@@ -2127,7 +2237,6 @@ function setupPartitionEvents(part) {
     toast('Partition dikosongkan', 'success');
   });
 
-  /* Slide card events */
   part.querySelectorAll('.slide-card').forEach(card => setupCardEvents(card, tplId));
 }
 
@@ -2155,7 +2264,6 @@ async function addToPartition(templateId, inputEl) {
     return toast(found.nama + ' sudah dalam partition ini', 'warn');
   }
 
-  // Boleh masuk partition mana-mana (tak larang kalau dah ada dalam partition lain)
   ordersByTemplate[templateId] = [...order, found.id];
   await saveOrders();
 
@@ -2167,7 +2275,7 @@ async function addToPartition(templateId, inputEl) {
 }
 
 /* ============================================================
-   CARD EVENTS (drag, arrow, edit)
+   CARD EVENTS
    ============================================================ */
 function setupCardEvents(card, templateId) {
   const id = card.dataset.id;
@@ -2214,7 +2322,6 @@ function setupCardEvents(card, templateId) {
 
   card.addEventListener('dragover', (e) => {
     e.preventDefault();
-    // Hanya boleh drag dalam partition yang sama
     if (draggedId && draggedId !== id && draggedTemplateId === templateId) {
       card.classList.add('drag-over');
     }
@@ -2225,7 +2332,6 @@ function setupCardEvents(card, templateId) {
   card.addEventListener('drop', (e) => {
     e.preventDefault();
     card.classList.remove('drag-over');
-    // Hanya drop dalam partition yang sama
     if (!draggedId || draggedId === id) return;
     if (draggedTemplateId !== templateId) {
       return toast('Drag hanya boleh dalam partition yang sama', 'warn');
@@ -2250,7 +2356,6 @@ function setupCardEvents(card, templateId) {
 function updateStats() {
   const penerimaAnugerah = recipients.filter(isPenerimaAnugerah);
 
-  // Kira jumlah slide unik merentas semua partition
   let totalSlides = 0;
   Object.values(ordersByTemplate).forEach(arr => {
     totalSlides += Array.isArray(arr) ? arr.length : 0;
@@ -2267,6 +2372,8 @@ function updateStats() {
    ============================================================ */
 const editModal = document.getElementById('editModal');
 const miniStage = document.getElementById('miniStage');
+const livePreview = document.getElementById('livePreview');
+const livePreviewScale = document.getElementById('livePreviewScale');
 
 function openEditModal(templateId, recipientId) {
   const r = recipients.find(x => x.id === recipientId);
@@ -2300,6 +2407,7 @@ function openEditModal(templateId, recipientId) {
   document.getElementById('customBadge').style.display = isCustom ? 'inline-block' : 'none';
 
   renderMiniStage();
+  renderLivePreview();
   editModal.classList.add('active');
 }
 
@@ -2356,6 +2464,8 @@ function updateMiniTagPosition(type) {
     const effNow = getEffectiveSettings(editingTemplateId, editingId);
     document.getElementById('coordDisplayMini').textContent =
       `${target === 'name' ? 'Nama' : 'Matriks'}: x ${effNow.positions[target].x.toFixed(1)}% · y ${effNow.positions[target].y.toFixed(1)}%`;
+
+    renderLivePreview();
   });
 });
 
@@ -2379,11 +2489,12 @@ document.querySelectorAll('.step-btn-mini').forEach(btn => {
     syncMiniPositionInputs();
     updateMiniTagPosition(target);
     markCustomized();
+    renderLivePreview();
   });
 });
 
 /* ============================================================
-   RENDER MINI STAGE
+   RENDER MINI STAGE (untuk drag tag)
    ============================================================ */
 function renderMiniStage() {
   if (!editingId || !editingTemplateId) return;
@@ -2499,6 +2610,7 @@ function makeMiniDraggable(el, type) {
       ov.positions = ov.positions || { ...eff.positions };
       ov.positions[type] = { x: newX, y: newY };
       syncMiniPositionInputs();
+      renderLivePreview();
     }
   }
 
@@ -2519,6 +2631,93 @@ function makeMiniDraggable(el, type) {
   }, { passive: true });
   document.addEventListener('touchend', end);
 }
+
+/* ============================================================
+   RENDER LIVE PREVIEW BESAR
+   ============================================================ */
+function renderLivePreview() {
+  if (!editingId || !editingTemplateId) return;
+
+  const r = recipients.find(x => x.id === editingId);
+  if (!r) return;
+
+  const tpl = templates.find(t => t.id === editingTemplateId);
+  if (!tpl) return;
+
+  const eff = getEffectiveSettings(editingTemplateId, editingId);
+  livePreview.innerHTML = '';
+
+  // Media
+  if (tpl.type === 'image' && tpl.url) {
+    const img = document.createElement('img');
+    img.src = tpl.url;
+    img.draggable = false;
+    livePreview.appendChild(img);
+  } else if (tpl.type === 'video' && tpl.url) {
+    const video = document.createElement('video');
+    video.src = tpl.url;
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.preload = 'auto';
+    video.play().catch(() => {});
+    livePreview.appendChild(video);
+  } else {
+    livePreview.innerHTML = `
+      <div class="lp-placeholder">
+        <div class="emoji">🖼️</div>
+        <div>Tiada template</div>
+      </div>`;
+  }
+
+  // Overlay
+  if (eff.overlay.enabled) {
+    const ov = document.createElement('div');
+    ov.className = 'lp-overlay';
+    ov.style.background = `rgba(0,0,0,${eff.overlay.opacity/100})`;
+    livePreview.appendChild(ov);
+  }
+
+  // Kira scale berdasarkan lebar livePreview vs reference 1280px
+  const previewWidth = livePreview.clientWidth || 800;
+  const REFERENCE_WIDTH = 1280;
+  const scale = previewWidth / REFERENCE_WIDTH;
+
+  livePreviewScale.textContent = `Skala: ${(scale * 100).toFixed(0)}% · Ref 1280px`;
+
+  // Nama
+  const nameEl = document.createElement('div');
+  nameEl.className = 'lp-tag';
+  nameEl.textContent = r.nama || '-';
+  nameEl.style.left = eff.positions.name.x + '%';
+  nameEl.style.top = eff.positions.name.y + '%';
+  nameEl.style.color = eff.styles.color;
+  nameEl.style.fontFamily = eff.styles.font;
+  nameEl.style.fontWeight = eff.styles.weight;
+  nameEl.style.fontSize = (eff.styles.nameSize * scale) + 'px';
+  livePreview.appendChild(nameEl);
+
+  // Matrik
+  const matrikEl = document.createElement('div');
+  matrikEl.className = 'lp-tag';
+  matrikEl.textContent = r.matrik || '-';
+  matrikEl.style.left = eff.positions.matrik.x + '%';
+  matrikEl.style.top = eff.positions.matrik.y + '%';
+  matrikEl.style.color = eff.styles.color;
+  matrikEl.style.fontFamily = eff.styles.font;
+  matrikEl.style.fontWeight = eff.styles.weight;
+  matrikEl.style.fontSize = (eff.styles.matrikSize * scale) + 'px';
+  livePreview.appendChild(matrikEl);
+}
+
+// Rescale live preview bila window resize
+window.addEventListener('resize', () => {
+  if (editModal.classList.contains('active')) {
+    renderLivePreview();
+  }
+});
 
 /* ============================================================
    OVERRIDE HELPERS
@@ -2547,6 +2746,7 @@ function markCustomized() {
     const s = e.target.selectionStart, t = e.target.selectionEnd;
     e.target.value = e.target.value.toUpperCase();
     e.target.setSelectionRange(s, t);
+    renderLivePreview();
   });
 });
 
@@ -2556,6 +2756,7 @@ document.getElementById('editSizeNama').addEventListener('input', (e) => {
   ov.styles.nameSize = parseInt(e.target.value) || 32;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editSizeMatrik').addEventListener('input', (e) => {
@@ -2564,6 +2765,7 @@ document.getElementById('editSizeMatrik').addEventListener('input', (e) => {
   ov.styles.matrikSize = parseInt(e.target.value) || 22;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editColor').addEventListener('input', (e) => {
@@ -2572,6 +2774,7 @@ document.getElementById('editColor').addEventListener('input', (e) => {
   ov.styles.color = e.target.value;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editFont').addEventListener('change', (e) => {
@@ -2580,6 +2783,7 @@ document.getElementById('editFont').addEventListener('change', (e) => {
   ov.styles.font = e.target.value;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editWeight').addEventListener('change', (e) => {
@@ -2588,6 +2792,7 @@ document.getElementById('editWeight').addEventListener('change', (e) => {
   ov.styles.weight = parseInt(e.target.value);
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editLoop').addEventListener('change', (e) => {
@@ -2596,6 +2801,7 @@ document.getElementById('editLoop').addEventListener('change', (e) => {
   ov.video.loop = e.target.checked;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editAutoplay').addEventListener('change', (e) => {
@@ -2604,6 +2810,7 @@ document.getElementById('editAutoplay').addEventListener('change', (e) => {
   ov.video.autoplay = e.target.checked;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editOverlay').addEventListener('change', (e) => {
@@ -2613,6 +2820,7 @@ document.getElementById('editOverlay').addEventListener('change', (e) => {
   document.getElementById('editOpacityGroup').style.display = e.target.checked ? 'block' : 'none';
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('editOverlayOpacity').addEventListener('input', (e) => {
@@ -2621,6 +2829,7 @@ document.getElementById('editOverlayOpacity').addEventListener('input', (e) => {
   ov.overlay.opacity = parseInt(e.target.value) || 0;
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('btnResetPosMini').addEventListener('click', () => {
@@ -2629,6 +2838,7 @@ document.getElementById('btnResetPosMini').addEventListener('click', () => {
   ov.positions = { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } };
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
 });
 
 document.getElementById('btnCopyGlobal').addEventListener('click', () => {
@@ -2659,6 +2869,7 @@ document.getElementById('btnCopyGlobal').addEventListener('click', () => {
   document.getElementById('editOpacityGroup').style.display = eff.overlay.enabled ? 'block' : 'none';
   markCustomized();
   renderMiniStage();
+  renderLivePreview();
   toast('Disalin dari setting default', 'success', 1500);
 });
 
@@ -2707,7 +2918,7 @@ document.getElementById('btnRemoveFromOrder').addEventListener('click', async ()
    ============================================================ */
 let codeReader = null;
 let scanActive = false;
-let scanTargetTemplateId = null; // partition mana yang tengah scan
+let scanTargetTemplateId = null;
 const scanModal = document.getElementById('scanModal');
 const scanVideo = document.getElementById('scanVideo');
 const scanStatus = document.getElementById('scanStatus');
@@ -2816,7 +3027,7 @@ function playBeep() {
    INIT
    ============================================================ */
 setStatus('connecting', 'Menyambung...');
-console.log('%c🎬 Urus Urutan Slide · Multi-Partition', 'color: #fb923c; font-size: 14px; font-weight: bold;');
+console.log('%c🎬 Urus Urutan Slide · Multi-Partition + Live Preview', 'color: #fb923c; font-size: 14px; font-weight: bold;');
 </script>
 
 </body>
