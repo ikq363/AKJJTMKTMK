@@ -554,7 +554,7 @@
   }
   .start-btn svg { width: 22px; height: 22px; }
 
-  /* TEMPLATE PICKER (baru) */
+  /* TEMPLATE PICKER */
   .tpl-picker {
     width: 100%;
     max-width: 720px;
@@ -703,7 +703,6 @@
   <div class="icon">🎬</div>
   <h2>Mod <span>Presentation</span></h2>
 
-  <!-- STEP 1: pilih template (kalau lebih 1) -->
   <div id="tplPickerStep" style="display:none;">
     <div class="tpl-picker">
       <div class="tpl-picker-title" style="text-align:center;">📂 Pilih Partition Template</div>
@@ -719,7 +718,6 @@
     </div>
   </div>
 
-  <!-- STEP 2: default (1 template / belum sedia) -->
   <div id="defaultStartStep">
     <p id="startMessage">Klik butang di bawah untuk mula. Fullscreen akan auto-aktif & video akan auto-play.</p>
     <button class="start-btn" id="btnStart">
@@ -948,7 +946,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 import {
-  getFirestore, collection, doc, onSnapshot, query, orderBy
+  getFirestore, collection, doc, onSnapshot, query, orderBy, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -968,16 +966,14 @@ const db = getFirestore(app);
    STATE
    ============================================================ */
 let recipients = [];
-let templates = [];                    // array template (partition)
-let ordersByTemplate = {};             // { tplId: [recipientId, ...] }
-let overridesByTemplate = {};          // { tplId: { recipientId: {...} } }
+let templates = [];
+let ordersByTemplate = {};
+let overridesByTemplate = {};
 let configState = {};
 
-// Pilihan template aktif
-let activeTemplateId = null;           // template yang tengah di-present
-let selectedTemplateId = null;         // pilihan di picker (belum confirm)
+let activeTemplateId = null;
+let selectedTemplateId = null;
 
-// Slide order untuk template aktif (derived)
 let slideOrder = [];
 let overrides = {};
 
@@ -1011,6 +1007,28 @@ const DEFAULT_SETTINGS = {
   video: { loop: true, autoplay: true, muted: true },
   overlay: { enabled: false, opacity: 30 }
 };
+
+/*
+  ⚠️ PENTING — reference width yang SAMA dengan urutan.html live preview
+  Live preview dalam urutan.html guna formula:
+    scale = previewWidth / REFERENCE_WIDTH
+    REFERENCE_WIDTH = 1280
+
+  Dalam slide.html, kita guna formula yang sama tapi:
+    scale = stageWidth / REFERENCE_WIDTH
+  Di mana stageWidth = saiz sebenar stage (#stage) dalam px.
+
+  Ini penting sebab dalam fullscreen, stageWidth = window.innerWidth,
+  tapi kalau tak fullscreen pun (contoh test), kita still kena guna
+  saiz sebenar stage untuk kira scale supaya konsisten.
+*/
+const REFERENCE_WIDTH = 1280;
+
+/* Dapatkan lebar stage sebenar */
+function getStageWidth() {
+  const stageEl = document.getElementById('stage');
+  return stageEl ? stageEl.clientWidth : window.innerWidth;
+}
 
 /* ============================================================
    HELPERS
@@ -1051,12 +1069,10 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* Dapatkan template aktif */
 function getActiveTemplate() {
   return templates.find(t => t.id === activeTemplateId) || null;
 }
 
-/* Dapatkan setting effektif untuk recipient dalam template aktif */
 function getEffectiveSettings(id) {
   const tpl = getActiveTemplate();
   const base = {
@@ -1108,7 +1124,6 @@ const configDoc = doc(db, 'config', 'main');
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
 
-  // Load templates array (atau migrate legacy)
   if (Array.isArray(configState.templates)) {
     templates = configState.templates.map(t => ({
       id: t.id,
@@ -1135,11 +1150,8 @@ onSnapshot(configDoc, (snap) => {
   }
 
   console.log('📋 Templates:', templates.length);
-
-  // Update UI picker based on templates count
   updateStartOverlayUI();
 
-  // Kalau presentation dah start, render slides untuk template aktif
   if (presentationStarted) {
     recomputeActiveOrder();
     renderSlides();
@@ -1178,7 +1190,6 @@ onSnapshot(ordersDoc, (snap) => {
   }
 }, (err) => console.error('orders:', err));
 
-/* Legacy migration — kalau ada config/slideOrder lama */
 let legacyMigrated = false;
 onSnapshot(doc(db, 'config', 'slideOrder'), (snap) => {
   if (legacyMigrated || !snap.exists()) return;
@@ -1197,7 +1208,6 @@ onSnapshot(doc(db, 'config', 'slideOrder'), (snap) => {
   }
 });
 
-/* Recompute slideOrder + overrides untuk template aktif */
 function recomputeActiveOrder() {
   if (!activeTemplateId) {
     slideOrder = [];
@@ -1209,7 +1219,7 @@ function recomputeActiveOrder() {
 }
 
 /* ============================================================
-   RENDER SLIDES — SMART
+   RENDER SLIDES
    ============================================================ */
 const stage = document.getElementById('stage');
 
@@ -1242,6 +1252,10 @@ function renderSlides() {
   if (!noSlides && !orderChanged && !templateChanged) {
     console.log('🔄 Update in-place');
 
+    // Kira stage scale
+    const stageWidth = getStageWidth();
+    const stageScale = stageWidth / REFERENCE_WIDTH;
+
     orderedRecipients.forEach((r, idx) => {
       const slide = slides[idx];
       if (!slide) return;
@@ -1256,7 +1270,8 @@ function renderSlides() {
         tags[0].style.color = eff.styles.color;
         tags[0].style.fontFamily = eff.styles.font;
         tags[0].style.fontWeight = eff.styles.weight;
-        tags[0].style.fontSize = eff.styles.nameSize + 'px';
+        tags[0].style.fontSize = (eff.styles.nameSize * stageScale) + 'px';
+        tags[0].dataset.baseSize = eff.styles.nameSize;
       }
 
       if (tags[1]) {
@@ -1266,7 +1281,8 @@ function renderSlides() {
         tags[1].style.color = eff.styles.color;
         tags[1].style.fontFamily = eff.styles.font;
         tags[1].style.fontWeight = eff.styles.weight;
-        tags[1].style.fontSize = eff.styles.matrikSize + 'px';
+        tags[1].style.fontSize = (eff.styles.matrikSize * stageScale) + 'px';
+        tags[1].dataset.baseSize = eff.styles.matrikSize;
       }
 
       let overlay = slide.querySelector('.slide-overlay');
@@ -1319,6 +1335,14 @@ function renderSlides() {
 
   const transitionClass = settings.transition !== 'none' ? `transition-${settings.transition}` : '';
 
+  // ⚠️ Kira stage scale SEKALI sahaja untuk semua slide
+  // Guna saiz stage sebenar, bukan window.innerWidth.
+  // Ni penting supaya konsisten dengan live preview urutan.html.
+  const stageWidth = getStageWidth();
+  const stageScale = stageWidth / REFERENCE_WIDTH;
+
+  console.log('🎨 Stage scale:', stageScale, '(stageWidth:', stageWidth, '/ ref:', REFERENCE_WIDTH, ')');
+
   orderedRecipients.forEach((r, idx) => {
     const eff = getEffectiveSettings(r.id);
     const slide = document.createElement('div');
@@ -1326,7 +1350,7 @@ function renderSlides() {
     slide.dataset.index = idx;
     slide.dataset.id = r.id;
 
-    // MEDIA — guna template aktif (bukan configState.template)
+    // MEDIA
     if (tpl.url) {
       if (tpl.type === 'video') {
         const videoId = 'presvid_' + r.id;
@@ -1363,11 +1387,7 @@ function renderSlides() {
       slide.appendChild(ov);
     }
 
-    const REFERENCE_WIDTH = 1280;
-    const viewportWidth = window.innerWidth;
-    const stageScale = viewportWidth / REFERENCE_WIDTH;
-
-    // NAMA
+    // NAMA — guna stageScale (bukan viewport scale)
     const nameEl = document.createElement('div');
     nameEl.className = 'slide-tag';
     nameEl.textContent = r.nama || '-';
@@ -1399,9 +1419,12 @@ function renderSlides() {
   applyActiveSlide(true);
 }
 
+/* ============================================================
+   RESCALE — guna stage width (bukan window width)
+   ============================================================ */
 function rescaleAllTags() {
-  const REFERENCE_WIDTH = 1280;
-  const stageScale = window.innerWidth / REFERENCE_WIDTH;
+  const stageWidth = getStageWidth();
+  const stageScale = stageWidth / REFERENCE_WIDTH;
 
   stage.querySelectorAll('.slide-tag').forEach(tag => {
     const baseSize = parseFloat(tag.dataset.baseSize);
@@ -1604,7 +1627,8 @@ function toggleFullscreen() {
 document.addEventListener('fullscreenchange', () => {
   const isFs = !!document.fullscreenElement;
   document.getElementById('fsLabel').textContent = isFs ? 'Keluar FS' : 'Fullscreen';
-  setTimeout(rescaleAllTags, 100);
+  // Delay sikit supaya layout settle, then rescale
+  setTimeout(rescaleAllTags, 150);
 });
 
 /* ============================================================
@@ -1798,7 +1822,6 @@ const startMessage = document.getElementById('startMessage');
 
 function updateStartOverlayUI() {
   if (templates.length === 0) {
-    // Tiada template — tunjuk mesej
     tplPickerStep.style.display = 'none';
     defaultStartStep.style.display = 'block';
     startMessage.textContent = 'Tiada template. Sila upload template di page Edit Template dahulu.';
@@ -1806,7 +1829,6 @@ function updateStartOverlayUI() {
     btnStart.style.opacity = '0.4';
     btnStart.style.cursor = 'not-allowed';
   } else if (templates.length === 1) {
-    // 1 template — terus mula
     tplPickerStep.style.display = 'none';
     defaultStartStep.style.display = 'block';
     startMessage.textContent = 'Klik butang di bawah untuk mula. Fullscreen akan auto-aktif & video akan auto-play.';
@@ -1814,7 +1836,6 @@ function updateStartOverlayUI() {
     btnStart.style.opacity = '';
     btnStart.style.cursor = '';
   } else {
-    // Lebih 1 template — tunjuk picker
     tplPickerStep.style.display = 'block';
     defaultStartStep.style.display = 'none';
     renderTemplatePicker();
@@ -1822,7 +1843,6 @@ function updateStartOverlayUI() {
 }
 
 function renderTemplatePicker() {
-  // Kalau selectedTemplateId dah tak wujud, reset
   if (selectedTemplateId && !templates.find(t => t.id === selectedTemplateId)) {
     selectedTemplateId = null;
   }
@@ -1853,10 +1873,8 @@ function renderTemplatePicker() {
   tplPickerGrid.querySelectorAll('.tpl-option').forEach(opt => {
     opt.addEventListener('click', () => {
       selectedTemplateId = opt.dataset.tplId;
-      // Update highlight
       tplPickerGrid.querySelectorAll('.tpl-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
-      // Enable start button
       btnStartWithTemplate.disabled = false;
     });
   });
@@ -1864,9 +1882,7 @@ function renderTemplatePicker() {
   btnStartWithTemplate.disabled = !selectedTemplateId;
 }
 
-/* Butang mula (untuk 1 template atau 0 template) */
 btnStart.addEventListener('click', () => {
-  // Kalau 1 template, terus pilih template tu
   if (templates.length === 1) {
     selectedTemplateId = templates[0].id;
   } else if (templates.length === 0) {
@@ -1875,7 +1891,6 @@ btnStart.addEventListener('click', () => {
   startPresentation();
 });
 
-/* Butang mula (untuk picker — bila > 1 template) */
 btnStartWithTemplate.addEventListener('click', () => {
   if (!selectedTemplateId) return;
   startPresentation();
@@ -1884,7 +1899,6 @@ btnStartWithTemplate.addEventListener('click', () => {
 async function startPresentation() {
   if (!selectedTemplateId) return;
 
-  // Set active template
   activeTemplateId = selectedTemplateId;
   recomputeActiveOrder();
 
@@ -1895,14 +1909,17 @@ async function startPresentation() {
     await document.documentElement.requestFullscreen();
   } catch(e) {}
 
-  // Render slides
+  // Tunggu sikit untuk fullscreen settle, baru render
   setTimeout(() => {
     renderSlides();
     presentationStarted = true;
     applyActiveSlide(true);
     const tpl = getActiveTemplate();
     toast('✅ Presentation: ' + (tpl?.label || 'Template'), 'success', 2500);
-  }, 300);
+
+    // Rescale sekali lagi selepas fullscreen animate
+    setTimeout(rescaleAllTags, 300);
+  }, 400);
 
   showUI();
 }
