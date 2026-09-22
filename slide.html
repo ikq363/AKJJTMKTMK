@@ -554,11 +554,145 @@
   }
   .start-btn svg { width: 22px; height: 22px; }
 
+  /* TEMPLATE PICKER (baru) */
+  .tpl-picker {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .tpl-picker-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+  .tpl-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .tpl-option {
+    background: rgba(15, 23, 42, 0.85);
+    border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    position: relative;
+  }
+  .tpl-option:hover {
+    border-color: rgba(251, 146, 60, 0.6);
+    background: rgba(251, 146, 60, 0.08);
+    transform: translateY(-3px);
+  }
+  .tpl-option.selected {
+    border-color: #fb923c;
+    background: rgba(251, 146, 60, 0.12);
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+  }
+  .tpl-option-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tpl-option-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .tpl-option-thumb .tpl-icon {
+    font-size: 32px;
+    opacity: 0.6;
+  }
+  .tpl-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tpl-option-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: #f1f5f9;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tpl-option-meta {
+    font-size: 11px;
+    color: #64748b;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tpl-option-meta .badge {
+    background: rgba(251, 146, 60, 0.15);
+    border: 1px solid rgba(251, 146, 60, 0.4);
+    color: #fb923c;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tpl-picker-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .tpl-btn-start {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #0a0e1a;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.25s;
+    box-shadow: 0 12px 32px -8px rgba(251, 146, 60, 0.6);
+  }
+  .tpl-btn-start:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px -8px rgba(251, 146, 60, 0.7);
+  }
+  .tpl-btn-start:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .tpl-btn-start svg { width: 18px; height: 18px; }
+
   @media (max-width: 768px) {
     .settings-panel, .jump-panel { width: 100%; }
     .ui-info .name { font-size: 14px; }
     .nav-btn { width: 38px; height: 38px; }
     .start-overlay h2 { font-size: 22px; }
+    .tpl-picker-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -568,13 +702,34 @@
 <div class="start-overlay" id="startOverlay">
   <div class="icon">🎬</div>
   <h2>Mod <span>Presentation</span></h2>
-  <p>Klik butang di bawah untuk mula. Fullscreen akan auto-aktif & video akan auto-play.</p>
-  <button class="start-btn" id="btnStart">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-    </svg>
-    Mula Presentation
-  </button>
+
+  <!-- STEP 1: pilih template (kalau lebih 1) -->
+  <div id="tplPickerStep" style="display:none;">
+    <div class="tpl-picker">
+      <div class="tpl-picker-title" style="text-align:center;">📂 Pilih Partition Template</div>
+      <div class="tpl-picker-grid" id="tplPickerGrid"></div>
+      <div class="tpl-picker-actions">
+        <button class="tpl-btn-start" id="btnStartWithTemplate" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Mula Presentation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: default (1 template / belum sedia) -->
+  <div id="defaultStartStep">
+    <p id="startMessage">Klik butang di bawah untuk mula. Fullscreen akan auto-aktif & video akan auto-play.</p>
+    <button class="start-btn" id="btnStart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      Mula Presentation
+    </button>
+  </div>
+
   <div style="font-size:12px;color:#64748b;letter-spacing:0.05em;">Tekan F untuk fullscreen · S untuk scan · Esc untuk keluar</div>
 </div>
 
@@ -813,8 +968,17 @@ const db = getFirestore(app);
    STATE
    ============================================================ */
 let recipients = [];
-let slideOrder = [];
+let templates = [];                    // array template (partition)
+let ordersByTemplate = {};             // { tplId: [recipientId, ...] }
+let overridesByTemplate = {};          // { tplId: { recipientId: {...} } }
 let configState = {};
+
+// Pilihan template aktif
+let activeTemplateId = null;           // template yang tengah di-present
+let selectedTemplateId = null;         // pilihan di picker (belum confirm)
+
+// Slide order untuk template aktif (derived)
+let slideOrder = [];
 let overrides = {};
 
 let currentIndex = 0;
@@ -823,8 +987,8 @@ let uiHideTimer = null;
 let autoAdvanceTimer = null;
 let codeReader = null;
 let scanActive = false;
+let presentationStarted = false;
 
-/* Cache untuk smart diff */
 let lastRenderedIds = [];
 let lastRenderedTemplate = '';
 
@@ -836,12 +1000,6 @@ const settings = {
   loopVideo: true
 };
 
-/*
-  ⚠️ PENTING — DEFAULT_SETTINGS kena SAMA dengan template.html
-  Saiz: nameSize 32, matrikSize 22 (bukan 60/36)
-  Weight: 700 (bukan 800)
-  Ini supaya apa yang editor nampak = apa yang presentation nampak
-*/
 const DEFAULT_SETTINGS = {
   positions: { name: { x: 50, y: 40 }, matrik: { x: 50, y: 60 } },
   styles: {
@@ -893,12 +1051,19 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* Dapatkan template aktif */
+function getActiveTemplate() {
+  return templates.find(t => t.id === activeTemplateId) || null;
+}
+
+/* Dapatkan setting effektif untuk recipient dalam template aktif */
 function getEffectiveSettings(id) {
+  const tpl = getActiveTemplate();
   const base = {
-    positions: configState.positions || DEFAULT_SETTINGS.positions,
-    styles: configState.styles || DEFAULT_SETTINGS.styles,
-    video: configState.video || DEFAULT_SETTINGS.video,
-    overlay: configState.overlay || DEFAULT_SETTINGS.overlay
+    positions: (tpl?.settings?.positions) || configState.positions || DEFAULT_SETTINGS.positions,
+    styles: (tpl?.settings?.styles) || configState.styles || DEFAULT_SETTINGS.styles,
+    video: (tpl?.settings?.video) || configState.video || DEFAULT_SETTINGS.video,
+    overlay: (tpl?.settings?.overlay) || configState.overlay || DEFAULT_SETTINGS.overlay
   };
   const ov = overrides[id];
   if (!ov) return base;
@@ -942,8 +1107,43 @@ const configDoc = doc(db, 'config', 'main');
 
 onSnapshot(configDoc, (snap) => {
   configState = snap.exists() ? snap.data() : {};
-  console.log('📋 Config update');
-  renderSlides();
+
+  // Load templates array (atau migrate legacy)
+  if (Array.isArray(configState.templates)) {
+    templates = configState.templates.map(t => ({
+      id: t.id,
+      url: t.url,
+      type: t.type || 'image',
+      label: t.label || 'Template',
+      settings: t.settings || null
+    }));
+  } else if (configState.template) {
+    templates = [{
+      id: 'tpl_legacy',
+      url: configState.template,
+      type: configState.templateType || 'image',
+      label: 'Template 1',
+      settings: {
+        positions: configState.positions || DEFAULT_SETTINGS.positions,
+        styles: configState.styles || DEFAULT_SETTINGS.styles,
+        video: configState.video || DEFAULT_SETTINGS.video,
+        overlay: configState.overlay || DEFAULT_SETTINGS.overlay
+      }
+    }];
+  } else {
+    templates = [];
+  }
+
+  console.log('📋 Templates:', templates.length);
+
+  // Update UI picker based on templates count
+  updateStartOverlayUI();
+
+  // Kalau presentation dah start, render slides untuk template aktif
+  if (presentationStarted) {
+    recomputeActiveOrder();
+    renderSlides();
+  }
 }, (err) => console.error('config:', err));
 
 const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
@@ -951,32 +1151,80 @@ const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'
 onSnapshot(recipientsQ, (snap) => {
   recipients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   setStatus('online', 'Online');
-  renderSlides();
+  if (presentationStarted) {
+    recomputeActiveOrder();
+    renderSlides();
+  }
 }, (err) => {
   console.error('recipients:', err);
   setStatus('offline', 'Offline');
 });
 
-const orderDoc = doc(db, 'config', 'slideOrder');
+const ordersDoc = doc(db, 'config', 'slideOrders');
 
-onSnapshot(orderDoc, (snap) => {
+onSnapshot(ordersDoc, (snap) => {
   if (snap.exists()) {
     const data = snap.data();
-    slideOrder = Array.isArray(data.order) ? data.order : [];
-    overrides = data.overrides || {};
+    ordersByTemplate = data.orders || {};
+    overridesByTemplate = data.overrides || {};
   } else {
+    ordersByTemplate = {};
+    overridesByTemplate = {};
+  }
+
+  if (presentationStarted) {
+    recomputeActiveOrder();
+    renderSlides();
+  }
+}, (err) => console.error('orders:', err));
+
+/* Legacy migration — kalau ada config/slideOrder lama */
+let legacyMigrated = false;
+onSnapshot(doc(db, 'config', 'slideOrder'), (snap) => {
+  if (legacyMigrated || !snap.exists()) return;
+  if (Object.keys(ordersByTemplate).length > 0) return;
+  const data = snap.data();
+  if (Array.isArray(data.order) && data.order.length > 0 && templates.length > 0) {
+    legacyMigrated = true;
+    const firstTpl = templates[0].id;
+    ordersByTemplate = { [firstTpl]: data.order };
+    overridesByTemplate = { [firstTpl]: data.overrides || {} };
+    setDoc(ordersDoc, {
+      orders: ordersByTemplate,
+      overrides: overridesByTemplate
+    }, { merge: true }).catch(console.error);
+    console.log('✅ Migrated legacy slideOrder ke', firstTpl);
+  }
+});
+
+/* Recompute slideOrder + overrides untuk template aktif */
+function recomputeActiveOrder() {
+  if (!activeTemplateId) {
     slideOrder = [];
     overrides = {};
+    return;
   }
-  renderSlides();
-}, (err) => console.error('order:', err));
+  slideOrder = ordersByTemplate[activeTemplateId] || [];
+  overrides = overridesByTemplate[activeTemplateId] || {};
+}
 
 /* ============================================================
-   RENDER SLIDES — SMART (tak reload kalau tak perlu)
+   RENDER SLIDES — SMART
    ============================================================ */
 const stage = document.getElementById('stage');
 
 function renderSlides() {
+  const tpl = getActiveTemplate();
+  if (!tpl) {
+    stage.innerHTML = `
+      <div class="empty-slide">
+        <div class="icon">📂</div>
+        <div>Tiada template dipilih</div>
+      </div>
+    `;
+    return;
+  }
+
   const orderedRecipients = slideOrder
     .map(id => recipients.find(r => r.id === id))
     .filter(Boolean);
@@ -985,15 +1233,14 @@ function renderSlides() {
   const currentIds = Array.from(slides).map(s => s.dataset.id);
   const newIds = orderedRecipients.map(r => r.id);
 
-  // Detect perubahan
   const orderChanged = JSON.stringify(currentIds) !== JSON.stringify(newIds);
-  const templateSig = (configState.template || '') + '|' + (configState.templateType || '');
+  const templateSig = (tpl.id || '') + '|' + (tpl.url || '') + '|' + (tpl.type || '');
   const templateChanged = lastRenderedTemplate !== templateSig;
   const noSlides = slides.length === 0;
 
-  // ===== UPDATE IN-PLACE (tak reload video) =====
+  // ===== UPDATE IN-PLACE =====
   if (!noSlides && !orderChanged && !templateChanged) {
-    console.log('🔄 Update in-place (tak reload video)');
+    console.log('🔄 Update in-place');
 
     orderedRecipients.forEach((r, idx) => {
       const slide = slides[idx];
@@ -1002,7 +1249,6 @@ function renderSlides() {
       const eff = getEffectiveSettings(r.id);
       const tags = slide.querySelectorAll('.slide-tag');
 
-      // Nama — guna saiz sebenar (tak scale)
       if (tags[0]) {
         tags[0].textContent = r.nama || '-';
         tags[0].style.left = eff.positions.name.x + '%';
@@ -1013,7 +1259,6 @@ function renderSlides() {
         tags[0].style.fontSize = eff.styles.nameSize + 'px';
       }
 
-      // Matrik — guna saiz sebenar (tak scale)
       if (tags[1]) {
         tags[1].textContent = r.matrik || '-';
         tags[1].style.left = eff.positions.matrik.x + '%';
@@ -1024,7 +1269,6 @@ function renderSlides() {
         tags[1].style.fontSize = eff.styles.matrikSize + 'px';
       }
 
-      // Overlay
       let overlay = slide.querySelector('.slide-overlay');
       if (eff.overlay.enabled) {
         if (!overlay) {
@@ -1038,7 +1282,6 @@ function renderSlides() {
       }
     });
 
-    // Update info & progress je
     updateInfo();
     updateProgress();
     updateJumpList();
@@ -1046,8 +1289,8 @@ function renderSlides() {
     return;
   }
 
-  // ===== FULL RENDER (order atau template berubah) =====
-  console.log('🎬 Full render — order/template berubah');
+  // ===== FULL RENDER =====
+  console.log('🎬 Full render');
 
   lastRenderedIds = newIds;
   lastRenderedTemplate = templateSig;
@@ -1059,7 +1302,7 @@ function renderSlides() {
     stage.innerHTML = `
       <div class="empty-slide">
         <div class="icon">🎬</div>
-        <div>Belum ada slide</div>
+        <div>Belum ada slide untuk partition ini</div>
         <div style="font-size:13px;opacity:0.7;">Pergi ke page Urutan untuk susun slide</div>
       </div>
     `;
@@ -1083,15 +1326,15 @@ function renderSlides() {
     slide.dataset.index = idx;
     slide.dataset.id = r.id;
 
-    // MEDIA
-    if (configState.template) {
-      if (configState.templateType === 'video') {
+    // MEDIA — guna template aktif (bukan configState.template)
+    if (tpl.url) {
+      if (tpl.type === 'video') {
         const videoId = 'presvid_' + r.id;
         slide.innerHTML = `
           <video
             id="${videoId}"
             class="slide-media"
-            src="${configState.template}"
+            src="${tpl.url}"
             autoplay
             muted
             ${settings.loopVideo ? 'loop' : ''}
@@ -1100,8 +1343,8 @@ function renderSlides() {
             preload="auto"
           ></video>
         `;
-      } else if (configState.templateType === 'image') {
-        slide.innerHTML = `<img src="${configState.template}" class="slide-media" alt="">`;
+      } else if (tpl.type === 'image') {
+        slide.innerHTML = `<img src="${tpl.url}" class="slide-media" alt="">`;
       }
     } else {
       slide.innerHTML = `
@@ -1120,16 +1363,6 @@ function renderSlides() {
       slide.appendChild(ov);
     }
 
-    /*
-      NAMA & MATRIK — guna saiz PIXEL SEBENAR (tak scale)
-      Ini penting supaya apa yang nampak dalam editor = apa yang nampak dalam slide.
-      Editor guna saiz px terus pada stage 16:9 dengan object-fit contain.
-      Slide pun sama — object-fit contain, saiz px sama.
-
-      Tapi ada satu isu: editor stage & slide stage mungkin berbeza saiz skrin.
-      Untuk pastikan SAMA, kita guna scaling berdasarkan lebar viewport vs lebar rujukan.
-      Rujukan = 1280px (16:9 standard). Kalau skrin lain, kita scale.
-    */
     const REFERENCE_WIDTH = 1280;
     const viewportWidth = window.innerWidth;
     const stageScale = viewportWidth / REFERENCE_WIDTH;
@@ -1166,9 +1399,6 @@ function renderSlides() {
   applyActiveSlide(true);
 }
 
-/* ============================================================
-   RESCALE TAGS bila resize window
-   ============================================================ */
 function rescaleAllTags() {
   const REFERENCE_WIDTH = 1280;
   const stageScale = window.innerWidth / REFERENCE_WIDTH;
@@ -1374,7 +1604,6 @@ function toggleFullscreen() {
 document.addEventListener('fullscreenchange', () => {
   const isFs = !!document.fullscreenElement;
   document.getElementById('fsLabel').textContent = isFs ? 'Keluar FS' : 'Fullscreen';
-  // Rescale tags bila masuk/keluar fullscreen
   setTimeout(rescaleAllTags, 100);
 });
 
@@ -1538,7 +1767,7 @@ function handleScanResult(code) {
       toast('✅ ' + (r?.nama || code), 'success', 2500);
     } else {
       const r = recipients.find(x => String(x.barcode || '').toUpperCase() === code);
-      if (r) toast('⚠️ ' + r.nama + ' belum dalam urutan', 'warn', 3000);
+      if (r) toast('⚠️ ' + r.nama + ' belum dalam partition ini', 'warn', 3000);
       else toast('❌ Barcode tak dijumpai: ' + code, 'error', 3000);
     }
   }, 500);
@@ -1557,11 +1786,108 @@ function playBeep() {
 }
 
 /* ============================================================
-   START OVERLAY
+   START OVERLAY + TEMPLATE PICKER
    ============================================================ */
 const startOverlay = document.getElementById('startOverlay');
+const tplPickerStep = document.getElementById('tplPickerStep');
+const defaultStartStep = document.getElementById('defaultStartStep');
+const tplPickerGrid = document.getElementById('tplPickerGrid');
+const btnStartWithTemplate = document.getElementById('btnStartWithTemplate');
+const btnStart = document.getElementById('btnStart');
+const startMessage = document.getElementById('startMessage');
 
-document.getElementById('btnStart').addEventListener('click', async () => {
+function updateStartOverlayUI() {
+  if (templates.length === 0) {
+    // Tiada template — tunjuk mesej
+    tplPickerStep.style.display = 'none';
+    defaultStartStep.style.display = 'block';
+    startMessage.textContent = 'Tiada template. Sila upload template di page Edit Template dahulu.';
+    btnStart.disabled = true;
+    btnStart.style.opacity = '0.4';
+    btnStart.style.cursor = 'not-allowed';
+  } else if (templates.length === 1) {
+    // 1 template — terus mula
+    tplPickerStep.style.display = 'none';
+    defaultStartStep.style.display = 'block';
+    startMessage.textContent = 'Klik butang di bawah untuk mula. Fullscreen akan auto-aktif & video akan auto-play.';
+    btnStart.disabled = false;
+    btnStart.style.opacity = '';
+    btnStart.style.cursor = '';
+  } else {
+    // Lebih 1 template — tunjuk picker
+    tplPickerStep.style.display = 'block';
+    defaultStartStep.style.display = 'none';
+    renderTemplatePicker();
+  }
+}
+
+function renderTemplatePicker() {
+  // Kalau selectedTemplateId dah tak wujud, reset
+  if (selectedTemplateId && !templates.find(t => t.id === selectedTemplateId)) {
+    selectedTemplateId = null;
+  }
+
+  tplPickerGrid.innerHTML = templates.map(t => {
+    const isVideo = t.type === 'video';
+    const thumb = isVideo
+      ? `<div class="tpl-icon">🎬</div>`
+      : `<img src="${t.url}" alt="">`;
+
+    const orderCount = (ordersByTemplate[t.id] || []).length;
+    const isSelected = t.id === selectedTemplateId;
+
+    return `
+      <div class="tpl-option ${isSelected ? 'selected' : ''}" data-tpl-id="${t.id}">
+        <div class="tpl-option-thumb">${thumb}</div>
+        <div class="tpl-option-info">
+          <div class="tpl-option-name">${escapeHtml(t.label || 'Template')}</div>
+          <div class="tpl-option-meta">
+            <span>${isVideo ? '🎬 Video' : '🖼️ Gambar'}</span>
+            <span class="badge">${orderCount} slaid</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  tplPickerGrid.querySelectorAll('.tpl-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      selectedTemplateId = opt.dataset.tplId;
+      // Update highlight
+      tplPickerGrid.querySelectorAll('.tpl-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      // Enable start button
+      btnStartWithTemplate.disabled = false;
+    });
+  });
+
+  btnStartWithTemplate.disabled = !selectedTemplateId;
+}
+
+/* Butang mula (untuk 1 template atau 0 template) */
+btnStart.addEventListener('click', () => {
+  // Kalau 1 template, terus pilih template tu
+  if (templates.length === 1) {
+    selectedTemplateId = templates[0].id;
+  } else if (templates.length === 0) {
+    return;
+  }
+  startPresentation();
+});
+
+/* Butang mula (untuk picker — bila > 1 template) */
+btnStartWithTemplate.addEventListener('click', () => {
+  if (!selectedTemplateId) return;
+  startPresentation();
+});
+
+async function startPresentation() {
+  if (!selectedTemplateId) return;
+
+  // Set active template
+  activeTemplateId = selectedTemplateId;
+  recomputeActiveOrder();
+
   unlockAutoplay();
   startOverlay.classList.add('hide');
 
@@ -1569,20 +1895,24 @@ document.getElementById('btnStart').addEventListener('click', async () => {
     await document.documentElement.requestFullscreen();
   } catch(e) {}
 
+  // Render slides
   setTimeout(() => {
+    renderSlides();
+    presentationStarted = true;
     applyActiveSlide(true);
-    toast('✅ Presentation dimulakan', 'success', 2500);
+    const tpl = getActiveTemplate();
+    toast('✅ Presentation: ' + (tpl?.label || 'Template'), 'success', 2500);
   }, 300);
 
   showUI();
-});
+}
 
 /* ============================================================
    INIT
    ============================================================ */
 setStatus('connecting', 'Menyambung...');
 
-console.log('%c📺 Slide Presentation · Smart Render', 'color: #fb923c; font-size: 16px; font-weight: bold;');
+console.log('%c📺 Slide Presentation · Multi-Partition', 'color: #fb923c; font-size: 16px; font-weight: bold;');
 console.log('%c> atau → — Seterusnya · < atau ← — Sebelum · F — Fullscreen · S — Scan', 'color: #94a3b8;');
 </script>
 
