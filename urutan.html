@@ -218,9 +218,6 @@
     font-weight: 600;
   }
 
-  /* ============================================
-     PARTITION (setiap template)
-     ============================================ */
   .partitions-container {
     display: flex;
     flex-direction: column;
@@ -903,7 +900,7 @@
   .mini-drag-tag.matrik .lbl { background: var(--green); color: #0a0e1a; }
 
   /* ============================================================
-     LIVE PREVIEW BESAR (baru)
+     LIVE PREVIEW BESAR
      ============================================================ */
   .live-preview-section {
     margin-top: 20px;
@@ -1621,9 +1618,6 @@
             </button>
           </div>
 
-          <!-- ============================================
-               LIVE PREVIEW BESAR
-               ============================================ -->
           <div class="live-preview-section">
             <div class="live-preview-header">
               <div class="live-preview-title">
@@ -1777,6 +1771,12 @@ const db = getFirestore(app);
    KATEGORI PERMIT
    ============================================================ */
 const ALLOWED_KATEGORI = 'PENERIMA ANUGERAH';
+
+/* ============================================================
+   REFERENCE WIDTH — SAMA dengan slide.html & live preview modal
+   Semua scaling guna asas ni supaya konsisten
+   ============================================================ */
+const REFERENCE_WIDTH = 1280;
 
 /* ============================================================
    STATE
@@ -2063,13 +2063,28 @@ function renderSlideCard(templateId, r, idx, total) {
   const p = eff.positions;
   const s = eff.styles;
 
-  const previewScale = 0.295;
-  const nameFS = Math.max(6, s.nameSize * previewScale);
-  const matrikFS = Math.max(5, s.matrikSize * previewScale);
-
   const tpl = templates.find(t => t.id === templateId);
   const tplUrl = tpl?.url;
   const tplType = tpl?.type;
+
+  /*
+    ⚠️ PENTING — Kad preview guna formula SAMA dengan live preview modal.
+    Kita tak boleh tahu lebar kad dengan tepat masa render (sebab CSS grid),
+    tapi kita boleh anggap lebar minimum dari CSS: minmax(240px, 1fr).
+    Jadi kita guna 240px sebagai asas (worst case).
+    Bila kad lebih besar dari 240px, font akan nampak sikit lebih kecil
+    dari sepatutnya — tapi ini lebih baik dari formula hardcoded lama.
+
+    Untuk tepat, kita boleh guna ResizeObserver. Tapi tu overkill.
+    Cukup dengan 240px base + clamp minimum.
+  */
+  const CARD_WIDTH = 240;
+  const scale = CARD_WIDTH / REFERENCE_WIDTH;
+
+  // Saiz font — TANPA clamp minimum (supaya betul-betul proportional)
+  // Kalau terlalu kecil sampai tak boleh baca, itu memang nampak macam dalam slide sebenar
+  const nameFS = s.nameSize * scale;
+  const matrikFS = s.matrikSize * scale;
 
   const nameOverlayStyle = `
     left:${p.name.x}%;
@@ -2130,8 +2145,8 @@ function renderSlideCard(templateId, r, idx, total) {
           <div class="emoji">🖼️</div>
           <div>Tiada template</div>
         </div>
-        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:14px;">${escapeHtml(r.nama || '-')}</span>
-        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:11px;">${escapeHtml(r.matrik || '-')}</span>
+        <span class="mini-name" style="left:50%;top:40%;color:#fb923c;font-size:11px;">${escapeHtml(r.nama || '-')}</span>
+        <span class="mini-matrik" style="left:50%;top:60%;color:#94a3b8;font-size:8px;">${escapeHtml(r.matrik || '-')}</span>
       </div>
     `;
   }
@@ -2494,7 +2509,7 @@ document.querySelectorAll('.step-btn-mini').forEach(btn => {
 });
 
 /* ============================================================
-   RENDER MINI STAGE (untuk drag tag)
+   RENDER MINI STAGE
    ============================================================ */
 function renderMiniStage() {
   if (!editingId || !editingTemplateId) return;
@@ -2647,7 +2662,6 @@ function renderLivePreview() {
   const eff = getEffectiveSettings(editingTemplateId, editingId);
   livePreview.innerHTML = '';
 
-  // Media
   if (tpl.type === 'image' && tpl.url) {
     const img = document.createElement('img');
     img.src = tpl.url;
@@ -2672,7 +2686,6 @@ function renderLivePreview() {
       </div>`;
   }
 
-  // Overlay
   if (eff.overlay.enabled) {
     const ov = document.createElement('div');
     ov.className = 'lp-overlay';
@@ -2680,9 +2693,8 @@ function renderLivePreview() {
     livePreview.appendChild(ov);
   }
 
-  // Kira scale berdasarkan lebar livePreview vs reference 1280px
+  // Kira scale berdasarkan lebar livePreview
   const previewWidth = livePreview.clientWidth || 800;
-  const REFERENCE_WIDTH = 1280;
   const scale = previewWidth / REFERENCE_WIDTH;
 
   livePreviewScale.textContent = `Skala: ${(scale * 100).toFixed(0)}% · Ref 1280px`;
