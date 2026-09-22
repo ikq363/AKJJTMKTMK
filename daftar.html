@@ -24,6 +24,7 @@
     --yellow: #fbbf24;
     --purple: #a78bfa;
     --orange: #fb923c;
+    --pink: #f472b6;
   }
 
   html, body {
@@ -334,6 +335,11 @@
     border: 1px solid rgba(56, 189, 248, 0.3);
     color: var(--accent);
   }
+  .kategori-hint.pra {
+    background: rgba(244, 114, 182, 0.1);
+    border: 1px solid rgba(244, 114, 182, 0.3);
+    color: var(--pink);
+  }
   .kategori-hint.ajk {
     background: rgba(167, 139, 250, 0.1);
     border: 1px solid rgba(167, 139, 250, 0.3);
@@ -555,6 +561,11 @@
     background: rgba(56, 189, 248, 0.15);
     color: var(--accent);
     border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  .kategori-badge.pra {
+    background: rgba(244, 114, 182, 0.15);
+    color: var(--pink);
+    border: 1px solid rgba(244, 114, 182, 0.3);
   }
   .kategori-badge.ajk {
     background: rgba(167, 139, 250, 0.15);
@@ -1012,6 +1023,7 @@
           <select id="inpKategori" name="kategori" required>
             <option value="" disabled selected>-- Pilih Kategori --</option>
             <option value="PENERIMA ANUGERAH">🎓 Penerima Anugerah</option>
+            <option value="PRA-GRADUAN">🎓 Pra-Graduan</option>
             <option value="AHLI JAWATANKUASA">👥 Ahli Jawatankuasa</option>
             <option value="TETAMU">🤝 Tetamu</option>
           </select>
@@ -1024,7 +1036,7 @@
           <div class="field-hint">Nama akan dipaparkan dalam slaid anugerah</div>
         </div>
 
-        <!-- MATRIK — HANYA untuk Penerima Anugerah -->
+        <!-- MATRIK — untuk Penerima, Pra-Graduan, & AJK -->
         <div class="field" id="fieldMatrik">
           <label for="inpMatrik">Nombor Matriks <span class="req">*</span></label>
           <input type="text" id="inpMatrik" name="matrik" placeholder="Contoh: 18DIT21F1001" maxlength="30">
@@ -1183,6 +1195,7 @@ function escapeHtml(s) {
 function kategoriBadge(kategori) {
   const k = String(kategori || '').toUpperCase();
   if (k === 'PENERIMA ANUGERAH') return '<span class="kategori-badge penerima">🎓 Penerima</span>';
+  if (k === 'PRA-GRADUAN') return '<span class="kategori-badge pra">🎓 Pra-Graduan</span>';
   if (k === 'AHLI JAWATANKUASA') return '<span class="kategori-badge ajk">👥 AJK</span>';
   if (k === 'TETAMU') return '<span class="kategori-badge tetamu">🤝 Tetamu</span>';
   return '';
@@ -1205,6 +1218,13 @@ const kategoriHint = document.getElementById('kategoriHint');
 const fieldMatrik = document.getElementById('fieldMatrik');
 const inpMatrik = document.getElementById('inpMatrik');
 
+/*
+  Peraturan baru:
+  - PENERIMA ANUGERAH: wajib matriks
+  - PRA-GRADUAN: wajib matriks
+  - AHLI JAWATANKUASA: wajib matriks (BARU)
+  - TETAMU: TAK perlu matriks
+*/
 function updateKategoriUI() {
   const val = inpKategori.value;
   kategoriHint.className = 'kategori-hint';
@@ -1216,12 +1236,19 @@ function updateKategoriUI() {
     inpMatrik.required = true;
     inpMatrik.placeholder = 'Contoh: 18DIT21F1001';
 
+  } else if (val === 'PRA-GRADUAN') {
+    kategoriHint.classList.add('show', 'pra');
+    kategoriHint.innerHTML = '🎓 Pra-graduan — wajib isi nombor matriks';
+    fieldMatrik.classList.remove('hidden-field');
+    inpMatrik.required = true;
+    inpMatrik.placeholder = 'Contoh: 18DIT21F1001';
+
   } else if (val === 'AHLI JAWATANKUASA') {
     kategoriHint.classList.add('show', 'ajk');
-    kategoriHint.innerHTML = '👥 Ahli jawatankuasa majlis — tak perlu nombor matriks';
-    fieldMatrik.classList.add('hidden-field');
-    inpMatrik.required = false;
-    inpMatrik.value = '';
+    kategoriHint.innerHTML = '👥 Ahli jawatankuasa majlis — wajib isi nombor matriks';
+    fieldMatrik.classList.remove('hidden-field');
+    inpMatrik.required = true;
+    inpMatrik.placeholder = 'Contoh: 18DIT21F1001';
 
   } else if (val === 'TETAMU') {
     kategoriHint.classList.add('show', 'tetamu');
@@ -1445,8 +1472,10 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (kategori === 'PENERIMA ANUGERAH' && !matrik) {
-    toast('Penerima Anugerah wajib isi nombor matriks', 'error');
+  // Matrik WAJIB untuk Penerima Anugerah, Pra-Graduan, dan AJK
+  const needMatrik = ['PENERIMA ANUGERAH', 'PRA-GRADUAN', 'AHLI JAWATANKUASA'].includes(kategori);
+  if (needMatrik && !matrik) {
+    toast('Kategori ' + kategori + ' wajib isi nombor matriks', 'error');
     document.getElementById('inpMatrik').focus();
     return;
   }
