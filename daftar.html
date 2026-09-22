@@ -1034,7 +1034,7 @@
         <div class="field">
           <label for="inpBarcode">Nombor QR / ID Penerima <span class="req">*</span></label>
           <div class="input-with-btn">
-            <input type="text" id="inpBarcode" name="barcode" placeholder="Contoh: 0001" maxlength="20" required>
+            <input type="text" id="inpBarcode" name="barcode" placeholder="Scan QR atau taip nombor" maxlength="20" required>
             <button type="button" class="btn-scan" id="btnOpenScan" title="Scan QR code">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
@@ -1212,7 +1212,6 @@ function updateKategoriUI() {
   if (val === 'PENERIMA ANUGERAH') {
     kategoriHint.classList.add('show', 'penerima');
     kategoriHint.innerHTML = '🎓 Penerima akan naik atas pentas terima anugerah';
-    // Matrik WAJIB
     fieldMatrik.classList.remove('hidden-field');
     inpMatrik.required = true;
     inpMatrik.placeholder = 'Contoh: 18DIT21F1001';
@@ -1220,7 +1219,6 @@ function updateKategoriUI() {
   } else if (val === 'AHLI JAWATANKUASA') {
     kategoriHint.classList.add('show', 'ajk');
     kategoriHint.innerHTML = '👥 Ahli jawatankuasa majlis — tak perlu nombor matriks';
-    // Matrik TAK PERLU
     fieldMatrik.classList.add('hidden-field');
     inpMatrik.required = false;
     inpMatrik.value = '';
@@ -1228,13 +1226,11 @@ function updateKategoriUI() {
   } else if (val === 'TETAMU') {
     kategoriHint.classList.add('show', 'tetamu');
     kategoriHint.innerHTML = '🤝 Tetamu kehormat / jemputan khas — tak perlu nombor matriks';
-    // Matrik TAK PERLU
     fieldMatrik.classList.add('hidden-field');
     inpMatrik.required = false;
     inpMatrik.value = '';
 
   } else {
-    // Belum pilih — tunjuk field matrik dengan required
     fieldMatrik.classList.remove('hidden-field');
     inpMatrik.required = true;
   }
@@ -1242,21 +1238,6 @@ function updateKategoriUI() {
 
 inpKategori.addEventListener('change', updateKategoriUI);
 updateKategoriUI();
-
-/* ============ AUTO-SUGGEST QR NUMBER ============ */
-async function suggestNextBarcode() {
-  const inpBarcode = document.getElementById('inpBarcode');
-  if (inpBarcode.value.trim()) return;
-  try {
-    const snap = await getDocs(collection(db, 'recipients'));
-    const maxNum = snap.docs.reduce((max, d) => {
-      const bc = String(d.data().barcode || '').replace(/\D/g, '');
-      const n = parseInt(bc, 10);
-      return isNaN(n) ? max : Math.max(max, n);
-    }, 0);
-    inpBarcode.value = String(maxNum + 1).padStart(4, '0');
-  } catch (e) { console.error('suggest:', e); }
-}
 
 /* ============================================================
    SCAN QR CODE MODAL + FLASHLIGHT
@@ -1464,7 +1445,6 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Matrik WAJIB hanya untuk Penerima Anugerah
   if (kategori === 'PENERIMA ANUGERAH' && !matrik) {
     toast('Penerima Anugerah wajib isi nombor matriks', 'error');
     document.getElementById('inpMatrik').focus();
@@ -1485,7 +1465,6 @@ form.addEventListener('submit', async (e) => {
   btnDaftar.insertBefore(spinner, btnText);
 
   try {
-    // Semak QR duplicate
     const allSnap = await getDocs(collection(db, 'recipients'));
     const duplicate = allSnap.docs.find(d =>
       String(d.data().barcode).toUpperCase() === barcode
@@ -1501,7 +1480,7 @@ form.addEventListener('submit', async (e) => {
     await addDoc(collection(db, 'recipients'), {
       kategori,
       nama,
-      matrik: matrik || '-',   // AJK & Tetamu tak ada matrik
+      matrik: matrik || '-',
       barcode,
       hadir: false,
       createdAt: serverTimestamp()
@@ -1510,11 +1489,9 @@ form.addEventListener('submit', async (e) => {
     toast('✅ ' + nama + ' (' + kategori + ') berjaya didaftarkan', 'success');
     form.reset();
     kategoriHint.className = 'kategori-hint';
-    updateKategoriUI(); // reset matrik field visibility
+    updateKategoriUI();
     document.getElementById('inpNama').focus();
     document.getElementById('inpBarcode').classList.remove('error');
-
-    setTimeout(suggestNextBarcode, 500);
   } catch (err) {
     console.error('Firestore error:', err);
     toast('Gagal simpan: ' + err.message, 'error');
@@ -1594,7 +1571,6 @@ onSnapshot(q,
 
 /* ============ INIT ============ */
 setStatus('connecting', 'Menyambung...');
-setTimeout(suggestNextBarcode, 800);
 
 document.querySelectorAll('.field input').forEach(inp => {
   inp.addEventListener('input', () => inp.classList.remove('error'));
