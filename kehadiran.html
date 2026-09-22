@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rekod Kehadiran · Sistem Anugerah</title>
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -203,20 +202,10 @@
     transform: translateY(-1px);
   }
 
-  .btn-scan-main {
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    color: #0a0e1a;
-    box-shadow: 0 6px 20px -6px rgba(52, 211, 153, 0.5);
-  }
-  .btn-scan-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px -6px rgba(52, 211, 153, 0.6);
-  }
-
-  /* ============ STATS ROW ============ */
+  /* ============ STATS ROW (Ringkas) ============ */
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
     margin-bottom: 20px;
   }
@@ -225,7 +214,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 16px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
     transition: all 0.2s;
@@ -235,7 +224,7 @@
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, transparent, var(--stat-accent, var(--accent)), transparent);
   }
 
@@ -244,20 +233,17 @@
     border-color: var(--stat-accent, var(--accent));
   }
 
-  .stat-mini[data-color="all"]     { --stat-accent: #38bdf8; }
-  .stat-mini[data-color="hadir"]   { --stat-accent: #34d399; }
-  .stat-mini[data-color="belum"]   { --stat-accent: #fbbf24; }
-  .stat-mini[data-color="percent"] { --stat-accent: #a78bfa; }
+  .stat-mini[data-color="total"] { --stat-accent: #38bdf8; }
 
   .stat-mini .num {
-    font-size: 28px;
+    font-size: 36px;
     font-weight: 800;
     color: var(--stat-accent, var(--accent));
     line-height: 1;
   }
 
   .stat-mini .label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
     margin-top: 8px;
     text-transform: uppercase;
@@ -471,7 +457,11 @@
     letter-spacing: 0.05em;
   }
 
-  .status-check {
+  /*
+    Status badge — hanya muncul bila dah hadir.
+    Yang belum hadir, tak ada butang langsung.
+  */
+  .status-badge-hadir {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -481,37 +471,13 @@
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    transition: all 0.2s;
-    border: 1.5px solid;
-    cursor: pointer;
-    font-family: inherit;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    box-shadow: 0 4px 12px -4px rgba(52, 211, 153, 0.5);
     white-space: nowrap;
   }
 
-  .status-check.hadir {
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    border-color: var(--accent);
-    color: #0a0e1a;
-    box-shadow: 0 4px 12px -4px rgba(52, 211, 153, 0.5);
-  }
-
-  .status-check.belum {
-    background: transparent;
-    border-color: var(--border);
-    color: var(--text-muted);
-  }
-
-  .status-check:hover {
-    transform: scale(1.05);
-  }
-
-  .status-check.belum:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(52, 211, 153, 0.08);
-  }
-
-  .status-check svg {
+  .status-badge-hadir svg {
     width: 12px;
     height: 12px;
   }
@@ -680,175 +646,6 @@
     50% { opacity: 0.6; transform: scale(0.85); }
   }
 
-  /* ============ MODAL SCAN ============ */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 8, 16, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 9998;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-
-  .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-  .modal-scan {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    width: 100%;
-    max-width: 560px;
-    overflow: hidden;
-    transform: scale(0.9);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  }
-
-  .modal-overlay.active .modal-scan { transform: scale(1); }
-
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-header h3 {
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .modal-header h3 .icon {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(167, 139, 250, 0.2));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .modal-close {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .modal-close:hover {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: var(--red);
-    color: var(--red);
-  }
-
-  .modal-close svg { width: 16px; height: 16px; }
-
-  .modal-body { padding: 24px; }
-
-  .video-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-
-  #scanVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .scan-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .scan-frame {
-    width: 70%;
-    aspect-ratio: 1;
-    border: 3px solid var(--accent);
-    border-radius: 14px;
-    position: relative;
-    box-shadow: 0 0 24px rgba(52, 211, 153, 0.5), inset 0 0 24px rgba(52, 211, 153, 0.2);
-  }
-
-  .scan-line {
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    box-shadow: 0 0 12px var(--accent);
-    animation: scanLine 2s ease-in-out infinite;
-  }
-
-  @keyframes scanLine {
-    0%, 100% { top: 20%; }
-    50% { top: 80%; }
-  }
-
-  .scan-status {
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 13px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-  }
-
-  .scan-status.success {
-    border-color: var(--accent);
-    background: rgba(52, 211, 153, 0.08);
-    color: var(--accent);
-  }
-
-  .scan-status.error {
-    border-color: var(--red);
-    background: rgba(239, 68, 68, 0.08);
-    color: var(--red);
-  }
-
-  .scan-status .pulse-icon {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-    animation: pulse 1.5s infinite;
-  }
-
-  .scan-status.success .pulse-icon { background: var(--accent); animation: none; }
-  .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
-
   /* ============ FADE UP ============ */
   .fade-up {
     opacity: 0;
@@ -884,8 +681,7 @@
     .search-bar,
     .tabs-wrapper,
     .status-badge,
-    .toast-container,
-    .modal-overlay {
+    .toast-container {
       display: none !important;
     }
 
@@ -923,12 +719,12 @@
     .stat-mini {
       background: #f5f5f5 !important;
       border: 1px solid #ccc !important;
-      padding: 10px;
+      padding: 12px;
     }
 
     .stat-mini::before { display: none; }
-    .stat-mini .num { color: #000 !important; font-size: 20px; }
-    .stat-mini .label { color: #666 !important; font-size: 9px; }
+    .stat-mini .num { color: #000 !important; font-size: 24px; }
+    .stat-mini .label { color: #666 !important; font-size: 10px; }
 
     .gallery-grid {
       display: grid !important;
@@ -961,16 +757,10 @@
       font-size: 10px;
     }
 
-    .status-check {
-      border: 1px solid #333 !important;
-      background: #fff !important;
-      color: #000 !important;
-    }
-
-    .status-check.hadir {
+    .status-badge-hadir {
       background: #34d399 !important;
       color: #000 !important;
-      border-color: #000 !important;
+      border: 1px solid #000 !important;
     }
 
     .card-kategori {
@@ -983,7 +773,6 @@
 
     .card-footer { border-top-color: #ccc !important; }
 
-    /* Print header */
     .print-header {
       display: block !important;
       text-align: center;
@@ -1034,7 +823,7 @@
 <!-- CONTAINER -->
 <div class="container">
 
-  <!-- PRINT HEADER (muncul bila print sahaja) -->
+  <!-- PRINT HEADER -->
   <div class="print-header">
     <h1>REKOD KEHADIRAN · SISTEM ANUGERAH</h1>
     <div class="meta">AKJ JTMK · Dicetak: <span id="printDate"></span></div>
@@ -1044,19 +833,9 @@
   <div class="page-header fade-up">
     <div class="page-header-left">
       <h1>Rekod <span>Kehadiran</span></h1>
-      <p>Tanda kehadiran penerima, tetamu, pra-graduan, dan AJK. Boleh scan QR atau klik manual.</p>
+      <p>Senarai penerima, tetamu, pra-graduan, dan AJK yang telah mendaftar.</p>
     </div>
     <div class="page-header-actions">
-      <button class="btn-action btn-scan-main" id="btnScanMain">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-          <line x1="7" y1="12" x2="17" y2="12"></line>
-        </svg>
-        Scan QR
-      </button>
       <button class="btn-action btn-print" id="btnPrint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 6 2 18 2 18 9"></polyline>
@@ -1077,23 +856,11 @@
     </div>
   </div>
 
-  <!-- STATS -->
+  <!-- STATS (Ringkas) -->
   <div class="stats-row fade-up delay-1">
-    <div class="stat-mini" data-color="all">
+    <div class="stat-mini" data-color="total">
       <div class="num" id="statTotal">0</div>
-      <div class="label">Jumlah Penerima</div>
-    </div>
-    <div class="stat-mini" data-color="hadir">
-      <div class="num" id="statHadir">0</div>
-      <div class="label">Sudah Hadir</div>
-    </div>
-    <div class="stat-mini" data-color="belum">
-      <div class="num" id="statBelum">0</div>
-      <div class="label">Belum Hadir</div>
-    </div>
-    <div class="stat-mini" data-color="percent">
-      <div class="num" id="statPercent">0%</div>
-      <div class="label">Peratus Kehadiran</div>
+      <div class="label">Orang Yang Telah Daftar</div>
     </div>
   </div>
 
@@ -1150,43 +917,12 @@
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- SCAN MODAL -->
-<div class="modal-overlay" id="scanModal">
-  <div class="modal-scan">
-    <div class="modal-header">
-      <h3>
-        <span class="icon">📱</span>
-        Scan QR untuk Tanda Hadir
-      </h3>
-      <button class="modal-close" id="btnCloseScan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="video-wrapper">
-        <video id="scanVideo" autoplay muted playsinline></video>
-        <div class="scan-overlay">
-          <div class="scan-frame"><div class="scan-line"></div></div>
-        </div>
-      </div>
-      <div class="scan-status" id="scanStatus">
-        <span class="pulse-icon"></span>
-        <span id="scanStatusText">Menghidupkan kamera...</span>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 import {
-  getFirestore, collection, doc, onSnapshot, query,
-  orderBy, updateDoc, serverTimestamp
+  getFirestore, collection, onSnapshot, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1287,37 +1023,18 @@ onSnapshot(recipientsQ,
 );
 
 /* ============================================================
-   COMPUTE STATS
+   STATS (ringkas)
    ============================================================ */
-function computeStats() {
-  const total = allRecipients.length;
-  const hadir = allRecipients.filter(r => r.hadir).length;
-  const belum = total - hadir;
-  const percent = total > 0 ? Math.round((hadir / total) * 100) : 0;
-  return { total, hadir, belum, percent };
-}
+function renderStats() {
+  document.getElementById('statTotal').textContent = allRecipients.length;
 
-function computeCategoryCounts() {
   const counts = { all: 0, penerima: 0, pra: 0, ajk: 0, tetamu: 0 };
   allRecipients.forEach(r => {
     counts.all++;
     const key = kategoriKey(r.kategori);
     if (counts[key] !== undefined) counts[key]++;
   });
-  return counts;
-}
 
-/* ============================================================
-   RENDER STATS
-   ============================================================ */
-function renderStats() {
-  const { total, hadir, belum, percent } = computeStats();
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statHadir').textContent = hadir;
-  document.getElementById('statBelum').textContent = belum;
-  document.getElementById('statPercent').textContent = percent + '%';
-
-  const counts = computeCategoryCounts();
   document.getElementById('tabCountAll').textContent = counts.all;
   document.getElementById('tabCountPenerima').textContent = counts.penerima;
   document.getElementById('tabCountPra').textContent = counts.pra;
@@ -1359,10 +1076,10 @@ function renderGallery() {
     return;
   }
 
-  // Sort: yang belum hadir dulu, kemudian hadir
+  // Sort: hadir dulu (yang dah daftar), kemudian belum
   list.sort((a, b) => {
     if (a.hadir === b.hadir) return 0;
-    return a.hadir ? 1 : -1;
+    return a.hadir ? -1 : 1;
   });
 
   galleryContainer.innerHTML = list.map(r => {
@@ -1372,11 +1089,14 @@ function renderGallery() {
       <div class="person-card ${hadir ? 'hadir' : ''}" data-id="${r.id}" data-cat="${key}">
         <div class="card-top">
           <span class="card-barcode">#${escapeHtml(r.barcode || '----')}</span>
-          <button class="status-check ${hadir ? 'hadir' : 'belum'}" data-id="${r.id}" data-hadir="${hadir}" title="${hadir ? 'Klik untuk uncheck' : 'Klik untuk tanda hadir'}">
-            ${hadir
-              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Hadir'
-              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg> Belum'}
-          </button>
+          ${hadir ? `
+            <span class="status-badge-hadir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Hadir
+            </span>
+          ` : ''}
         </div>
         <div class="card-name">${escapeHtml(r.nama || '-')}</div>
         <div class="card-matrik">${escapeHtml(r.matrik || '-')}</div>
@@ -1387,44 +1107,11 @@ function renderGallery() {
       </div>
     `;
   }).join('');
-
-  // Bind toggle buttons
-  galleryContainer.querySelectorAll('.status-check').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const id = btn.dataset.id;
-      const current = btn.dataset.hadir === 'true';
-      await toggleHadir(id, !current);
-    });
-  });
 }
 
 function renderAll() {
   renderStats();
   renderGallery();
-}
-
-/* ============================================================
-   TOGGLE KEHADIRAN
-   ============================================================ */
-async function toggleHadir(recipientId, newValue) {
-  const r = allRecipients.find(x => x.id === recipientId);
-  if (!r) return;
-
-  try {
-    const update = {
-      hadir: newValue,
-      hadirAt: newValue ? serverTimestamp() : null
-    };
-    await updateDoc(doc(db, 'recipients', recipientId), update);
-    toast(
-      (newValue ? '✅ ' : '↩️ ') + r.nama + (newValue ? ' — Hadir' : ' — Batal hadir'),
-      newValue ? 'success' : 'info'
-    );
-  } catch (e) {
-    console.error(e);
-    toast('Gagal update: ' + e.message, 'error');
-  }
 }
 
 /* ============================================================
@@ -1460,130 +1147,15 @@ btnSearchClear.addEventListener('click', () => {
 });
 
 /* ============================================================
-   SCAN QR
-   ============================================================ */
-let codeReader = null;
-let scanActive = false;
-let lastScannedCode = '';
-let lastScannedTime = 0;
-
-const scanModal = document.getElementById('scanModal');
-const scanVideo = document.getElementById('scanVideo');
-const scanStatus = document.getElementById('scanStatus');
-const scanStatusText = document.getElementById('scanStatusText');
-
-document.getElementById('btnScanMain').addEventListener('click', openScanModal);
-document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
-scanModal.addEventListener('click', (e) => { if (e.target === scanModal) closeScanModal(); });
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && scanModal.classList.contains('active')) closeScanModal();
-});
-
-async function openScanModal() {
-  scanModal.classList.add('active');
-  scanStatus.className = 'scan-status';
-  scanStatusText.textContent = 'Menghidupkan kamera...';
-
-  try {
-    codeReader = new ZXing.BrowserMultiFormatReader();
-    const hints = new Map();
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.EAN_13
-    ]);
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-    codeReader.hints = hints;
-    scanActive = true;
-
-    await codeReader.decodeFromVideoDevice(null, 'scanVideo', (result, err) => {
-      if (result && scanActive) {
-        handleScanResult(result.getText().trim().toUpperCase());
-      }
-    });
-
-    scanStatusText.textContent = '✅ Kamera aktif — halakan ke QR code';
-  } catch (e) {
-    console.error(e);
-    scanStatus.className = 'scan-status error';
-    scanStatusText.textContent = '❌ ' + e.message;
-  }
-}
-
-function closeScanModal() {
-  scanActive = false;
-  if (codeReader) { try { codeReader.reset(); } catch(e) {} codeReader = null; }
-  scanModal.classList.remove('active');
-}
-
-async function handleScanResult(code) {
-  const now = Date.now();
-  if (code === lastScannedCode && now - lastScannedTime < 1500) return;
-  lastScannedCode = code;
-  lastScannedTime = now;
-
-  scanStatus.className = 'scan-status success';
-  scanStatusText.textContent = `✅ QR dikesan: ${code}`;
-
-  try { playBeep(); } catch(e) {}
-
-  const found = allRecipients.find(r =>
-    String(r.barcode || '').toUpperCase() === code
-  );
-
-  if (!found) {
-    scanStatus.className = 'scan-status error';
-    scanStatusText.textContent = `❌ Barcode ${code} tak dijumpai`;
-    toast('❌ Barcode ' + code + ' tak dijumpai', 'error');
-    return;
-  }
-
-  if (found.hadir) {
-    scanStatus.className = 'scan-status error';
-    scanStatusText.textContent = `⚠️ ${found.nama} sudah hadir`;
-    toast('⚠️ ' + found.nama + ' sudah ditanda hadir', 'warn');
-    return;
-  }
-
-  try {
-    await updateDoc(doc(db, 'recipients', found.id), {
-      hadir: true,
-      hadirAt: serverTimestamp()
-    });
-    scanStatusText.textContent = `✅ ${found.nama} — HADIR`;
-    toast('✅ ' + found.nama + ' ditanda HADIR', 'success');
-  } catch (e) {
-    console.error(e);
-    toast('Gagal tanda hadir: ' + e.message, 'error');
-  }
-}
-
-function playBeep() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.frequency.value = 1200;
-    gain.gain.value = 0.08;
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.12);
-  } catch (e) {}
-}
-
-/* ============================================================
    PRINT PDF
    ============================================================ */
 document.getElementById('btnPrint').addEventListener('click', () => {
-  // Set print date
   const now = new Date();
   document.getElementById('printDate').textContent =
     now.toLocaleString('ms-MY', {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
-  // Trigger print
   setTimeout(() => window.print(), 200);
 });
 
@@ -1594,8 +1166,21 @@ document.getElementById('btnExcel').addEventListener('click', () => {
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10);
 
-  // Sediakan data
-  const rows = allRecipients.map((r, idx) => ({
+  // Sediakan data — ambil kira filter semasa (tab + search)
+  let list = allRecipients.slice();
+  if (activeCategory !== 'all') {
+    list = list.filter(r => kategoriKey(r.kategori) === activeCategory);
+  }
+  if (searchTerm) {
+    const st = searchTerm.toUpperCase();
+    list = list.filter(r =>
+      String(r.nama || '').toUpperCase().includes(st) ||
+      String(r.matrik || '').toUpperCase().includes(st) ||
+      String(r.barcode || '').toUpperCase().includes(st)
+    );
+  }
+
+  const rows = list.map((r, idx) => ({
     'No': idx + 1,
     'Barcode': r.barcode || '',
     'Nama': r.nama || '',
@@ -1605,36 +1190,40 @@ document.getElementById('btnExcel').addEventListener('click', () => {
     'Masa Hadir': r.hadir && r.hadirAt ? formatTime(r.hadirAt) : ''
   }));
 
-  // Sort by kategori dulu, kemudian hadir
   rows.sort((a, b) => {
     if (a.Kategori !== b.Kategori) return a.Kategori.localeCompare(b.Kategori);
     if (a.Status === b.Status) return 0;
-    return a.Status === 'HADIR' ? 1 : -1;
+    return a.Status === 'HADIR' ? -1 : 1;
   });
 
-  // Buat workbook
   const ws = XLSX.utils.json_to_sheet(rows);
 
-  // Set column widths
   ws['!cols'] = [
-    { wch: 5 },   // No
-    { wch: 12 },  // Barcode
-    { wch: 35 },  // Nama
-    { wch: 18 },  // Matriks
-    { wch: 22 },  // Kategori
-    { wch: 10 },  // Status
-    { wch: 22 }   // Masa
+    { wch: 5 },
+    { wch: 12 },
+    { wch: 35 },
+    { wch: 18 },
+    { wch: 22 },
+    { wch: 10 },
+    { wch: 22 }
   ];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Kehadiran');
 
-  // Tambah sheet ringkasan
-  const stats = computeStats();
-  const counts = computeCategoryCounts();
+  // Sheet ringkasan
+  const total = list.length;
+  const hadir = list.filter(r => r.hadir).length;
+  const counts = { penerima: 0, pra: 0, ajk: 0, tetamu: 0 };
+  list.forEach(r => {
+    const k = kategoriKey(r.kategori);
+    if (counts[k] !== undefined) counts[k]++;
+  });
+
   const summaryRows = [
     ['RINGKASAN KEHADIRAN'],
     ['Tarikh Eksport', now.toLocaleString('ms-MY')],
+    ['Filter Aktif', activeCategory === 'all' ? 'Semua Kategori' : activeCategory.toUpperCase()],
     [],
     ['Kategori', 'Jumlah'],
     ['Penerima Anugerah', counts.penerima],
@@ -1642,17 +1231,15 @@ document.getElementById('btnExcel').addEventListener('click', () => {
     ['Ahli Jawatankuasa', counts.ajk],
     ['Tetamu', counts.tetamu],
     [],
-    ['Jumlah Keseluruhan', stats.total],
-    ['Sudah Hadir', stats.hadir],
-    ['Belum Hadir', stats.belum],
-    ['Peratus Kehadiran', stats.percent + '%']
+    ['Jumlah Keseluruhan', total],
+    ['Sudah Hadir', hadir],
+    ['Belum Hadir', total - hadir]
   ];
 
   const ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
   ws2['!cols'] = [{ wch: 25 }, { wch: 20 }];
   XLSX.utils.book_append_sheet(wb, ws2, 'Ringkasan');
 
-  // Save
   XLSX.writeFile(wb, `Rekod-Kehadiran_${dateStr}.xlsx`);
   toast('✅ Excel berjaya di-download', 'success');
 });
