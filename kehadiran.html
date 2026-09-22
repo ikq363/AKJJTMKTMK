@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekod Kehadiran · Sistem Anugerah</title>
+<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-card: #131a2e;
+    --bg-input: #0d1424;
+    --border: #1f2b47;
+    --border-focus: #34d399;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #34d399;
+    --accent-hover: #10b981;
+    --blue: #38bdf8;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --orange: #fb923c;
+    --red: #ef4444;
+    --yellow: #fbbf24;
+  }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(52, 211, 153, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.1) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(52, 211, 153, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(52, 211, 153, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    position: relative;
+    z-index: 2;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s;
+  }
+
+  .back-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(52, 211, 153, 0.08);
+    transform: translateX(-3px);
+  }
+
+  .back-btn svg { width: 14px; height: 14px; }
+
+  .topbar-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .topbar-title .dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  /* ============ CONTAINER ============ */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  /* ============ PAGE HEADER ============ */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .page-header-left h1 {
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header-left h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header-left p {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .page-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .btn-action svg { width: 16px; height: 16px; }
+
+  .btn-print {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(167, 139, 250, 0.15));
+    border: 1.5px solid rgba(56, 189, 248, 0.4);
+    color: var(--blue);
+  }
+  .btn-print:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(167, 139, 250, 0.25));
+    border-color: var(--blue);
+    transform: translateY(-1px);
+  }
+
+  .btn-excel {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
+    border: 1.5px solid rgba(52, 211, 153, 0.4);
+    color: var(--accent);
+  }
+  .btn-excel:hover {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.25), rgba(16, 185, 129, 0.25));
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-scan-main {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #0a0e1a;
+    box-shadow: 0 6px 20px -6px rgba(52, 211, 153, 0.5);
+  }
+  .btn-scan-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(52, 211, 153, 0.6);
+  }
+
+  /* ============ STATS ROW ============ */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-mini {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .stat-mini::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--stat-accent, var(--accent)), transparent);
+  }
+
+  .stat-mini:hover {
+    transform: translateY(-2px);
+    border-color: var(--stat-accent, var(--accent));
+  }
+
+  .stat-mini[data-color="all"]     { --stat-accent: #38bdf8; }
+  .stat-mini[data-color="hadir"]   { --stat-accent: #34d399; }
+  .stat-mini[data-color="belum"]   { --stat-accent: #fbbf24; }
+  .stat-mini[data-color="percent"] { --stat-accent: #a78bfa; }
+
+  .stat-mini .num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--stat-accent, var(--accent));
+    line-height: 1;
+  }
+
+  .stat-mini .label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  /* ============ TABS ============ */
+  .tabs-wrapper {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .tabs-wrapper::-webkit-scrollbar { height: 4px; }
+  .tabs-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .tab-btn {
+    padding: 10px 18px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tab-btn:hover {
+    border-color: var(--tab-accent, var(--accent));
+    color: var(--tab-accent, var(--accent));
+    background: rgba(52, 211, 153, 0.06);
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--tab-accent, var(--accent)), rgba(52, 211, 153, 0.7));
+    border-color: var(--tab-accent, var(--accent));
+    color: #0a0e1a;
+    box-shadow: 0 6px 20px -6px var(--tab-accent, var(--accent));
+  }
+
+  .tab-btn[data-cat="all"]      { --tab-accent: #38bdf8; }
+  .tab-btn[data-cat="penerima"] { --tab-accent: #38bdf8; }
+  .tab-btn[data-cat="pra"]      { --tab-accent: #f472b6; }
+  .tab-btn[data-cat="ajk"]      { --tab-accent: #a78bfa; }
+  .tab-btn[data-cat="tetamu"]   { --tab-accent: #fb923c; }
+
+  .tab-count {
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  .tab-btn:not(.active) .tab-count {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--text-muted);
+  }
+
+  /* ============ SEARCH BAR ============ */
+  .search-bar {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .search-bar input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    background: rgba(52, 211, 153, 0.04);
+    box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12);
+  }
+
+  .search-bar input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .search-bar .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-bar .search-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .search-bar .search-clear.show { display: flex; }
+  .search-bar .search-clear:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .search-bar .search-clear svg { width: 14px; height: 14px; }
+
+  /* ============ GALLERY GRID ============ */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .person-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+    transition: all 0.25s;
+    overflow: hidden;
+    animation: cardIn 0.35s ease-out;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .person-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0.8;
+  }
+
+  .person-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--card-accent, var(--accent));
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  }
+
+  .person-card[data-cat="penerima"] { --card-accent: #38bdf8; }
+  .person-card[data-cat="pra"]      { --card-accent: #f472b6; }
+  .person-card[data-cat="ajk"]      { --card-accent: #a78bfa; }
+  .person-card[data-cat="tetamu"]   { --card-accent: #fb923c; }
+
+  .person-card.hadir {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(19, 26, 46, 0.6));
+    border-color: rgba(52, 211, 153, 0.4);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .card-barcode {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(52, 211, 153, 0.15);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .status-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border: 1.5px solid;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  .status-check.hadir {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-color: var(--accent);
+    color: #0a0e1a;
+    box-shadow: 0 4px 12px -4px rgba(52, 211, 153, 0.5);
+  }
+
+  .status-check.belum {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .status-check:hover {
+    transform: scale(1.05);
+  }
+
+  .status-check.belum:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(52, 211, 153, 0.08);
+  }
+
+  .status-check svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .card-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #f1f5f9;
+    text-transform: uppercase;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .card-matrik {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-kategori {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .card-kategori.penerima {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  .card-kategori.pra {
+    background: rgba(244, 114, 182, 0.15);
+    color: var(--pink);
+    border: 1px solid rgba(244, 114, 182, 0.3);
+  }
+  .card-kategori.ajk {
+    background: rgba(167, 139, 250, 0.15);
+    color: var(--purple);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+  }
+  .card-kategori.tetamu {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--orange);
+    border: 1px solid rgba(251, 146, 60, 0.3);
+  }
+
+  .card-time {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+  }
+
+  /* ============ EMPTY STATE ============ */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+    grid-column: 1/-1;
+  }
+  .empty-state .icon { font-size: 56px; opacity: 0.4; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 16px; color: var(--text-dim); margin-bottom: 8px; font-weight: 700; }
+  .empty-state p { font-size: 13px; }
+
+  /* ============ TOAST ============ */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .toast {
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.success { border-left-color: var(--accent); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.warn { border-left-color: var(--yellow); }
+  .toast.info { border-left-color: var(--blue); }
+  .toast .icon { font-size: 18px; }
+
+  @keyframes toastIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ============ STATUS BADGE ============ */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .status-badge.online {
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: var(--accent);
+  }
+  .status-badge.connecting {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: var(--yellow);
+  }
+  .status-badge.offline {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+  }
+
+  .status-badge.online .status-dot { animation: pulse 2s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* ============ MODAL SCAN ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 16, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .modal-scan {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 560px;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  }
+
+  .modal-overlay.active .modal-scan { transform: scale(1); }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-header h3 .icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(167, 139, 250, 0.2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .modal-close {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .modal-close svg { width: 16px; height: 16px; }
+
+  .modal-body { padding: 24px; }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  #scanVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-frame {
+    width: 70%;
+    aspect-ratio: 1;
+    border: 3px solid var(--accent);
+    border-radius: 14px;
+    position: relative;
+    box-shadow: 0 0 24px rgba(52, 211, 153, 0.5), inset 0 0 24px rgba(52, 211, 153, 0.2);
+  }
+
+  .scan-line {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: scanLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scanLine {
+    0%, 100% { top: 20%; }
+    50% { top: 80%; }
+  }
+
+  .scan-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+
+  .scan-status.success {
+    border-color: var(--accent);
+    background: rgba(52, 211, 153, 0.08);
+    color: var(--accent);
+  }
+
+  .scan-status.error {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+  }
+
+  .scan-status .pulse-icon {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 1.5s infinite;
+  }
+
+  .scan-status.success .pulse-icon { background: var(--accent); animation: none; }
+  .scan-status.error .pulse-icon { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
+
+  /* ============ FADE UP ============ */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.15s; }
+
+  /* ============================================================
+     PRINT STYLES
+     ============================================================ */
+  @media print {
+    @page {
+      margin: 15mm;
+      size: A4;
+    }
+
+    html, body {
+      background: #fff !important;
+      color: #000 !important;
+    }
+
+    body::before,
+    .grid-overlay,
+    .topbar,
+    .page-header-actions,
+    .search-bar,
+    .tabs-wrapper,
+    .status-badge,
+    .toast-container,
+    .modal-overlay {
+      display: none !important;
+    }
+
+    .container {
+      max-width: 100%;
+      padding: 0;
+    }
+
+    .page-header {
+      margin-bottom: 16px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+    }
+
+    .page-header-left h1 {
+      background: none !important;
+      -webkit-text-fill-color: #000 !important;
+      color: #000 !important;
+      font-size: 20px;
+    }
+
+    .page-header-left h1 span {
+      color: #666 !important;
+      background: none !important;
+      -webkit-text-fill-color: #666 !important;
+    }
+
+    .page-header-left p { color: #333; font-size: 12px; }
+
+    .stats-row {
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+
+    .stat-mini {
+      background: #f5f5f5 !important;
+      border: 1px solid #ccc !important;
+      padding: 10px;
+    }
+
+    .stat-mini::before { display: none; }
+    .stat-mini .num { color: #000 !important; font-size: 20px; }
+    .stat-mini .label { color: #666 !important; font-size: 9px; }
+
+    .gallery-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    .person-card {
+      background: #fff !important;
+      border: 1px solid #ccc !important;
+      padding: 10px !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      box-shadow: none !important;
+      color: #000;
+    }
+
+    .person-card::before { display: none; }
+    .person-card.hadir {
+      background: #f0fdf4 !important;
+      border-color: #34d399 !important;
+    }
+
+    .card-name { color: #000 !important; font-size: 12px; }
+    .card-matrik { color: #666 !important; font-size: 10px; }
+    .card-barcode {
+      background: #e5e7eb !important;
+      border-color: #999 !important;
+      color: #000 !important;
+      font-size: 10px;
+    }
+
+    .status-check {
+      border: 1px solid #333 !important;
+      background: #fff !important;
+      color: #000 !important;
+    }
+
+    .status-check.hadir {
+      background: #34d399 !important;
+      color: #000 !important;
+      border-color: #000 !important;
+    }
+
+    .card-kategori {
+      background: #e5e7eb !important;
+      color: #000 !important;
+      border-color: #999 !important;
+    }
+
+    .card-time { color: #666 !important; }
+
+    .card-footer { border-top-color: #ccc !important; }
+
+    /* Print header */
+    .print-header {
+      display: block !important;
+      text-align: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 3px double #000;
+    }
+
+    .print-header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #000;
+      margin-bottom: 4px;
+    }
+
+    .print-header .meta {
+      font-size: 11px;
+      color: #666;
+    }
+  }
+
+  .print-header { display: none; }
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Kembali ke Menu
+  </a>
+  <div class="topbar-title">
+    <span class="dot"></span>
+    REKOD KEHADIRAN
+  </div>
+  <div id="statusBadge" class="status-badge connecting">
+    <span class="status-dot"></span>
+    <span id="statusText">Menyambung...</span>
+  </div>
+</div>
+
+<!-- CONTAINER -->
+<div class="container">
+
+  <!-- PRINT HEADER (muncul bila print sahaja) -->
+  <div class="print-header">
+    <h1>REKOD KEHADIRAN · SISTEM ANUGERAH</h1>
+    <div class="meta">AKJ JTMK · Dicetak: <span id="printDate"></span></div>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header fade-up">
+    <div class="page-header-left">
+      <h1>Rekod <span>Kehadiran</span></h1>
+      <p>Tanda kehadiran penerima, tetamu, pra-graduan, dan AJK. Boleh scan QR atau klik manual.</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn-action btn-scan-main" id="btnScanMain">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+          <line x1="7" y1="12" x2="17" y2="12"></line>
+        </svg>
+        Scan QR
+      </button>
+      <button class="btn-action btn-print" id="btnPrint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Print PDF
+      </button>
+      <button class="btn-action btn-excel" id="btnExcel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="9" y1="15" x2="15" y2="15"></line>
+          <line x1="9" y1="19" x2="15" y2="19"></line>
+        </svg>
+        Export Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row fade-up delay-1">
+    <div class="stat-mini" data-color="all">
+      <div class="num" id="statTotal">0</div>
+      <div class="label">Jumlah Penerima</div>
+    </div>
+    <div class="stat-mini" data-color="hadir">
+      <div class="num" id="statHadir">0</div>
+      <div class="label">Sudah Hadir</div>
+    </div>
+    <div class="stat-mini" data-color="belum">
+      <div class="num" id="statBelum">0</div>
+      <div class="label">Belum Hadir</div>
+    </div>
+    <div class="stat-mini" data-color="percent">
+      <div class="num" id="statPercent">0%</div>
+      <div class="label">Peratus Kehadiran</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrapper fade-up delay-1">
+    <button class="tab-btn active" data-cat="all">
+      📋 Semua
+      <span class="tab-count" id="tabCountAll">0</span>
+    </button>
+    <button class="tab-btn" data-cat="penerima">
+      🎓 Penerima Anugerah
+      <span class="tab-count" id="tabCountPenerima">0</span>
+    </button>
+    <button class="tab-btn" data-cat="pra">
+      🎓 Pra-Graduan
+      <span class="tab-count" id="tabCountPra">0</span>
+    </button>
+    <button class="tab-btn" data-cat="ajk">
+      👥 Ahli Jawatankuasa
+      <span class="tab-count" id="tabCountAjk">0</span>
+    </button>
+    <button class="tab-btn" data-cat="tetamu">
+      🤝 Tetamu
+      <span class="tab-count" id="tabCountTetamu">0</span>
+    </button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-bar fade-up delay-2">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" id="inpSearch" placeholder="Cari nama, matriks, atau barcode..." autocomplete="off">
+    <button class="search-clear" id="btnSearchClear">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery-grid" id="galleryContainer">
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <h3>Memuatkan...</h3>
+      <p>Menunggu data dari Firestore</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- SCAN MODAL -->
+<div class="modal-overlay" id="scanModal">
+  <div class="modal-scan">
+    <div class="modal-header">
+      <h3>
+        <span class="icon">📱</span>
+        Scan QR untuk Tanda Hadir
+      </h3>
+      <button class="modal-close" id="btnCloseScan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="video-wrapper">
+        <video id="scanVideo" autoplay muted playsinline></video>
+        <div class="scan-overlay">
+          <div class="scan-frame"><div class="scan-line"></div></div>
+        </div>
+      </div>
+      <div class="scan-status" id="scanStatus">
+        <span class="pulse-icon"></span>
+        <span id="scanStatusText">Menghidupkan kamera...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import {
+  getFirestore, collection, doc, onSnapshot, query,
+  orderBy, updateDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ5s5p-htfW9nBmmHvfsUmgh7Q9j6eEIw",
+  authDomain: "akjjtmk.firebaseapp.com",
+  projectId: "akjjtmk",
+  storageBucket: "akjjtmk.firebasestorage.app",
+  messagingSenderId: "28020787148",
+  appId: "1:28020787148:web:47c3c3c62e11f71c59ff69",
+  measurementId: "G-GVG1JFPHPN"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let allRecipients = [];
+let activeCategory = 'all';
+let searchTerm = '';
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function toast(message, type = 'info') {
+  const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="icon">${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'all 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(400px)';
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
+}
+
+function setStatus(state, text) {
+  const badge = document.getElementById('statusBadge');
+  badge.className = 'status-badge ' + state;
+  document.getElementById('statusText').textContent = text;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function kategoriKey(kategori) {
+  const k = String(kategori || '').toUpperCase();
+  if (k === 'PENERIMA ANUGERAH') return 'penerima';
+  if (k === 'PRA-GRADUAN') return 'pra';
+  if (k === 'AHLI JAWATANKUASA') return 'ajk';
+  if (k === 'TETAMU') return 'tetamu';
+  return 'tetamu';
+}
+
+function kategoriLabel(kategori) {
+  const k = String(kategori || '').toUpperCase();
+  if (k === 'PENERIMA ANUGERAH') return '🎓 Penerima';
+  if (k === 'PRA-GRADUAN') return '🎓 Pra-Graduan';
+  if (k === 'AHLI JAWATANKUASA') return '👥 AJK';
+  if (k === 'TETAMU') return '🤝 Tetamu';
+  return kategori || '-';
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString('ms-MY', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch(e) { return ''; }
+}
+
+/* ============================================================
+   FIREBASE LISTENER
+   ============================================================ */
+const recipientsQ = query(collection(db, 'recipients'), orderBy('barcode', 'asc'));
+
+onSnapshot(recipientsQ,
+  (snapshot) => {
+    allRecipients = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    setStatus('online', 'Online');
+    renderAll();
+  },
+  (err) => {
+    console.error('Listener error:', err);
+    setStatus('offline', 'Offline');
+    toast('Ralat sambungan Firestore', 'error');
+  }
+);
+
+/* ============================================================
+   COMPUTE STATS
+   ============================================================ */
+function computeStats() {
+  const total = allRecipients.length;
+  const hadir = allRecipients.filter(r => r.hadir).length;
+  const belum = total - hadir;
+  const percent = total > 0 ? Math.round((hadir / total) * 100) : 0;
+  return { total, hadir, belum, percent };
+}
+
+function computeCategoryCounts() {
+  const counts = { all: 0, penerima: 0, pra: 0, ajk: 0, tetamu: 0 };
+  allRecipients.forEach(r => {
+    counts.all++;
+    const key = kategoriKey(r.kategori);
+    if (counts[key] !== undefined) counts[key]++;
+  });
+  return counts;
+}
+
+/* ============================================================
+   RENDER STATS
+   ============================================================ */
+function renderStats() {
+  const { total, hadir, belum, percent } = computeStats();
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statHadir').textContent = hadir;
+  document.getElementById('statBelum').textContent = belum;
+  document.getElementById('statPercent').textContent = percent + '%';
+
+  const counts = computeCategoryCounts();
+  document.getElementById('tabCountAll').textContent = counts.all;
+  document.getElementById('tabCountPenerima').textContent = counts.penerima;
+  document.getElementById('tabCountPra').textContent = counts.pra;
+  document.getElementById('tabCountAjk').textContent = counts.ajk;
+  document.getElementById('tabCountTetamu').textContent = counts.tetamu;
+}
+
+/* ============================================================
+   RENDER GALLERY
+   ============================================================ */
+const galleryContainer = document.getElementById('galleryContainer');
+
+function renderGallery() {
+  let list = allRecipients.slice();
+
+  // Filter kategori
+  if (activeCategory !== 'all') {
+    list = list.filter(r => kategoriKey(r.kategori) === activeCategory);
+  }
+
+  // Filter search
+  if (searchTerm) {
+    const st = searchTerm.toUpperCase();
+    list = list.filter(r =>
+      String(r.nama || '').toUpperCase().includes(st) ||
+      String(r.matrik || '').toUpperCase().includes(st) ||
+      String(r.barcode || '').toUpperCase().includes(st)
+    );
+  }
+
+  if (list.length === 0) {
+    galleryContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <h3>Tiada rekod</h3>
+        <p>Cuba kategori lain atau kosongkan carian.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Sort: yang belum hadir dulu, kemudian hadir
+  list.sort((a, b) => {
+    if (a.hadir === b.hadir) return 0;
+    return a.hadir ? 1 : -1;
+  });
+
+  galleryContainer.innerHTML = list.map(r => {
+    const key = kategoriKey(r.kategori);
+    const hadir = !!r.hadir;
+    return `
+      <div class="person-card ${hadir ? 'hadir' : ''}" data-id="${r.id}" data-cat="${key}">
+        <div class="card-top">
+          <span class="card-barcode">#${escapeHtml(r.barcode || '----')}</span>
+          <button class="status-check ${hadir ? 'hadir' : 'belum'}" data-id="${r.id}" data-hadir="${hadir}" title="${hadir ? 'Klik untuk uncheck' : 'Klik untuk tanda hadir'}">
+            ${hadir
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Hadir'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg> Belum'}
+          </button>
+        </div>
+        <div class="card-name">${escapeHtml(r.nama || '-')}</div>
+        <div class="card-matrik">${escapeHtml(r.matrik || '-')}</div>
+        <div class="card-footer">
+          <span class="card-kategori ${key}">${kategoriLabel(r.kategori)}</span>
+          <span class="card-time">${hadir && r.hadirAt ? formatTime(r.hadirAt) : ''}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Bind toggle buttons
+  galleryContainer.querySelectorAll('.status-check').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const current = btn.dataset.hadir === 'true';
+      await toggleHadir(id, !current);
+    });
+  });
+}
+
+function renderAll() {
+  renderStats();
+  renderGallery();
+}
+
+/* ============================================================
+   TOGGLE KEHADIRAN
+   ============================================================ */
+async function toggleHadir(recipientId, newValue) {
+  const r = allRecipients.find(x => x.id === recipientId);
+  if (!r) return;
+
+  try {
+    const update = {
+      hadir: newValue,
+      hadirAt: newValue ? serverTimestamp() : null
+    };
+    await updateDoc(doc(db, 'recipients', recipientId), update);
+    toast(
+      (newValue ? '✅ ' : '↩️ ') + r.nama + (newValue ? ' — Hadir' : ' — Batal hadir'),
+      newValue ? 'success' : 'info'
+    );
+  } catch (e) {
+    console.error(e);
+    toast('Gagal update: ' + e.message, 'error');
+  }
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCategory = btn.dataset.cat;
+    renderGallery();
+  });
+});
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+const inpSearch = document.getElementById('inpSearch');
+const btnSearchClear = document.getElementById('btnSearchClear');
+
+inpSearch.addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim();
+  btnSearchClear.classList.toggle('show', searchTerm.length > 0);
+  renderGallery();
+});
+
+btnSearchClear.addEventListener('click', () => {
+  inpSearch.value = '';
+  searchTerm = '';
+  btnSearchClear.classList.remove('show');
+  renderGallery();
+  inpSearch.focus();
+});
+
+/* ============================================================
+   SCAN QR
+   ============================================================ */
+let codeReader = null;
+let scanActive = false;
+let lastScannedCode = '';
+let lastScannedTime = 0;
+
+const scanModal = document.getElementById('scanModal');
+const scanVideo = document.getElementById('scanVideo');
+const scanStatus = document.getElementById('scanStatus');
+const scanStatusText = document.getElementById('scanStatusText');
+
+document.getElementById('btnScanMain').addEventListener('click', openScanModal);
+document.getElementById('btnCloseScan').addEventListener('click', closeScanModal);
+scanModal.addEventListener('click', (e) => { if (e.target === scanModal) closeScanModal(); });
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && scanModal.classList.contains('active')) closeScanModal();
+});
+
+async function openScanModal() {
+  scanModal.classList.add('active');
+  scanStatus.className = 'scan-status';
+  scanStatusText.textContent = 'Menghidupkan kamera...';
+
+  try {
+    codeReader = new ZXing.BrowserMultiFormatReader();
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.EAN_13
+    ]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    codeReader.hints = hints;
+    scanActive = true;
+
+    await codeReader.decodeFromVideoDevice(null, 'scanVideo', (result, err) => {
+      if (result && scanActive) {
+        handleScanResult(result.getText().trim().toUpperCase());
+      }
+    });
+
+    scanStatusText.textContent = '✅ Kamera aktif — halakan ke QR code';
+  } catch (e) {
+    console.error(e);
+    scanStatus.className = 'scan-status error';
+    scanStatusText.textContent = '❌ ' + e.message;
+  }
+}
+
+function closeScanModal() {
+  scanActive = false;
+  if (codeReader) { try { codeReader.reset(); } catch(e) {} codeReader = null; }
+  scanModal.classList.remove('active');
+}
+
+async function handleScanResult(code) {
+  const now = Date.now();
+  if (code === lastScannedCode && now - lastScannedTime < 1500) return;
+  lastScannedCode = code;
+  lastScannedTime = now;
+
+  scanStatus.className = 'scan-status success';
+  scanStatusText.textContent = `✅ QR dikesan: ${code}`;
+
+  try { playBeep(); } catch(e) {}
+
+  const found = allRecipients.find(r =>
+    String(r.barcode || '').toUpperCase() === code
+  );
+
+  if (!found) {
+    scanStatus.className = 'scan-status error';
+    scanStatusText.textContent = `❌ Barcode ${code} tak dijumpai`;
+    toast('❌ Barcode ' + code + ' tak dijumpai', 'error');
+    return;
+  }
+
+  if (found.hadir) {
+    scanStatus.className = 'scan-status error';
+    scanStatusText.textContent = `⚠️ ${found.nama} sudah hadir`;
+    toast('⚠️ ' + found.nama + ' sudah ditanda hadir', 'warn');
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, 'recipients', found.id), {
+      hadir: true,
+      hadirAt: serverTimestamp()
+    });
+    scanStatusText.textContent = `✅ ${found.nama} — HADIR`;
+    toast('✅ ' + found.nama + ' ditanda HADIR', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Gagal tanda hadir: ' + e.message, 'error');
+  }
+}
+
+function playBeep() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = 1200;
+    gain.gain.value = 0.08;
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+  } catch (e) {}
+}
+
+/* ============================================================
+   PRINT PDF
+   ============================================================ */
+document.getElementById('btnPrint').addEventListener('click', () => {
+  // Set print date
+  const now = new Date();
+  document.getElementById('printDate').textContent =
+    now.toLocaleString('ms-MY', {
+      day: '2-digit', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  // Trigger print
+  setTimeout(() => window.print(), 200);
+});
+
+/* ============================================================
+   EXPORT EXCEL
+   ============================================================ */
+document.getElementById('btnExcel').addEventListener('click', () => {
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+
+  // Sediakan data
+  const rows = allRecipients.map((r, idx) => ({
+    'No': idx + 1,
+    'Barcode': r.barcode || '',
+    'Nama': r.nama || '',
+    'Matriks': r.matrik || '-',
+    'Kategori': r.kategori || '',
+    'Status': r.hadir ? 'HADIR' : 'BELUM',
+    'Masa Hadir': r.hadir && r.hadirAt ? formatTime(r.hadirAt) : ''
+  }));
+
+  // Sort by kategori dulu, kemudian hadir
+  rows.sort((a, b) => {
+    if (a.Kategori !== b.Kategori) return a.Kategori.localeCompare(b.Kategori);
+    if (a.Status === b.Status) return 0;
+    return a.Status === 'HADIR' ? 1 : -1;
+  });
+
+  // Buat workbook
+  const ws = XLSX.utils.json_to_sheet(rows);
+
+  // Set column widths
+  ws['!cols'] = [
+    { wch: 5 },   // No
+    { wch: 12 },  // Barcode
+    { wch: 35 },  // Nama
+    { wch: 18 },  // Matriks
+    { wch: 22 },  // Kategori
+    { wch: 10 },  // Status
+    { wch: 22 }   // Masa
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Kehadiran');
+
+  // Tambah sheet ringkasan
+  const stats = computeStats();
+  const counts = computeCategoryCounts();
+  const summaryRows = [
+    ['RINGKASAN KEHADIRAN'],
+    ['Tarikh Eksport', now.toLocaleString('ms-MY')],
+    [],
+    ['Kategori', 'Jumlah'],
+    ['Penerima Anugerah', counts.penerima],
+    ['Pra-Graduan', counts.pra],
+    ['Ahli Jawatankuasa', counts.ajk],
+    ['Tetamu', counts.tetamu],
+    [],
+    ['Jumlah Keseluruhan', stats.total],
+    ['Sudah Hadir', stats.hadir],
+    ['Belum Hadir', stats.belum],
+    ['Peratus Kehadiran', stats.percent + '%']
+  ];
+
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws2['!cols'] = [{ wch: 25 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Ringkasan');
+
+  // Save
+  XLSX.writeFile(wb, `Rekod-Kehadiran_${dateStr}.xlsx`);
+  toast('✅ Excel berjaya di-download', 'success');
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+setStatus('connecting', 'Menyambung...');
+
+console.log('%c✅ Rekod Kehadiran · Sistem Anugerah', 'color: #34d399; font-size: 14px; font-weight: bold;');
+console.log('%cPrint PDF & Export Excel di-support', 'color: #94a3b8;');
+</script>
+
+</body>
+</html>
