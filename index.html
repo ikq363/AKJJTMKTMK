@@ -242,6 +242,7 @@
   .menu-card[data-color="pink"]   { --card-accent: #f472b6; }
   .menu-card[data-color="teal"]   { --card-accent: #2dd4bf; }
   .menu-card[data-color="gold"]   { --card-accent: #fbbf24; }
+  .menu-card[data-color="green"]  { --card-accent: #34d399; }
 
   .menu-icon {
     width: 60px;
@@ -264,6 +265,7 @@
   .menu-card[data-color="pink"]   .menu-icon { background: rgba(244, 114, 182, 0.12); border-color: rgba(244, 114, 182, 0.3); }
   .menu-card[data-color="teal"]   .menu-icon { background: rgba(45, 212, 191, 0.12);  border-color: rgba(45, 212, 191, 0.3);  }
   .menu-card[data-color="gold"]   .menu-icon { background: rgba(251, 191, 36, 0.12);  border-color: rgba(251, 191, 36, 0.3);  }
+  .menu-card[data-color="green"]  .menu-icon { background: rgba(52, 211, 153, 0.12);  border-color: rgba(52, 211, 153, 0.3);  }
 
   .menu-card:hover .menu-icon {
     transform: scale(1.1) rotate(-5deg);
@@ -377,6 +379,7 @@
   .delay-5 { animation-delay: 0.45s; }
   .delay-6 { animation-delay: 0.55s; }
   .delay-7 { animation-delay: 0.65s; }
+  .delay-8 { animation-delay: 0.75s; }
 </style>
 </head>
 <body>
@@ -467,7 +470,21 @@
       </span>
     </a>
 
-    <!-- 5. QR CODE PENERIMA -->
+    <!-- 5. REKOD KEHADIRAN (BARU) -->
+    <a href="kehadiran.html" class="menu-card fade-up delay-6" data-color="green">
+      <div class="menu-icon">✅</div>
+      <h3>Rekod Kehadiran</h3>
+      <p>Scan QR atau tanda kehadiran penerima secara langsung semasa majlis berlangsung.</p>
+      <span class="menu-arrow">
+        Buka Modul
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 6. QR CODE PENERIMA -->
     <a href="qrcode.html" class="menu-card fade-up delay-6" data-color="teal">
       <div class="menu-icon">📱</div>
       <h3>QR Code Penerima</h3>
@@ -481,7 +498,7 @@
       </span>
     </a>
 
-    <!-- 6. CABUTAN BERTUAH -->
+    <!-- 7. CABUTAN BERTUAH -->
     <a href="cabutan.html" class="menu-card fade-up delay-7" data-color="gold">
       <div class="menu-icon">🎰</div>
       <h3>Cabutan Bertuah</h3>
@@ -498,7 +515,7 @@
   </section>
 
   <!-- FOOTER -->
-  <footer class="footer fade-up delay-7">
+  <footer class="footer fade-up delay-8">
     <p>© 2025 <span>Sistem Pengurusan Anugerah</span> · Dibina untuk AKJ JTMK</p>
   </footer>
 
